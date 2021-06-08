@@ -1,0 +1,82 @@
+package com.simulation.shop;
+
+import java.time.Instant;
+
+import com.simulation.shop.machine.EspressoMachine;
+import com.simulation.shop.machine.GrinderMachine;
+import com.simulation.shop.machine.SteamerMachine;
+import com.simulation.shop.model.Coffee;
+import com.simulation.shop.model.Grounds;
+import com.simulation.shop.model.Latte;
+import com.simulation.shop.model.Milk;
+import com.simulation.shop.util.CoffeeUtility;
+
+public class BrewTask implements Runnable {
+
+	private GrinderMachine grinderMachine;
+	private EspressoMachine espressoMachine;
+	private SteamerMachine steamerMachine;
+
+	public BrewTask(GrinderMachine grinderMachine, EspressoMachine espressoMachine, SteamerMachine steamerMachine) {
+		this.grinderMachine = grinderMachine;
+		this.espressoMachine = espressoMachine;
+		this.steamerMachine = steamerMachine;
+	}
+
+	@Override
+	public void run() {
+		Instant start = Instant.now();
+		brewLatte();
+		Instant finish = Instant.now();
+		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
+		System.out.println(Thread.currentThread().getName() + " brew took -------->" + timeElapsed);
+	}
+
+	public Latte brewLatte() {
+		Grounds grounds = grindCoffee(grinderMachine);
+		Coffee coffee = makeEspresso(espressoMachine, grounds);
+		Milk milk = steamMilk(steamerMachine);
+		return makeLatte(coffee, milk);
+	}
+
+	private Grounds grindCoffee(GrinderMachine grinderMachine) {
+		Instant start = Instant.now();
+		Grounds grounds = null;
+		synchronized (grinderMachine) {
+			grounds = grinderMachine.grind();
+		}
+		Instant finish = Instant.now();
+		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
+		System.out.println(Thread.currentThread().getName() + " grindCoffee " + timeElapsed);
+		return grounds;
+	}
+
+	private Coffee makeEspresso(EspressoMachine espressoMachine, Grounds grounds) {
+		Instant start = Instant.now();
+		Coffee coffee = null;
+		synchronized (espressoMachine) {
+			coffee = espressoMachine.concentrate();
+		}
+		Instant finish = Instant.now();
+		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
+		System.out.println(Thread.currentThread().getName() + " makeEspresso " + timeElapsed);
+		return coffee;
+	}
+
+	private Milk steamMilk(SteamerMachine steamerMachine) {
+		Instant start = Instant.now();
+		Milk milk = null;
+		synchronized (steamerMachine) {
+			milk = steamerMachine.steam();
+		}
+		Instant finish = Instant.now();
+		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
+		System.out.println(Thread.currentThread().getName() + " steamMilk " + timeElapsed);
+		return milk;
+	}
+
+	private Latte makeLatte(Coffee coffee, Milk milk) {
+		return CoffeeUtility.mix(coffee, milk);
+	}
+
+}
