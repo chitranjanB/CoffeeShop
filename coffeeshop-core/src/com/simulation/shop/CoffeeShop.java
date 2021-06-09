@@ -18,14 +18,13 @@ public class CoffeeShop {
 	public static void main(String[] args) throws InterruptedException {
 		Instant start = Instant.now();
 		CoffeeShop shop = new CoffeeShop();
-		int customers = args.length > 0 ? Integer.parseInt(args[0]) : 1;
-
+		int customers = args.length > 0 ? Integer.parseInt(args[0]) : Runtime.getRuntime().availableProcessors();
+		addShutdownHook();
 		shop.start(customers);
 
 		Instant finish = Instant.now();
 		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
-		System.out.println("---------------COFFEE SHOP CLOSED-----------------------");
-		System.out.println("time elapsed " + timeElapsed);
+		System.out.println("Total time elapsed " + timeElapsed);
 	}
 
 	public void start(int customers) throws InterruptedException {
@@ -41,6 +40,15 @@ public class CoffeeShop {
 		for (Thread t : threads) {
 			t.join();
 		}
+	}
+
+	private static void addShutdownHook() {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				System.out.println("---------------COFFEE SHOP CLOSED-----------------------");
+			}
+		});
 	}
 
 }
