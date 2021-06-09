@@ -4,7 +4,7 @@ import com.simulation.shop.model.Milk;
 
 public class SteamerMachine {
 
-	public Milk steam() {
+	public synchronized Milk steam() {
 		Milk milk = null;
 		try {
 			Thread.sleep(250);

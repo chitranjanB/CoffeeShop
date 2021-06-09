@@ -4,7 +4,7 @@ import com.simulation.shop.model.Grounds;
 
 public class GrinderMachine {
 
-	public Grounds grind() {
+	public synchronized Grounds grind() {
 		Grounds grounds = null;
 		try {
 			Thread.sleep(250);

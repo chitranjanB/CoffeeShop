@@ -41,10 +41,7 @@ public class BrewTask implements Runnable {
 
 	private Grounds grindCoffee(GrinderMachine grinderMachine) {
 		Instant start = Instant.now();
-		Grounds grounds = null;
-		synchronized (grinderMachine) {
-			grounds = grinderMachine.grind();
-		}
+		Grounds grounds = grinderMachine.grind();
 		Instant finish = Instant.now();
 		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
 		System.out.println(Thread.currentThread().getName() + " grindCoffee " + timeElapsed);
@@ -53,10 +50,7 @@ public class BrewTask implements Runnable {
 
 	private Coffee makeEspresso(EspressoMachine espressoMachine, Grounds grounds) {
 		Instant start = Instant.now();
-		Coffee coffee = null;
-		synchronized (espressoMachine) {
-			coffee = espressoMachine.concentrate();
-		}
+		Coffee coffee = espressoMachine.concentrate();
 		Instant finish = Instant.now();
 		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
 		System.out.println(Thread.currentThread().getName() + " makeEspresso " + timeElapsed);
@@ -65,10 +59,7 @@ public class BrewTask implements Runnable {
 
 	private Milk steamMilk(SteamerMachine steamerMachine) {
 		Instant start = Instant.now();
-		Milk milk = null;
-		synchronized (steamerMachine) {
-			milk = steamerMachine.steam();
-		}
+		Milk milk = steamerMachine.steam();
 		Instant finish = Instant.now();
 		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
 		System.out.println(Thread.currentThread().getName() + " steamMilk " + timeElapsed);

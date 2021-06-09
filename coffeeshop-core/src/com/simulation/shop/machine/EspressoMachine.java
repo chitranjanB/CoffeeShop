@@ -4,7 +4,7 @@ import com.simulation.shop.model.Coffee;
 
 public class EspressoMachine {
 
-	public Coffee concentrate() {
+	public synchronized Coffee concentrate() {
 		Coffee coffee = null;
 		try {
 			Thread.sleep(250);
