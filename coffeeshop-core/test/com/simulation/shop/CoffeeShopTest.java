@@ -33,14 +33,14 @@ public class CoffeeShopTest {
 		shop.start(customers);
 	}
 
-	@Test(timeout = 5700)
+	@Test(timeout = 5800)
 	public void test_20_threads() throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = 20;
 		shop.start(customers);
 	}
 
-	@Test(timeout = 8400)
+	@Test(timeout = 8500)
 	public void test_30_threads() throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = 30;
