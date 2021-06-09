@@ -5,3 +5,11 @@ Coffee Shop Simulation is an attempt to understand performance of code and enhan
 
 ## Features
 - Core Java
+
+
+## Performance Report
+- test_01_thread 0.728s
+- test_04_threads 3.139s
+- test_10_threads 7.896s
+- test_20_threads 15.710s
+- test_30_threads 23.561s
