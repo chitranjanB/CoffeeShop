@@ -17,8 +17,9 @@ public class SteamerMachine {
 			milk = new Milk();
 		} catch (InterruptedException e) {
 			System.err.println("Something went wrong " + e.getLocalizedMessage());
+		} finally {
+			steamerLock.unlock();
 		}
-		steamerLock.unlock();
 		return milk;
 	}
 

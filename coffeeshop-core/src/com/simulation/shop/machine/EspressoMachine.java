@@ -17,8 +17,9 @@ public class EspressoMachine {
 			coffee = new Coffee();
 		} catch (InterruptedException e) {
 			System.err.println("Something went wrong " + e.getLocalizedMessage());
+		} finally {
+			espressoLock.unlock();
 		}
-		espressoLock.unlock();
 		return coffee;
 	}
 

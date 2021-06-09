@@ -17,8 +17,9 @@ public class GrinderMachine {
 			grounds = new Grounds();
 		} catch (InterruptedException e) {
 			System.err.println("Something went wrong " + e.getLocalizedMessage());
+		} finally {
+			grinderLock.unlock();
 		}
-		grinderLock.unlock();
 		return grounds;
 	}
 
