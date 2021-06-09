@@ -25,26 +25,17 @@ public class CoffeeShop {
 	}
 
 	private Grounds grindCoffee(GrinderMachine grinderMachine) {
-		Grounds grounds = null;
-		synchronized (grinderMachine) {
-			grounds = grinderMachine.grind();
-		}
+		Grounds grounds = grinderMachine.grind();
 		return grounds;
 	}
 
 	private Coffee makeEspresso(EspressoMachine espressoMachine, Grounds grounds) {
-		Coffee coffee = null;
-		synchronized (espressoMachine) {
-			coffee = espressoMachine.concentrate();
-		}
+		Coffee coffee = espressoMachine.concentrate();
 		return coffee;
 	}
 
 	private Milk steamMilk(SteamerMachine steamerMachine) {
-		Milk milk = null;
-		synchronized (steamerMachine) {
-			milk = steamerMachine.steam();
-		}
+		Milk milk = steamerMachine.steam();
 		return milk;
 	}
 
@@ -57,16 +48,18 @@ public class CoffeeShop {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = args.length > 0 ? Integer.parseInt(args[0]) : 1;
 
-		while (customers > 0) {
-			Latte latte = shop.brewLatte();
-			System.out.println(latte);
-			customers--;
-		}
+		shop.start(customers);
 
 		Instant finish = Instant.now();
 		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
 		System.out.println("---------------COFFEE SHOP CLOSED-----------------------");
 		System.out.println("time elapsed " + timeElapsed);
+	}
+
+	public void start(int customers) {
+		for (int i = 0; i < customers; i++) {
+			brewLatte();
+		}
 	}
 
 }
