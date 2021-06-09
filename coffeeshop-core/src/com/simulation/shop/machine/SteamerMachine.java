@@ -9,16 +9,17 @@ public class SteamerMachine {
 
 	private Lock steamerLock = new ReentrantLock();
 
+	public Lock getSteamerLock() {
+		return steamerLock;
+	}
+
 	public Milk steam() {
-		steamerLock.lock();
 		Milk milk = null;
 		try {
 			Thread.sleep(250);
 			milk = new Milk();
 		} catch (InterruptedException e) {
 			System.err.println("Something went wrong " + e.getLocalizedMessage());
-		} finally {
-			steamerLock.unlock();
 		}
 		return milk;
 	}

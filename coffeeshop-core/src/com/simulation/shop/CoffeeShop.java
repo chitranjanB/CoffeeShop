@@ -1,6 +1,8 @@
 package com.simulation.shop;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -11,9 +13,9 @@ import com.simulation.shop.util.CoffeeUtility;
 
 public class CoffeeShop {
 
-	private GrinderMachine grinderMachine = new GrinderMachine();
-	private EspressoMachine espressoMachine = new EspressoMachine();
-	private SteamerMachine steamerMachine = new SteamerMachine();
+	private List<GrinderMachine> grinderMachine = Arrays.asList(new GrinderMachine(), new GrinderMachine());
+	private List<EspressoMachine> espressoMachine = Arrays.asList(new EspressoMachine(), new EspressoMachine());
+	private List<SteamerMachine> steamerMachine = Arrays.asList(new SteamerMachine(), new SteamerMachine());
 
 	public static void main(String[] args) throws InterruptedException {
 		Instant start = Instant.now();

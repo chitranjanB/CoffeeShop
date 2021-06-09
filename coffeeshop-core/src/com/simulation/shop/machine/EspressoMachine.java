@@ -9,16 +9,17 @@ public class EspressoMachine {
 
 	private Lock espressoLock = new ReentrantLock();
 
+	public Lock getEspressoLock() {
+		return espressoLock;
+	}
+
 	public Coffee concentrate() {
-		espressoLock.lock();
 		Coffee coffee = null;
 		try {
 			Thread.sleep(250);
 			coffee = new Coffee();
 		} catch (InterruptedException e) {
 			System.err.println("Something went wrong " + e.getLocalizedMessage());
-		} finally {
-			espressoLock.unlock();
 		}
 		return coffee;
 	}

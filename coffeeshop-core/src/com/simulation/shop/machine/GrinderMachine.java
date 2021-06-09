@@ -9,16 +9,18 @@ public class GrinderMachine {
 
 	private Lock grinderLock = new ReentrantLock();
 
+	public Lock getGrinderLock() {
+		return grinderLock;
+	}
+
 	public Grounds grind() {
-		grinderLock.lock();
+
 		Grounds grounds = null;
 		try {
 			Thread.sleep(250);
 			grounds = new Grounds();
 		} catch (InterruptedException e) {
 			System.err.println("Something went wrong " + e.getLocalizedMessage());
-		} finally {
-			grinderLock.unlock();
 		}
 		return grounds;
 	}
