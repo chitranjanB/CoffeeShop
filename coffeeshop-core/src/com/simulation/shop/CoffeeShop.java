@@ -1,8 +1,8 @@
 package com.simulation.shop;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.simulation.shop.machine.EspressoMachine;
 import com.simulation.shop.machine.GrinderMachine;
@@ -18,7 +18,8 @@ public class CoffeeShop {
 	public static void main(String[] args) throws InterruptedException {
 		Instant start = Instant.now();
 		CoffeeShop shop = new CoffeeShop();
-		int customers = args.length > 0 ? Integer.parseInt(args[0]) : Runtime.getRuntime().availableProcessors();
+
+		int customers = args.length > 0 ? Integer.parseInt(args[0]) : 1;
 		addShutdownHook();
 		shop.start(customers);
 
@@ -28,17 +29,19 @@ public class CoffeeShop {
 	}
 
 	public void start(int customers) throws InterruptedException {
-		List<Thread> threads = new ArrayList<>();
+
+		int cores = Runtime.getRuntime().availableProcessors();
+		cores = customers > cores ? cores : customers;
+		ExecutorService fixedPool = Executors.newFixedThreadPool(cores);
 
 		for (int i = 0; i < customers; i++) {
 			Runnable task = new BrewTask(grinderMachine, espressoMachine, steamerMachine);
-			Thread thread = new Thread(task, "Thread" + i);
-			threads.add(thread);
-			thread.start();
+			fixedPool.submit(task);
 		}
-		// wait on main thread, until all threads are done
-		for (Thread t : threads) {
-			t.join();
+		fixedPool.shutdown();
+
+		while (!fixedPool.isTerminated()) {
+			// wait on main thread, until all threads are done
 		}
 	}
 
