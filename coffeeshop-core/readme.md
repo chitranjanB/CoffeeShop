@@ -8,9 +8,9 @@ Coffee Shop Simulation is an attempt to understand performance of code and enhan
 
 
 ## Performance Report
-- test_01_thread 0.786s
-- test_04_threads 1.058s
-- test_10_threads 1.835s
-- test_20_threads 3.128s
-- test_30_threads 4.380s
+- test_01_thread 0.779s
+- test_04_threads 0.769s
+- test_10_threads 1.563s
+- test_20_threads 2.310s
+- test_30_threads 3.333s
 

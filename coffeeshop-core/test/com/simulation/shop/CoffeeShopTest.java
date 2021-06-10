@@ -19,28 +19,28 @@ public class CoffeeShopTest {
 		shop.start(customers);
 	}
 
-	@Test(timeout = 1200)
+	@Test(timeout = 800)
 	public void test_04_threads() throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = 4;
 		shop.start(customers);
 	}
 
-	@Test(timeout = 2000)
+	@Test(timeout = 1700)
 	public void test_10_threads() throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = 10;
 		shop.start(customers);
 	}
 
-	@Test(timeout = 3300)
+	@Test(timeout = 2500)
 	public void test_20_threads() throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = 20;
 		shop.start(customers);
 	}
 
-	@Test(timeout = 4500)
+	@Test(timeout = 3500)
 	public void test_30_threads() throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = 30;
