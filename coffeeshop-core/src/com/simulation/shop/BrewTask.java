@@ -2,7 +2,6 @@ package com.simulation.shop;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
 import com.simulation.shop.machine.EspressoMachine;
@@ -54,7 +53,7 @@ public class BrewTask implements Runnable {
 			while (true) {
 				GrinderMachine grinderMachine = grinderMachines.get(i);
 				Lock grinderLock = grinderMachine.getGrinderLock();
-				if (grinderLock.tryLock(0, TimeUnit.MILLISECONDS)) {
+				if (grinderLock.tryLock()) {
 					availableGrinder = grinderMachine;
 					break;
 				}
@@ -89,10 +88,12 @@ public class BrewTask implements Runnable {
 			while (true) {
 				EspressoMachine espressoMachine = espressoMachines.get(i);
 				Lock grinderLock = espressoMachine.getEspressoLock();
-				if (grinderLock.tryLock(0, TimeUnit.MILLISECONDS)) {
+				if (grinderLock.tryLock()) {
 					availableEspresso = espressoMachine;
 					break;
 				}
+				i++;
+
 				// reset counter
 				if (i > grinderMachines.size() - 1) {
 					i = 0;
@@ -123,10 +124,11 @@ public class BrewTask implements Runnable {
 			while (true) {
 				SteamerMachine steamerMachine = steamerMachines.get(i);
 				Lock steamerLock = steamerMachine.getSteamerLock();
-				if (steamerLock.tryLock(0, TimeUnit.MILLISECONDS)) {
+				if (steamerLock.tryLock()) {
 					availableSteamer = steamerMachine;
 					break;
 				}
+				i++;
 
 				// reset counter
 				if (i > grinderMachines.size() - 1) {

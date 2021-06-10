@@ -13,9 +13,9 @@ import com.simulation.shop.util.CoffeeUtility;
 
 public class CoffeeShop {
 
-	private List<GrinderMachine> grinderMachine = Arrays.asList(new GrinderMachine(), new GrinderMachine());
-	private List<EspressoMachine> espressoMachine = Arrays.asList(new EspressoMachine(), new EspressoMachine());
-	private List<SteamerMachine> steamerMachine = Arrays.asList(new SteamerMachine(), new SteamerMachine());
+	private List<GrinderMachine> grinderMachines = Arrays.asList(new GrinderMachine(), new GrinderMachine());
+	private List<EspressoMachine> espressoMachines = Arrays.asList(new EspressoMachine(), new EspressoMachine());
+	private List<SteamerMachine> steamerMachines = Arrays.asList(new SteamerMachine(), new SteamerMachine());
 
 	public static void main(String[] args) throws InterruptedException {
 		Instant start = Instant.now();
@@ -37,7 +37,7 @@ public class CoffeeShop {
 		ExecutorService fixedPool = Executors.newFixedThreadPool(cores);
 
 		for (int i = 0; i < customers; i++) {
-			Runnable task = new BrewTask(grinderMachine, espressoMachine, steamerMachine);
+			Runnable task = new BrewTask(grinderMachines, espressoMachines, steamerMachines);
 			fixedPool.submit(task);
 		}
 		fixedPool.shutdown();
