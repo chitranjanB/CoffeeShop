@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
+import com.simulation.shop.config.Step;
 import com.simulation.shop.machine.EspressoMachine;
 import com.simulation.shop.machine.GrinderMachine;
 import com.simulation.shop.machine.SteamerMachine;
@@ -32,7 +33,7 @@ public class BrewTask implements Runnable {
 		brewLatte();
 		Instant finish = Instant.now();
 		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
-		System.out.println(Thread.currentThread().getName() + " brew took -------->" + timeElapsed);
+		CoffeeUtility.collectMetric(Thread.currentThread().getName(), Step.BREW, timeElapsed);
 	}
 
 	public Latte brewLatte() {
@@ -66,14 +67,14 @@ public class BrewTask implements Runnable {
 			}
 			grounds = availableGrinder.grind();
 		} catch (Exception e) {
-			System.err.println("something went wrong while grinding " + e.getLocalizedMessage());
+			System.err.println("something went wrong while " + Step.GRIND_COFFEE + e.getLocalizedMessage());
 		} finally {
 			availableGrinder.getGrinderLock().unlock();
 		}
 
 		Instant finish = Instant.now();
 		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
-		System.out.println(Thread.currentThread().getName() + " grindCoffee " + timeElapsed);
+		CoffeeUtility.collectMetric(Thread.currentThread().getName(), Step.GRIND_COFFEE, timeElapsed);
 		return grounds;
 	}
 
@@ -102,14 +103,14 @@ public class BrewTask implements Runnable {
 
 			coffee = availableEspresso.concentrate();
 		} catch (Exception e) {
-			System.err.println("something went wrong while espresso" + e.getLocalizedMessage());
+			System.err.println("something went wrong while " + Step.MAKE_ESPRESSO + e.getLocalizedMessage());
 		} finally {
 			availableEspresso.getEspressoLock().unlock();
 		}
 
 		Instant finish = Instant.now();
 		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
-		System.out.println(Thread.currentThread().getName() + " makeEspresso " + timeElapsed);
+		CoffeeUtility.collectMetric(Thread.currentThread().getName(), Step.MAKE_ESPRESSO, timeElapsed);
 		return coffee;
 	}
 
@@ -138,14 +139,14 @@ public class BrewTask implements Runnable {
 
 			milk = availableSteamer.steam();
 		} catch (Exception e) {
-			System.err.println("something went wrong while steaming " + e.getLocalizedMessage());
+			System.err.println("something went wrong while " + Step.STEAM_MILK + e.getLocalizedMessage());
 		} finally {
 			availableSteamer.getSteamerLock().unlock();
 		}
 
 		Instant finish = Instant.now();
 		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
-		System.out.println(Thread.currentThread().getName() + " steamMilk " + timeElapsed);
+		CoffeeUtility.collectMetric(Thread.currentThread().getName(), Step.STEAM_MILK, timeElapsed);
 		return milk;
 	}
 

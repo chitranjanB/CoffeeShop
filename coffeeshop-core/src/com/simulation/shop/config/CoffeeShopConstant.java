@@ -1,4 +1,4 @@
-package com.simulation.shop.constant;
+package com.simulation.shop.config;
 
 public class CoffeeShopConstant {
 	public static final int CUSTOMERS = 4;

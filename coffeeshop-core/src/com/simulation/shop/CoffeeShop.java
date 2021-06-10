@@ -1,12 +1,11 @@
 package com.simulation.shop;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.simulation.shop.constant.CoffeeShopConstant;
+import com.simulation.shop.config.CoffeeShopConstant;
 import com.simulation.shop.machine.EspressoMachine;
 import com.simulation.shop.machine.GrinderMachine;
 import com.simulation.shop.machine.SteamerMachine;
@@ -31,23 +30,15 @@ public class CoffeeShop {
 	}
 
 	public static void main(String[] args) throws InterruptedException {
-		Instant start = Instant.now();
 		CoffeeShop shop = new CoffeeShop();
-
 		int customers = args.length > 0 ? Integer.parseInt(args[0]) : CoffeeShopConstant.CUSTOMERS;
 		addShutdownHook();
 		shop.start(customers);
-
-		Instant finish = Instant.now();
-		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
-		System.out.println("Total time elapsed " + timeElapsed);
 	}
 
 	public void start(int customers) throws InterruptedException {
 
-		int cores = Runtime.getRuntime().availableProcessors();
-		cores = customers > cores ? cores : customers;
-		ExecutorService fixedPool = Executors.newFixedThreadPool(cores);
+		ExecutorService fixedPool = Executors.newFixedThreadPool(customers);
 
 		for (int i = 0; i < customers; i++) {
 			Runnable task = new BrewTask(grinderMachines, espressoMachines, steamerMachines);
@@ -58,6 +49,8 @@ public class CoffeeShop {
 		while (!fixedPool.isTerminated()) {
 			// wait on main thread, until all threads are done
 		}
+		CoffeeUtility.stats();
+		System.out.println("---------------COFFEE SHOP CLOSED-----------------------");
 	}
 
 	private static void addShutdownHook() {
