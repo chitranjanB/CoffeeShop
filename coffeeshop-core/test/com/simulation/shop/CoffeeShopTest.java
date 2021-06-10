@@ -40,7 +40,7 @@ public class CoffeeShopTest {
 		shop.start(customers);
 	}
 
-	@Test(timeout = 3100)
+	@Test(timeout = 2800)
 	public void test_30_threads() throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = 30;

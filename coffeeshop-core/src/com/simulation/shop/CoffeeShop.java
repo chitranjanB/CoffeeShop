@@ -1,7 +1,7 @@
 package com.simulation.shop;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -13,26 +13,26 @@ import com.simulation.shop.util.CoffeeUtility;
 
 public class CoffeeShop {
 
-	private List<GrinderMachine> grinderMachines;
-	private List<EspressoMachine> espressoMachines;
-	private List<SteamerMachine> steamerMachines;
+	private BlockingQueue<GrinderMachine> grinderMachines;
+	private BlockingQueue<EspressoMachine> espressoMachines;
+	private BlockingQueue<SteamerMachine> steamerMachines;
 
 	public CoffeeShop() {
-		grinderMachines = new ArrayList<>();
-		espressoMachines = new ArrayList<>();
-		steamerMachines = new ArrayList<>();
+		grinderMachines = new ArrayBlockingQueue<GrinderMachine>(CoffeeShopConstant.MULTI_SHARED_INSTANCE);
+		espressoMachines = new ArrayBlockingQueue<EspressoMachine>(CoffeeShopConstant.MULTI_SHARED_INSTANCE);
+		steamerMachines = new ArrayBlockingQueue<SteamerMachine>(CoffeeShopConstant.MULTI_SHARED_INSTANCE);
 
 		for (int i = 0; i < CoffeeShopConstant.MULTI_SHARED_INSTANCE; i++) {
 			grinderMachines.add(new GrinderMachine());
 			espressoMachines.add(new EspressoMachine());
 			steamerMachines.add(new SteamerMachine());
 		}
+
 	}
 
 	public static void main(String[] args) throws InterruptedException {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = args.length > 0 ? Integer.parseInt(args[0]) : CoffeeShopConstant.CUSTOMERS;
-		addShutdownHook();
 		shop.start(customers);
 	}
 
@@ -51,15 +51,6 @@ public class CoffeeShop {
 		}
 		CoffeeUtility.stats();
 		System.out.println("---------------COFFEE SHOP CLOSED-----------------------");
-	}
-
-	private static void addShutdownHook() {
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				System.out.println("---------------COFFEE SHOP CLOSED-----------------------");
-			}
-		});
 	}
 
 }

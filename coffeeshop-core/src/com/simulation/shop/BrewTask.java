@@ -1,8 +1,7 @@
 package com.simulation.shop;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.concurrent.locks.Lock;
+import java.util.concurrent.BlockingQueue;
 
 import com.simulation.shop.config.Step;
 import com.simulation.shop.machine.EspressoMachine;
@@ -16,12 +15,12 @@ import com.simulation.shop.util.CoffeeUtility;
 
 public class BrewTask implements Runnable {
 
-	private List<GrinderMachine> grinderMachines;
-	private List<EspressoMachine> espressoMachines;
-	private List<SteamerMachine> steamerMachines;
+	private BlockingQueue<GrinderMachine> grinderMachines;
+	private BlockingQueue<EspressoMachine> espressoMachines;
+	private BlockingQueue<SteamerMachine> steamerMachines;
 
-	public BrewTask(List<GrinderMachine> grinderMachines, List<EspressoMachine> espressoMachines,
-			List<SteamerMachine> steamerMachines) {
+	public BrewTask(BlockingQueue<GrinderMachine> grinderMachines, BlockingQueue<EspressoMachine> espressoMachines,
+			BlockingQueue<SteamerMachine> steamerMachines) {
 		this.grinderMachines = grinderMachines;
 		this.espressoMachines = espressoMachines;
 		this.steamerMachines = steamerMachines;
@@ -43,33 +42,16 @@ public class BrewTask implements Runnable {
 		return makeLatte(coffee, milk);
 	}
 
-	private Grounds grindCoffee(List<GrinderMachine> grinderMachines) {
+	private Grounds grindCoffee(BlockingQueue<GrinderMachine> grinderMachines) {
 		Instant start = Instant.now();
-
-		GrinderMachine availableGrinder = null;
+		GrinderMachine grinderMachine = null;
 		Grounds grounds = null;
 		try {
-			// check if any element in pool is available for lock
-			int i = 0;
-			while (true) {
-				GrinderMachine grinderMachine = grinderMachines.get(i);
-				Lock grinderLock = grinderMachine.getGrinderLock();
-				if (grinderLock.tryLock()) {
-					availableGrinder = grinderMachine;
-					break;
-				}
-				i++;
-
-				// reset counter
-				if (i > grinderMachines.size() - 1) {
-					i = 0;
-				}
-			}
-			grounds = availableGrinder.grind();
+			grinderMachine = grinderMachines.take();
+			grounds = grinderMachine.grind();
+			grinderMachines.put(grinderMachine);
 		} catch (Exception e) {
 			System.err.println("something went wrong while " + Step.GRIND_COFFEE + e.getLocalizedMessage());
-		} finally {
-			availableGrinder.getGrinderLock().unlock();
 		}
 
 		Instant finish = Instant.now();
@@ -78,34 +60,16 @@ public class BrewTask implements Runnable {
 		return grounds;
 	}
 
-	private Coffee makeEspresso(List<EspressoMachine> espressoMachines, Grounds grounds) {
+	private Coffee makeEspresso(BlockingQueue<EspressoMachine> espressoMachines, Grounds grounds) {
 		Instant start = Instant.now();
 
-		EspressoMachine availableEspresso = null;
 		Coffee coffee = null;
 		try {
-			// check if any element in pool is available for lock
-			int i = 0;
-			while (true) {
-				EspressoMachine espressoMachine = espressoMachines.get(i);
-				Lock grinderLock = espressoMachine.getEspressoLock();
-				if (grinderLock.tryLock()) {
-					availableEspresso = espressoMachine;
-					break;
-				}
-				i++;
-
-				// reset counter
-				if (i > grinderMachines.size() - 1) {
-					i = 0;
-				}
-			}
-
-			coffee = availableEspresso.concentrate();
+			EspressoMachine espressoMachine = espressoMachines.take();
+			coffee = espressoMachine.concentrate();
+			espressoMachines.put(espressoMachine);
 		} catch (Exception e) {
 			System.err.println("something went wrong while " + Step.MAKE_ESPRESSO + e.getLocalizedMessage());
-		} finally {
-			availableEspresso.getEspressoLock().unlock();
 		}
 
 		Instant finish = Instant.now();
@@ -114,34 +78,16 @@ public class BrewTask implements Runnable {
 		return coffee;
 	}
 
-	private Milk steamMilk(List<SteamerMachine> steamerMachines) {
+	private Milk steamMilk(BlockingQueue<SteamerMachine> steamerMachines) {
 		Instant start = Instant.now();
 
-		SteamerMachine availableSteamer = null;
 		Milk milk = null;
 		try {
-			// check if any element in pool is available for lock
-			int i = 0;
-			while (true) {
-				SteamerMachine steamerMachine = steamerMachines.get(i);
-				Lock steamerLock = steamerMachine.getSteamerLock();
-				if (steamerLock.tryLock()) {
-					availableSteamer = steamerMachine;
-					break;
-				}
-				i++;
-
-				// reset counter
-				if (i > grinderMachines.size() - 1) {
-					i = 0;
-				}
-			}
-
-			milk = availableSteamer.steam();
+			SteamerMachine steamerMachine = steamerMachines.take();
+			milk = steamerMachine.steam();
+			steamerMachines.put(steamerMachine);
 		} catch (Exception e) {
 			System.err.println("something went wrong while " + Step.STEAM_MILK + e.getLocalizedMessage());
-		} finally {
-			availableSteamer.getSteamerLock().unlock();
 		}
 
 		Instant finish = Instant.now();
