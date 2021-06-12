@@ -5,6 +5,9 @@ Coffee Shop Simulation is an attempt to understand performance of code and enhan
 
 ## Features
 - Core Java
+	- Cyclic Barrier
+	- Lock Interface
+	- Runnable Thread
 
 
 ## Performance Report

@@ -23,6 +23,8 @@ public class CoffeeShop {
 	}
 
 	public void start(int customers) throws Exception {
+		// cyclic barrier to wait till all threads have completed executions
+		// Just for printing stats
 		cyclicBarrier = new CyclicBarrier(customers + 1);
 		for (int i = 0; i < customers; i++) {
 			GrindTask task = new GrindTask(grinderMachine, espressoMachine, steamerMachine, cyclicBarrier);
