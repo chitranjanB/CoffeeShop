@@ -2,6 +2,7 @@ package com.simulation.shop;
 
 import java.time.Instant;
 
+import com.simulation.shop.config.Step;
 import com.simulation.shop.machine.EspressoMachine;
 import com.simulation.shop.machine.GrinderMachine;
 import com.simulation.shop.machine.SteamerMachine;
@@ -29,7 +30,7 @@ public class BrewTask implements Runnable {
 		brewLatte();
 		Instant finish = Instant.now();
 		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
-		System.out.println(Thread.currentThread().getName() + " brew took -------->" + timeElapsed);
+		CoffeeUtility.collectMetric(Thread.currentThread().getName(), Step.BREW, timeElapsed);
 	}
 
 	public Latte brewLatte() {
@@ -44,7 +45,7 @@ public class BrewTask implements Runnable {
 		Grounds grounds = grinderMachine.grind();
 		Instant finish = Instant.now();
 		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
-		System.out.println(Thread.currentThread().getName() + " grindCoffee " + timeElapsed);
+		CoffeeUtility.collectMetric(Thread.currentThread().getName(), Step.GRIND_COFFEE, timeElapsed);
 		return grounds;
 	}
 
@@ -53,7 +54,7 @@ public class BrewTask implements Runnable {
 		Coffee coffee = espressoMachine.concentrate();
 		Instant finish = Instant.now();
 		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
-		System.out.println(Thread.currentThread().getName() + " makeEspresso " + timeElapsed);
+		CoffeeUtility.collectMetric(Thread.currentThread().getName(), Step.MAKE_ESPRESSO, timeElapsed);
 		return coffee;
 	}
 
@@ -62,7 +63,7 @@ public class BrewTask implements Runnable {
 		Milk milk = steamerMachine.steam();
 		Instant finish = Instant.now();
 		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
-		System.out.println(Thread.currentThread().getName() + " steamMilk " + timeElapsed);
+		CoffeeUtility.collectMetric(Thread.currentThread().getName(), Step.STEAM_MILK, timeElapsed);
 		return milk;
 	}
 
