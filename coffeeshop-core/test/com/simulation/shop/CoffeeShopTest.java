@@ -26,7 +26,7 @@ public class CoffeeShopTest {
 		shop.start(customers);
 	}
 
-	@Test(timeout = 3200)
+	@Test(timeout = 3400)
 	public void test_10_threads() throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = 10;

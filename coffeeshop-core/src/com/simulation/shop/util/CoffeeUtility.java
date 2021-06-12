@@ -6,10 +6,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import com.simulation.shop.config.CoffeeShopConstant;
 import com.simulation.shop.config.Step;
 import com.simulation.shop.model.Coffee;
 import com.simulation.shop.model.Latte;
@@ -68,6 +70,19 @@ public class CoffeeUtility {
 		String unit = "ms";
 		long timeElapsed = Duration.between(start, finish).toMillis();
 		return timeElapsed + unit;
+	}
+
+	public static int buildStepTimeWithJitter() {
+		Random random = new Random();
+		int result = 0;
+		int jitter = random.nextInt(CoffeeShopConstant.JITTER);
+
+		if (random.nextBoolean()) {
+			result = CoffeeShopConstant.STEP_PROCESSING_TIME + jitter;
+		} else {
+			result = CoffeeShopConstant.STEP_PROCESSING_TIME - jitter;
+		}
+		return result;
 	}
 
 }

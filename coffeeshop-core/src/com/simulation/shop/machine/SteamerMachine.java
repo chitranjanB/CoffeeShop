@@ -5,6 +5,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.simulation.shop.config.CoffeeShopConstant;
 import com.simulation.shop.model.Milk;
+import com.simulation.shop.util.CoffeeUtility;
 
 public class SteamerMachine {
 
@@ -14,7 +15,7 @@ public class SteamerMachine {
 		steamerLock.lock();
 		Milk milk = null;
 		try {
-			Thread.sleep(CoffeeShopConstant.STEP_PROCESSING_TIME);
+			Thread.sleep(CoffeeUtility.buildStepTimeWithJitter());
 			milk = new Milk();
 		} catch (InterruptedException e) {
 			System.err.println("Something went wrong " + e.getLocalizedMessage());

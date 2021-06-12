@@ -1,5 +1,5 @@
 # Coffee Shop Simulation
-## _Multi Threaded Approach with Fixed Thread Pool_
+## _Multi Threaded Approach without thhread pool, separate thread for each task in pipeline manner_
 
 Coffee Shop Simulation is an attempt to understand performance of code and enhancing them using new features of the language and better design
 
@@ -8,9 +8,9 @@ Coffee Shop Simulation is an attempt to understand performance of code and enhan
 
 
 ## Performance Report
-- test_01_thread 0.740s
-- test_04_threads 1.552s
-- test_10_threads 3.113s
-- test_20_threads 5.711s
-- test_30_threads 8.347s
+- test_01_thread 0.739s
+- test_04_threads 1.476s
+- test_10_threads 3.259s
+- test_20_threads 5.709s
+- test_30_threads 8.330s
 

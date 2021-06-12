@@ -5,6 +5,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.simulation.shop.config.CoffeeShopConstant;
 import com.simulation.shop.model.Grounds;
+import com.simulation.shop.util.CoffeeUtility;
 
 public class GrinderMachine {
 
@@ -14,7 +15,7 @@ public class GrinderMachine {
 		grinderLock.lock();
 		Grounds grounds = null;
 		try {
-			Thread.sleep(CoffeeShopConstant.STEP_PROCESSING_TIME);
+			Thread.sleep(CoffeeUtility.buildStepTimeWithJitter());
 			grounds = new Grounds();
 		} catch (InterruptedException e) {
 			System.err.println("Something went wrong " + e.getLocalizedMessage());
