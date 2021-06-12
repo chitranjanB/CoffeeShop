@@ -10,7 +10,9 @@ import org.junit.runners.MethodSorters;
  *
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+
 public class CoffeeShopTest {
+
 
 	@Test(timeout = 900)
 	public void test_01_thread() throws Exception {
@@ -19,21 +21,21 @@ public class CoffeeShopTest {
 		shop.start(customers);
 	}
 
-	@Test(timeout = 1700)
+	@Test(timeout = 1800)
 	public void test_04_threads() throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = 4;
 		shop.start(customers);
 	}
 
-	@Test(timeout = 3400)
+	@Test(timeout = 3300)
 	public void test_10_threads() throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = 10;
 		shop.start(customers);
 	}
 
-	@Test(timeout = 5800)
+	@Test(timeout = 5900)
 	public void test_20_threads() throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = 20;

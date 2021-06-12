@@ -1,41 +1,35 @@
 package com.simulation.shop.task;
 
 import java.time.Instant;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 
 import com.simulation.shop.config.Step;
-import com.simulation.shop.machine.EspressoMachine;
 import com.simulation.shop.machine.GrinderMachine;
-import com.simulation.shop.machine.SteamerMachine;
+import com.simulation.shop.machine.Kitchen;
 import com.simulation.shop.model.Grounds;
-import com.simulation.shop.task.EspressoTask;
 import com.simulation.shop.util.CoffeeUtility;
 
 public class GrindTask implements Runnable {
+	private ExecutorService espressoExecutor;
+	private ExecutorService steamExecutor;
+	private CountDownLatch latch;
 
-	private GrinderMachine grinderMachine;
-	private EspressoMachine espressoMachine;
-	private SteamerMachine steamerMachine;
-	private CyclicBarrier cyclicBarrier;
-
-	public GrindTask(GrinderMachine grinderMachine, EspressoMachine espressoMachine, SteamerMachine steamerMachine,
-			CyclicBarrier cyclicBarrier) {
-		this.grinderMachine = grinderMachine;
-		this.espressoMachine = espressoMachine;
-		this.steamerMachine = steamerMachine;
-
-		this.cyclicBarrier = cyclicBarrier;
+	public GrindTask(ExecutorService espressoExecutor, ExecutorService steamExecutor, CountDownLatch latch) {
+		this.espressoExecutor = espressoExecutor;
+		this.steamExecutor = steamExecutor;
+		this.latch = latch;
 	}
 
 	@Override
 	public void run() {
-		Grounds grounds = grindCoffee(grinderMachine);
+		Grounds grounds = grindCoffee(Kitchen.INSTANCE.getGrinderMachine());
 
 		if (grounds != null) {
-			Runnable task = new EspressoTask(grounds, espressoMachine, steamerMachine, cyclicBarrier);
-			Thread espressoThread = new Thread(task, "stepB-espresso");
-			espressoThread.start();
+			Runnable task = new EspressoTask(grounds, steamExecutor, latch);
+			espressoExecutor.submit(task);
 		}
+		latch.countDown();
 	}
 
 	private Grounds grindCoffee(GrinderMachine grinderMachine) {

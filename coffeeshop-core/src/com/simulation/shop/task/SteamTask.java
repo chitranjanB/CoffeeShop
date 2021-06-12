@@ -1,9 +1,10 @@
 package com.simulation.shop.task;
 
 import java.time.Instant;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.CountDownLatch;
 
 import com.simulation.shop.config.Step;
+import com.simulation.shop.machine.Kitchen;
 import com.simulation.shop.machine.SteamerMachine;
 import com.simulation.shop.model.Coffee;
 import com.simulation.shop.model.Milk;
@@ -12,28 +13,21 @@ import com.simulation.shop.util.CoffeeUtility;
 public class SteamTask implements Runnable {
 
 	private Coffee coffee;
-	private SteamerMachine steamerMachine;
-	private CyclicBarrier cyclicBarrier;
+	private CountDownLatch latch;
 
-	public SteamTask(Coffee coffee, SteamerMachine steamerMachine, CyclicBarrier cyclicBarrier) {
+	public SteamTask(Coffee coffee, CountDownLatch latch) {
+		this.latch = latch;
 		this.coffee = coffee;
-		this.steamerMachine = steamerMachine;
-		this.cyclicBarrier = cyclicBarrier;
 	}
 
 	@Override
 	public void run() {
-		Milk milk = steamMilk(steamerMachine);
+		Milk milk = steamMilk(Kitchen.INSTANCE.getSteamerMachine());
 
 		if (milk != null) {
 			CoffeeUtility.mix(coffee, milk);
 		}
-
-		try {
-			cyclicBarrier.await();
-		} catch (Exception e) {
-			System.err.println("Something went wrong " + e.getLocalizedMessage());
-		}
+		latch.countDown();
 	}
 
 	private Milk steamMilk(SteamerMachine steamerMachine) {

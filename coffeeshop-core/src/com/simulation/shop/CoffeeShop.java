@@ -1,20 +1,14 @@
 package com.simulation.shop;
 
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.simulation.shop.config.CoffeeShopConstant;
-import com.simulation.shop.machine.EspressoMachine;
-import com.simulation.shop.machine.GrinderMachine;
-import com.simulation.shop.machine.SteamerMachine;
 import com.simulation.shop.task.GrindTask;
 import com.simulation.shop.util.CoffeeUtility;
 
 public class CoffeeShop {
-	private GrinderMachine grinderMachine = new GrinderMachine();
-	private EspressoMachine espressoMachine = new EspressoMachine();
-	private SteamerMachine steamerMachine = new SteamerMachine();
-
-	private CyclicBarrier cyclicBarrier;
 
 	public static void main(String[] args) throws Exception {
 		CoffeeShop shop = new CoffeeShop();
@@ -23,19 +17,27 @@ public class CoffeeShop {
 	}
 
 	public void start(int customers) throws Exception {
-		// cyclic barrier to wait till all threads have completed executions
+		// CountDownLatch to wait till all threads have completed executions
 		// Just for printing stats
-		cyclicBarrier = new CyclicBarrier(customers + 1);
+		CountDownLatch latch = new CountDownLatch(4 * customers);
+		ExecutorService grindExecutor = Executors.newSingleThreadExecutor();
+		ExecutorService espressoExecutor = Executors.newSingleThreadExecutor();
+		ExecutorService steamExecutor = Executors.newSingleThreadExecutor();
+
 		for (int i = 0; i < customers; i++) {
-			GrindTask task = new GrindTask(grinderMachine, espressoMachine, steamerMachine, cyclicBarrier);
-			Thread grindThread = new Thread(task, "stepA-grind");
-			grindThread.start();
+			GrindTask task = new GrindTask(espressoExecutor, steamExecutor, latch);
+			grindExecutor.submit(task);
+			latch.countDown();
 		}
 
-		cyclicBarrier.await();
+		latch.await();
+
+		grindExecutor.shutdown();
+		espressoExecutor.shutdown();
+		steamExecutor.shutdown();
+
 		CoffeeUtility.stats();
 		System.out.println("---------------COFFEE SHOP CLOSED-----------------------");
-
 	}
 
 }

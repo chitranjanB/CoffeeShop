@@ -1,11 +1,12 @@
 package com.simulation.shop.task;
 
 import java.time.Instant;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 
 import com.simulation.shop.config.Step;
 import com.simulation.shop.machine.EspressoMachine;
-import com.simulation.shop.machine.SteamerMachine;
+import com.simulation.shop.machine.Kitchen;
 import com.simulation.shop.model.Coffee;
 import com.simulation.shop.model.Grounds;
 import com.simulation.shop.util.CoffeeUtility;
@@ -13,25 +14,22 @@ import com.simulation.shop.util.CoffeeUtility;
 public class EspressoTask implements Runnable {
 
 	private Grounds grounds;
-	private EspressoMachine espressoMachine;
-	private SteamerMachine steamerMachine;
-	private CyclicBarrier cyclicBarrier;
+	private ExecutorService steamExecutor;
+	private CountDownLatch latch;
 
-	public EspressoTask(Grounds grounds, EspressoMachine espressoMachine, SteamerMachine steamerMachine,
-			CyclicBarrier cyclicBarrier) {
-		this.espressoMachine = espressoMachine;
-		this.steamerMachine = steamerMachine;
-		this.cyclicBarrier = cyclicBarrier;
+	public EspressoTask(Grounds grounds, ExecutorService steamExecutor, CountDownLatch latch) {
+		this.steamExecutor = steamExecutor;
+		this.latch = latch;
 	}
 
 	@Override
 	public void run() {
-		Coffee coffee = makeEspresso(espressoMachine, grounds);
+		Coffee coffee = makeEspresso(Kitchen.INSTANCE.getEspressoMachine(), grounds);
 		if (coffee != null) {
-			Runnable task = new SteamTask(coffee, steamerMachine, cyclicBarrier);
-			Thread steamThread = new Thread(task, "stepC-steam");
-			steamThread.start();
+			Runnable task = new SteamTask(coffee, latch);
+			steamExecutor.submit(task);
 		}
+		latch.countDown();
 	}
 
 	private Coffee makeEspresso(EspressoMachine espressoMachine, Grounds grounds) {

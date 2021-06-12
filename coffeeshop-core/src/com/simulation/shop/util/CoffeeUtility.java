@@ -27,9 +27,12 @@ public class CoffeeUtility {
 	}
 
 	public static void stats() {
-		Map<String, List<String>> map = processStats();
-		displayStats(map);
-
+		try {
+			Map<String, List<String>> map = processStats();
+			displayStats(map);
+		} finally {
+			queue.clear();
+		}
 	}
 
 	private static Map<String, List<String>> processStats() {
@@ -59,7 +62,6 @@ public class CoffeeUtility {
 			List<String> info = map.get(key);
 			System.out.println(key + " :: " + info);
 		}
-
 	}
 
 	public static Latte mix(Coffee coffee, Milk milk) {
