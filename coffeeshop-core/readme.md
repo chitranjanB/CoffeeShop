@@ -1,5 +1,5 @@
 # Coffee Shop Simulation
-## _Multi Threaded Approach without thhread pool, separate thread for each task in pipeline manner_
+## _Multi Threaded Approach without thread pool, separate thread for each task in pipeline manner with lock interface_
 
 Coffee Shop Simulation is an attempt to understand performance of code and enhancing them using new features of the language and better design
 
