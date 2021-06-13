@@ -12,14 +12,14 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CoffeeShopTest {
 
-	@Test(timeout = 800)
+	@Test(timeout = 900)
 	public void test_01_thread() throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = 1;
 		shop.start(customers);
 	}
 
-	@Test(timeout = 800)
+	@Test(timeout = 900)
 	public void test_04_threads() throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = 4;
