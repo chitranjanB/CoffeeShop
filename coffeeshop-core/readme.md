@@ -20,10 +20,10 @@ Coffee Shop Simulation is an attempt to understand performance of code and enhan
 
 
 ## Full Report
-Load:01, Max:793ms, Avg:793ms, Total:793, Samples(ms): [793]
-Load:04, Max:781ms, Avg:772ms, Total:3091, Samples(ms): [778, 760, 772, 781]
-Load:10, Max:796ms, Avg:769ms, Total:7693, Samples(ms): [796, 770, 772, 782, 756, 753, 757, 782, 754, 771]
-Load:20, Max:785ms, Avg:765ms, Total:15316, Samples(ms): [770, 781, 769, 754, 784, 770, 770, 756, 759, 754, 767, 756, 755, 785, 783, 753, 771, 757, 766, 756]
-Load:30, Max:794ms, Avg:767ms, Total:23030, Samples(ms): [794, 784, 753, 762, 757, 767, 784, 771, 769, 769, 755, 772, 782, 760, 758, 781, 782, 755, 768, 780, 756, 753, 756, 768, 767, 753, 781, 769, 770, 754]
+- Load:01, Max:793ms, Avg:793ms, Total:793, Samples(ms): [793]
+- Load:04, Max:781ms, Avg:772ms, Total:3091, Samples(ms): [778, 760, 772, 781]
+- Load:10, Max:796ms, Avg:769ms, Total:7693, Samples(ms): [796, 770, 772, 782, 756, 753, 757, 782, 754, 771]
+- Load:20, Max:785ms, Avg:765ms, Total:15316, Samples(ms): [770, 781, 769, 754, 784, 770, 770, 756, 759, 754, 767, 756, 755, 785, 783, 753, 771, 757, 766, 756]
+- Load:30, Max:794ms, Avg:767ms, Total:23030, Samples(ms): [794, 784, 753, 762, 757, 767, 784, 771, 769, 769, 755, 772, 782, 760, 758, 781, 782, 755, 768, 780, 756, 753, 756, 768, 767, 753, 781, 769, 770, 754]
 
 
