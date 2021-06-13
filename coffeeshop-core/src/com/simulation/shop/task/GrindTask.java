@@ -33,7 +33,7 @@ public class GrindTask implements Runnable {
 
 		if (grounds != null) {
 			Runnable task = new EspressoTask(grounds, espressoMachine, steamerMachine, cyclicBarrier);
-			Thread espressoThread = new Thread(task, "stepB-espresso");
+			Thread espressoThread = new Thread(task, "stepB-espre");
 			espressoThread.start();
 		}
 	}

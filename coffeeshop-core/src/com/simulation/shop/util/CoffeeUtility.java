@@ -29,6 +29,7 @@ public class CoffeeUtility {
 	public static void stats() {
 		Map<String, List<String>> map = processStats();
 		displayStats(map);
+		queue.clear();
 
 	}
 
