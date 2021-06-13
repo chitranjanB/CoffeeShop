@@ -1,37 +1,27 @@
 package com.simulation.shop.task;
 
 import java.time.Instant;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Callable;
 
 import com.simulation.shop.config.Step;
 import com.simulation.shop.machine.EspressoMachine;
-import com.simulation.shop.machine.SteamerMachine;
 import com.simulation.shop.model.Coffee;
 import com.simulation.shop.model.Grounds;
 import com.simulation.shop.util.CoffeeUtility;
 
-public class EspressoTask implements Runnable {
+public class EspressoTask implements Callable<Coffee> {
 
 	private Grounds grounds;
 	private EspressoMachine espressoMachine;
-	private SteamerMachine steamerMachine;
-	private CyclicBarrier cyclicBarrier;
 
-	public EspressoTask(Grounds grounds, EspressoMachine espressoMachine, SteamerMachine steamerMachine,
-			CyclicBarrier cyclicBarrier) {
+	public EspressoTask(Grounds grounds, EspressoMachine espressoMachine) {
 		this.espressoMachine = espressoMachine;
-		this.steamerMachine = steamerMachine;
-		this.cyclicBarrier = cyclicBarrier;
 	}
 
 	@Override
-	public void run() {
+	public Coffee call() throws Exception {
 		Coffee coffee = makeEspresso(espressoMachine, grounds);
-		if (coffee != null) {
-			Runnable task = new SteamTask(coffee, steamerMachine, cyclicBarrier);
-			Thread steamThread = new Thread(task, "stepC-steam");
-			steamThread.start();
-		}
+		return coffee;
 	}
 
 	private Coffee makeEspresso(EspressoMachine espressoMachine, Grounds grounds) {

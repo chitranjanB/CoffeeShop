@@ -1,41 +1,25 @@
 package com.simulation.shop.task;
 
 import java.time.Instant;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Callable;
 
 import com.simulation.shop.config.Step;
-import com.simulation.shop.machine.EspressoMachine;
 import com.simulation.shop.machine.GrinderMachine;
-import com.simulation.shop.machine.SteamerMachine;
 import com.simulation.shop.model.Grounds;
-import com.simulation.shop.task.EspressoTask;
 import com.simulation.shop.util.CoffeeUtility;
 
-public class GrindTask implements Runnable {
+public class GrindTask implements Callable<Grounds> {
 
 	private GrinderMachine grinderMachine;
-	private EspressoMachine espressoMachine;
-	private SteamerMachine steamerMachine;
-	private CyclicBarrier cyclicBarrier;
 
-	public GrindTask(GrinderMachine grinderMachine, EspressoMachine espressoMachine, SteamerMachine steamerMachine,
-			CyclicBarrier cyclicBarrier) {
+	public GrindTask(GrinderMachine grinderMachine) {
 		this.grinderMachine = grinderMachine;
-		this.espressoMachine = espressoMachine;
-		this.steamerMachine = steamerMachine;
-
-		this.cyclicBarrier = cyclicBarrier;
 	}
 
 	@Override
-	public void run() {
+	public Grounds call() throws Exception {
 		Grounds grounds = grindCoffee(grinderMachine);
-
-		if (grounds != null) {
-			Runnable task = new EspressoTask(grounds, espressoMachine, steamerMachine, cyclicBarrier);
-			Thread espressoThread = new Thread(task, "stepB-espre");
-			espressoThread.start();
-		}
+		return grounds;
 	}
 
 	private Grounds grindCoffee(GrinderMachine grinderMachine) {

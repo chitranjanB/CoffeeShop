@@ -12,35 +12,35 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CoffeeShopTest {
 
-	@Test(timeout = 900)
+	@Test
 	public void test_01_thread() throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = 1;
 		shop.start(customers);
 	}
 
-	@Test(timeout = 1700)
+	@Test
 	public void test_04_threads() throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = 4;
 		shop.start(customers);
 	}
 
-	@Test(timeout = 3400)
+	@Test
 	public void test_10_threads() throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = 10;
 		shop.start(customers);
 	}
 
-	@Test(timeout = 5800)
+	@Test
 	public void test_20_threads() throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = 20;
 		shop.start(customers);
 	}
 
-	@Test(timeout = 8500)
+	@Test
 	public void test_30_threads() throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = 30;

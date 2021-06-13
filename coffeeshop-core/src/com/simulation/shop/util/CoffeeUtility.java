@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import com.simulation.shop.config.CoffeeShopConstant;
+import com.simulation.shop.config.Config;
 import com.simulation.shop.config.Step;
 import com.simulation.shop.model.Coffee;
 import com.simulation.shop.model.Latte;
@@ -23,13 +23,17 @@ public class CoffeeUtility {
 	private static BlockingQueue<String> queue = new ArrayBlockingQueue<String>(1024);
 
 	public static void collectMetric(String threadName, Step step, String timeElapsed) {
-		queue.add(String.format(COLLECT_METRIC_FORMAT, threadName, step, timeElapsed));
+		if (isDebuggingEnabled()) {
+			queue.add(String.format(COLLECT_METRIC_FORMAT, threadName, step, timeElapsed));
+		}
 	}
 
-	public static void stats() {
-		Map<String, List<String>> map = processStats();
-		displayStats(map);
-		queue.clear();
+	public static void benchmarks() {
+		if (isDebuggingEnabled()) {
+			Map<String, List<String>> map = processStats();
+			displayStats(map);
+			queue.clear();
+		}
 
 	}
 
@@ -76,14 +80,49 @@ public class CoffeeUtility {
 	public static int buildStepTimeWithJitter() {
 		Random random = new Random();
 		int result = 0;
-		int jitter = random.nextInt(CoffeeShopConstant.JITTER);
+		int jitter = Config.JITTER;
+		jitter = jitter > 0 ? random.nextInt(jitter) : jitter;
 
 		if (random.nextBoolean()) {
-			result = CoffeeShopConstant.STEP_PROCESSING_TIME + jitter;
+			result = Config.STEP_PROCESSING_TIME + jitter;
 		} else {
-			result = CoffeeShopConstant.STEP_PROCESSING_TIME - jitter;
+			result = Config.STEP_PROCESSING_TIME - jitter;
 		}
 		return result;
+	}
+
+	public static boolean isDebuggingEnabled() {
+		return Config.IS_DEBUG_ENABLED;
+	}
+
+	public static long stats(List<Long> samples) {
+		long timePerLatte = 0;
+		long maxBrewTime = 0;
+		long totalBrewTime = totalBrewTime(samples);
+		for (Long e : samples) {
+
+			timePerLatte = Long.sum(timePerLatte, e);
+			if (e > maxBrewTime) {
+				maxBrewTime = e;
+			}
+		}
+		timePerLatte = timePerLatte / samples.size();
+
+		System.out.println(
+				String.format(Config.STATS_FORMAT, samples.size(), maxBrewTime, timePerLatte, totalBrewTime, samples));
+		System.out.println(
+				"-----------------------------------------------------------------------");
+		System.out.println();
+		return timePerLatte;
+
+	}
+
+	private static long totalBrewTime(List<Long> samples) {
+		long totalBrewTime = 0;
+		for (Long e : samples) {
+			totalBrewTime = Long.sum(totalBrewTime, e);
+		}
+		return totalBrewTime;
 	}
 
 }

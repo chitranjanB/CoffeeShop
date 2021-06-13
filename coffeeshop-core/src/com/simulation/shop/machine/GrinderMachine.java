@@ -3,7 +3,7 @@ package com.simulation.shop.machine;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.simulation.shop.config.CoffeeShopConstant;
+import com.simulation.shop.config.Config;
 import com.simulation.shop.model.Grounds;
 import com.simulation.shop.util.CoffeeUtility;
 

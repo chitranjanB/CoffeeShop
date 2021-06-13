@@ -1,39 +1,25 @@
 package com.simulation.shop.task;
 
 import java.time.Instant;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Callable;
 
 import com.simulation.shop.config.Step;
 import com.simulation.shop.machine.SteamerMachine;
-import com.simulation.shop.model.Coffee;
 import com.simulation.shop.model.Milk;
 import com.simulation.shop.util.CoffeeUtility;
 
-public class SteamTask implements Runnable {
+public class SteamTask implements Callable<Milk> {
 
-	private Coffee coffee;
 	private SteamerMachine steamerMachine;
-	private CyclicBarrier cyclicBarrier;
 
-	public SteamTask(Coffee coffee, SteamerMachine steamerMachine, CyclicBarrier cyclicBarrier) {
-		this.coffee = coffee;
+	public SteamTask(SteamerMachine steamerMachine) {
 		this.steamerMachine = steamerMachine;
-		this.cyclicBarrier = cyclicBarrier;
 	}
 
 	@Override
-	public void run() {
+	public Milk call() throws Exception {
 		Milk milk = steamMilk(steamerMachine);
-
-		if (milk != null) {
-			CoffeeUtility.mix(coffee, milk);
-		}
-
-		try {
-			cyclicBarrier.await();
-		} catch (Exception e) {
-			System.err.println("Something went wrong " + e.getLocalizedMessage());
-		}
+		return milk;
 	}
 
 	private Milk steamMilk(SteamerMachine steamerMachine) {
