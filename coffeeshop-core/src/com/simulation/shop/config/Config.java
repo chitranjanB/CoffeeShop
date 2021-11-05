@@ -8,6 +8,6 @@ public class Config {
 	// +- Jitter gets added randomly to each step
 	public static final int JITTER = 0;
 
-	public static final boolean IS_DEBUG_ENABLED = false;
+	public static final boolean IS_DEBUG_ENABLED = true;
 	public static final String STATS_FORMAT = "Load:%s, Max:%sms, Avg:%sms, Total:%s, Samples(ms): %s";
 }

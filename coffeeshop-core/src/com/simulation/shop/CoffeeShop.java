@@ -1,23 +1,16 @@
 package com.simulation.shop;
 
-import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 import com.simulation.shop.config.Config;
+import com.simulation.shop.config.Step;
 import com.simulation.shop.machine.EspressoMachine;
 import com.simulation.shop.machine.GrinderMachine;
 import com.simulation.shop.machine.SteamerMachine;
 import com.simulation.shop.model.Coffee;
 import com.simulation.shop.model.Grounds;
 import com.simulation.shop.model.Milk;
-import com.simulation.shop.task.EspressoTask;
-import com.simulation.shop.task.GrindTask;
-import com.simulation.shop.task.SteamTask;
 import com.simulation.shop.util.CoffeeUtility;
 
 public class CoffeeShop {
@@ -33,32 +26,51 @@ public class CoffeeShop {
 
 	public void start(int customers) throws Exception {
 		System.out.println("-----------------------COFFEE SHOP STARTED-----------------------------");
-		ExecutorService grindExecutor = Executors.newSingleThreadExecutor();
-		ExecutorService espressoExecutor = Executors.newSingleThreadExecutor();
-		ExecutorService steamExecutor = Executors.newSingleThreadExecutor();
-
-		List<Long> brewSamples = new ArrayList<Long>();
 
 		for (int i = 0; i < customers; i++) {
-			Instant start = Instant.now();
-			Future<Grounds> groundsFuture = grindExecutor.submit(new GrindTask(grinderMachine));
-			Grounds grounds = groundsFuture.get();
-
-			Future<Coffee> espressoFuture = espressoExecutor.submit(new EspressoTask(grounds, espressoMachine));
-			Coffee coffee = espressoFuture.get();
-
-			Future<Milk> steamFuture = steamExecutor.submit(new SteamTask(steamerMachine));
-			Milk milk = steamFuture.get();
-
-			if (coffee != null && milk != null) {
-				CoffeeUtility.mix(coffee, milk);
-			}
-			Instant finish = Instant.now();
-			brewSamples.add(Duration.between(start, finish).toMillis());
+			CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> grindCoffee(grinderMachine))
+					.thenApply(grounds -> makeEspresso(espressoMachine, grounds))
+					.thenApply(coffee -> steamMilk(steamerMachine)).thenApply(milk -> print(milk))
+					.thenRun(() -> System.out.println("done"));
+			
+			future.get();
 		}
-		
+
+		// Wait for Async threads to complete
+		//Thread.sleep(3000);
+
 		CoffeeUtility.benchmarks();
-		CoffeeUtility.stats(brewSamples);
 	}
 
+	private Milk print(Milk milk) {
+		System.out.println(milk);
+		return milk;
+	}
+
+	private Grounds grindCoffee(GrinderMachine grinderMachine) {
+		Instant start = Instant.now();
+		Grounds grounds = grinderMachine.grind();
+		Instant finish = Instant.now();
+		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
+		CoffeeUtility.collectMetric(Thread.currentThread().getName(), Step.GRIND_COFFEE, timeElapsed);
+		return grounds;
+	}
+
+	private Coffee makeEspresso(EspressoMachine espressoMachine, Grounds grounds) {
+		Instant start = Instant.now();
+		Coffee coffee = espressoMachine.concentrate();
+		Instant finish = Instant.now();
+		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
+		CoffeeUtility.collectMetric(Thread.currentThread().getName(), Step.MAKE_ESPRESSO, timeElapsed);
+		return coffee;
+	}
+
+	private Milk steamMilk(SteamerMachine steamerMachine) {
+		Instant start = Instant.now();
+		Milk milk = steamerMachine.steam();
+		Instant finish = Instant.now();
+		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
+		CoffeeUtility.collectMetric(Thread.currentThread().getName(), Step.STEAM_MILK, timeElapsed);
+		return milk;
+	}
 }

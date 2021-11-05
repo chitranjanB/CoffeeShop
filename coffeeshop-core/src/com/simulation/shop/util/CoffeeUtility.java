@@ -2,6 +2,7 @@ package com.simulation.shop.util;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,12 +20,12 @@ import com.simulation.shop.model.Milk;
 
 public class CoffeeUtility {
 
-	private static final String COLLECT_METRIC_FORMAT = "%s::%s::%s";
+	private static final String COLLECT_METRIC_FORMAT = "%s::%s::%s::%s";
 	private static BlockingQueue<String> queue = new ArrayBlockingQueue<String>(1024);
 
 	public static void collectMetric(String threadName, Step step, String timeElapsed) {
 		if (isDebuggingEnabled()) {
-			queue.add(String.format(COLLECT_METRIC_FORMAT, threadName, step, timeElapsed));
+			queue.add(String.format(COLLECT_METRIC_FORMAT, threadName, step, timeElapsed, LocalTime.now()));
 		}
 	}
 
@@ -42,7 +43,7 @@ public class CoffeeUtility {
 		for (String element : queue) {
 			String[] split = element.split("::");
 			String key = split[0];
-			String info = split[1] + ":" + split[2];
+			String info = split[1] + ":" + split[2] + " (" + split[3] + ")";
 			List<String> value = null;
 			if (map.containsKey(key)) {
 				value = map.get(key);
