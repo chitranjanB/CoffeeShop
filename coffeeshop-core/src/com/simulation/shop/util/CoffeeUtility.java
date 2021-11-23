@@ -11,11 +11,13 @@ import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import com.simulation.shop.config.CoffeeShopRuntime;
 import com.simulation.shop.config.Config;
 import com.simulation.shop.config.Step;
 import com.simulation.shop.model.Coffee;
 import com.simulation.shop.model.Latte;
 import com.simulation.shop.model.Milk;
+import com.simulation.shop.stats.ChartsStats;
 import com.simulation.shop.stats.ConsoleStats;
 import com.simulation.shop.stats.IStats;
 
@@ -26,9 +28,11 @@ public class CoffeeUtility {
 
 	private static IStats statsReporter = new ConsoleStats();
 
-	public static void collectMetric(String threadName, Step step, String timeElapsed) {
+	public static void collectMetric(String threadName, Step step, String timeElapsedOnStep) {
 		if (isDebuggingEnabled()) {
-			queue.add(String.format(COLLECT_METRIC_FORMAT, threadName, step, timeElapsed, LocalTime.now()));
+			LocalTime shopOpenTimestamp = CoffeeShopRuntime.getInstance().getShopOpenTimestamp();
+			String timeElapsedSinceOpen = Duration.between(shopOpenTimestamp, LocalTime.now()).toMillis() + "ms";
+			queue.add(String.format(COLLECT_METRIC_FORMAT, threadName, step, timeElapsedOnStep, timeElapsedSinceOpen));
 		}
 	}
 
@@ -63,6 +67,7 @@ public class CoffeeUtility {
 
 	private static void displayStats(Map<String, List<String>> map) {
 		statsReporter.report(map);
+		new ChartsStats().report(map);
 	}
 
 	public static Latte mix(Coffee coffee, Milk milk) {

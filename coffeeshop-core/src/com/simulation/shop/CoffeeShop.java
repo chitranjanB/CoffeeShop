@@ -1,8 +1,10 @@
 package com.simulation.shop;
 
 import java.time.Instant;
+import java.time.LocalTime;
 import java.util.concurrent.CompletableFuture;
 
+import com.simulation.shop.config.CoffeeShopRuntime;
 import com.simulation.shop.config.Config;
 import com.simulation.shop.config.Step;
 import com.simulation.shop.machine.EspressoMachine;
@@ -17,7 +19,8 @@ public class CoffeeShop {
 	private GrinderMachine grinderMachine = new GrinderMachine();
 	private EspressoMachine espressoMachine = new EspressoMachine();
 	private SteamerMachine steamerMachine = new SteamerMachine();
-
+	
+	
 	public static void main(String[] args) throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = args.length > 0 ? Integer.parseInt(args[0]) : Config.CUSTOMERS;
@@ -25,14 +28,15 @@ public class CoffeeShop {
 	}
 
 	public void start(int customers) throws Exception {
+		CoffeeShopRuntime.getInstance().setShopOpenTimestamp(LocalTime.now());
 		System.out.println("-----------------------COFFEE SHOP STARTED-----------------------------");
-
+		
 		for (int i = 0; i < customers; i++) {
 			String metadata = CoffeeUtility.buildMetadata(i);
 
 			CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> grindCoffee(grinderMachine, metadata))
 					.thenApply(grounds -> makeEspresso(espressoMachine, grounds, metadata))
-					.thenApply(coffee -> steamMilk(steamerMachine, metadata)).thenApply(milk -> print(milk, metadata))
+					.thenApply(coffee -> steamMilk(steamerMachine, metadata))
 					.thenRun(() -> System.out.println("done"));
 
 			future.get();
@@ -44,10 +48,6 @@ public class CoffeeShop {
 		CoffeeUtility.benchmarks();
 	}
 
-	private Milk print(Milk milk, String metadata) {
-		System.out.println(milk);
-		return milk;
-	}
 
 	private Grounds grindCoffee(GrinderMachine grinderMachine, String metadata) {
 		Instant start = Instant.now();
