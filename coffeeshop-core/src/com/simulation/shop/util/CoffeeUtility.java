@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -17,11 +16,15 @@ import com.simulation.shop.config.Step;
 import com.simulation.shop.model.Coffee;
 import com.simulation.shop.model.Latte;
 import com.simulation.shop.model.Milk;
+import com.simulation.shop.stats.ConsoleStats;
+import com.simulation.shop.stats.IStats;
 
 public class CoffeeUtility {
 
 	private static final String COLLECT_METRIC_FORMAT = "%s::%s::%s::%s";
 	private static BlockingQueue<String> queue = new ArrayBlockingQueue<String>(1024);
+
+	private static IStats statsReporter = new ConsoleStats();
 
 	public static void collectMetric(String threadName, Step step, String timeElapsed) {
 		if (isDebuggingEnabled()) {
@@ -59,13 +62,7 @@ public class CoffeeUtility {
 	}
 
 	private static void displayStats(Map<String, List<String>> map) {
-		Set<String> keys = map.keySet();
-
-		for (String key : keys) {
-			List<String> info = map.get(key);
-			System.out.println(key + " :: " + info);
-		}
-
+		statsReporter.report(map);
 	}
 
 	public static Latte mix(Coffee coffee, Milk milk) {
@@ -111,8 +108,7 @@ public class CoffeeUtility {
 
 		System.out.println(
 				String.format(Config.STATS_FORMAT, samples.size(), maxBrewTime, timePerLatte, totalBrewTime, samples));
-		System.out.println(
-				"-----------------------------------------------------------------------");
+		System.out.println("-----------------------------------------------------------------------");
 		System.out.println();
 		return timePerLatte;
 
@@ -126,4 +122,11 @@ public class CoffeeUtility {
 		return totalBrewTime;
 	}
 
+	public static String buildMetadata(int i) {
+		return "customer-" + i;
+	}
+
+	public static String buildThreadMeta(String oldMeta, String threadInfo) {
+		return oldMeta + "--" + threadInfo;
+	}
 }

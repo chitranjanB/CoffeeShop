@@ -28,49 +28,54 @@ public class CoffeeShop {
 		System.out.println("-----------------------COFFEE SHOP STARTED-----------------------------");
 
 		for (int i = 0; i < customers; i++) {
-			CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> grindCoffee(grinderMachine))
-					.thenApply(grounds -> makeEspresso(espressoMachine, grounds))
-					.thenApply(coffee -> steamMilk(steamerMachine)).thenApply(milk -> print(milk))
+			String metadata = CoffeeUtility.buildMetadata(i);
+
+			CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> grindCoffee(grinderMachine, metadata))
+					.thenApply(grounds -> makeEspresso(espressoMachine, grounds, metadata))
+					.thenApply(coffee -> steamMilk(steamerMachine, metadata)).thenApply(milk -> print(milk, metadata))
 					.thenRun(() -> System.out.println("done"));
-			
+
 			future.get();
 		}
 
 		// Wait for Async threads to complete
-		//Thread.sleep(3000);
+		// Thread.sleep(3000);
 
 		CoffeeUtility.benchmarks();
 	}
 
-	private Milk print(Milk milk) {
+	private Milk print(Milk milk, String metadata) {
 		System.out.println(milk);
 		return milk;
 	}
 
-	private Grounds grindCoffee(GrinderMachine grinderMachine) {
+	private Grounds grindCoffee(GrinderMachine grinderMachine, String metadata) {
 		Instant start = Instant.now();
 		Grounds grounds = grinderMachine.grind();
 		Instant finish = Instant.now();
 		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
-		CoffeeUtility.collectMetric(Thread.currentThread().getName(), Step.GRIND_COFFEE, timeElapsed);
+		CoffeeUtility.collectMetric(CoffeeUtility.buildThreadMeta(metadata, Thread.currentThread().getName()),
+				Step.GRIND_COFFEE, timeElapsed);
 		return grounds;
 	}
 
-	private Coffee makeEspresso(EspressoMachine espressoMachine, Grounds grounds) {
+	private Coffee makeEspresso(EspressoMachine espressoMachine, Grounds grounds, String metadata) {
 		Instant start = Instant.now();
 		Coffee coffee = espressoMachine.concentrate();
 		Instant finish = Instant.now();
 		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
-		CoffeeUtility.collectMetric(Thread.currentThread().getName(), Step.MAKE_ESPRESSO, timeElapsed);
+		CoffeeUtility.collectMetric(CoffeeUtility.buildThreadMeta(metadata, Thread.currentThread().getName()),
+				Step.MAKE_ESPRESSO, timeElapsed);
 		return coffee;
 	}
 
-	private Milk steamMilk(SteamerMachine steamerMachine) {
+	private Milk steamMilk(SteamerMachine steamerMachine, String metadata) {
 		Instant start = Instant.now();
 		Milk milk = steamerMachine.steam();
 		Instant finish = Instant.now();
 		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
-		CoffeeUtility.collectMetric(Thread.currentThread().getName(), Step.STEAM_MILK, timeElapsed);
+		CoffeeUtility.collectMetric(CoffeeUtility.buildThreadMeta(metadata, Thread.currentThread().getName()),
+				Step.STEAM_MILK, timeElapsed);
 		return milk;
 	}
 }
