@@ -46,7 +46,7 @@ public class CoffeeUtility {
 		for (String element : queue) {
 			String[] split = element.split("::");
 			String key = split[0];
-			String info = split[1] + ":" + split[2] + " (" + split[3] + ")";
+			String info = split[1] + "|" + split[2] + "|" + split[3];
 			List<String> value = null;
 			if (map.containsKey(key)) {
 				value = map.get(key);

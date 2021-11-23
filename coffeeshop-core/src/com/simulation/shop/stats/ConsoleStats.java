@@ -13,7 +13,7 @@ public class ConsoleStats implements IStats {
 
 		for (String key : keys) {
 			List<String> info = data.get(key);
-			System.out.println(key + " :: " + info);
+			System.out.println(key + "::" + info);
 		}
 
 	}
