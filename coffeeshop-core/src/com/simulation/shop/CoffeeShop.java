@@ -34,10 +34,9 @@ public class CoffeeShop {
 		for (int i = 0; i < customers; i++) {
 			String metadata = CoffeeUtility.buildMetadata(i);
 
-			CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> grindCoffee(grinderMachine, metadata))
+			CompletableFuture<Object> future = CompletableFuture.supplyAsync(() -> grindCoffee(grinderMachine, metadata))
 					.thenApply(grounds -> makeEspresso(espressoMachine, grounds, metadata))
-					.thenApply(coffee -> steamMilk(steamerMachine, metadata))
-					.thenRun(() -> System.out.println("done"));
+					.thenApply(coffee -> steamMilk(steamerMachine, metadata));
 
 			future.get();
 		}
