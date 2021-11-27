@@ -1,6 +1,8 @@
 package com.simulation.shop.model;
 
-public class Grounds {
+import com.simulation.shop.product.*;
+
+public class Grounds extends Product {
 
 	private int coffeeBeansInGms;
 

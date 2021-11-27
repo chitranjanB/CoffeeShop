@@ -1,6 +1,8 @@
 package com.simulation.shop.model;
 
-public class Latte {
+import com.simulation.shop.product.Product;
+
+public class Latte extends Product {
 
 	private Coffee coffee;
 	private Milk milk;
