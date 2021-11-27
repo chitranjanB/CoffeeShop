@@ -2,6 +2,8 @@ package com.simulation.shop;
 
 import java.time.Instant;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import com.simulation.shop.config.CoffeeShopRuntime;
@@ -31,6 +33,8 @@ public class CoffeeShop {
 		CoffeeShopRuntime.getInstance().setShopOpenTimestamp(LocalTime.now());
 		System.out.println("-----------------------COFFEE SHOP STARTED-----------------------------");
 		
+		List<CompletableFuture<Object>> futures = new ArrayList<>();
+		
 		for (int i = 0; i < customers; i++) {
 			String metadata = CoffeeUtility.buildMetadata(i);
 
@@ -38,12 +42,15 @@ public class CoffeeShop {
 					.thenApply(grounds -> makeEspresso(espressoMachine, grounds, metadata))
 					.thenApply(coffee -> steamMilk(steamerMachine, metadata));
 
-			future.get();
+			futures.add(future);
+			//future.get();
 		}
 
 		// Wait for Async threads to complete
-		// Thread.sleep(3000);
-
+		for(CompletableFuture<Object> future:futures) {
+			future.get();
+		}
+		
 		CoffeeUtility.benchmarks();
 	}
 
