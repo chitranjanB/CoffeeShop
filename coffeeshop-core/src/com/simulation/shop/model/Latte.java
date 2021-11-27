@@ -1,7 +1,5 @@
 package com.simulation.shop.model;
 
-import com.simulation.shop.product.Product;
-
 public class Latte extends Product {
 
 	private Coffee coffee;

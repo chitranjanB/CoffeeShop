@@ -1,7 +1,5 @@
 package com.simulation.shop.model;
 
-import com.simulation.shop.product.Product;
-
 public class Milk extends Product {
 	private int tempInC;
 	private int milkVolumeInML;

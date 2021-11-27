@@ -15,7 +15,7 @@ import com.simulation.shop.machine.EspressoMachine;
 import com.simulation.shop.machine.GrinderMachine;
 import com.simulation.shop.machine.IMachine;
 import com.simulation.shop.machine.SteamerMachine;
-import com.simulation.shop.product.Product;
+import com.simulation.shop.model.Product;
 import com.simulation.shop.util.CoffeeUtility;
 
 public class CoffeeShop {
@@ -38,7 +38,7 @@ public class CoffeeShop {
 		espressoMachines = new ArrayList<>();
 		steamerMachines = new ArrayList<>();
 
-		for (int i = 0; i < customers; i++) {
+		for (int i = 0; i < Config.MULTI_SHARED_INSTANCE; i++) {
 			grinderMachines.add(new GrinderMachine());
 			espressoMachines.add(new EspressoMachine());
 			steamerMachines.add(new SteamerMachine());

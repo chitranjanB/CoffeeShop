@@ -2,7 +2,7 @@ package com.simulation.shop.machine;
 
 import java.util.concurrent.locks.Lock;
 
-import com.simulation.shop.product.Product;
+import com.simulation.shop.model.Product;
 
 public interface IMachine {
 
