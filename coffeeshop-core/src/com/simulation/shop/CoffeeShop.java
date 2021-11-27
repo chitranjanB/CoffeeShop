@@ -1,5 +1,6 @@
 package com.simulation.shop;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -43,7 +44,6 @@ public class CoffeeShop {
 					.thenApply(coffee -> steamMilk(steamerMachine, metadata));
 
 			futures.add(future);
-			//future.get();
 		}
 
 		// Wait for Async threads to complete
@@ -51,6 +51,8 @@ public class CoffeeShop {
 			future.get();
 		}
 		
+		long millis = Duration.between(CoffeeShopRuntime.getInstance().getShopOpenTimestamp(), LocalTime.now()).toMillis();
+		System.out.println("---------------------COFFEE SHOP CLOSED ("+millis+"ms) --------------------------");
 		CoffeeUtility.benchmarks();
 	}
 
@@ -58,30 +60,27 @@ public class CoffeeShop {
 	private Grounds grindCoffee(GrinderMachine grinderMachine, String metadata) {
 		Instant start = Instant.now();
 		Grounds grounds = grinderMachine.grind();
-		Instant finish = Instant.now();
-		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
-		CoffeeUtility.collectMetric(CoffeeUtility.buildThreadMeta(metadata, Thread.currentThread().getName()),
-				Step.GRIND_COFFEE, timeElapsed);
+		Instant end = Instant.now();
+		CoffeeUtility.collectApexMetric(CoffeeUtility.buildThreadMeta(metadata, Thread.currentThread().getName()),
+				Step.GRIND_COFFEE, start, end);
 		return grounds;
 	}
 
 	private Coffee makeEspresso(EspressoMachine espressoMachine, Grounds grounds, String metadata) {
 		Instant start = Instant.now();
 		Coffee coffee = espressoMachine.concentrate();
-		Instant finish = Instant.now();
-		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
-		CoffeeUtility.collectMetric(CoffeeUtility.buildThreadMeta(metadata, Thread.currentThread().getName()),
-				Step.MAKE_ESPRESSO, timeElapsed);
+		Instant end = Instant.now();
+		CoffeeUtility.collectApexMetric(CoffeeUtility.buildThreadMeta(metadata, Thread.currentThread().getName()),
+				Step.MAKE_ESPRESSO, start, end);
 		return coffee;
 	}
 
 	private Milk steamMilk(SteamerMachine steamerMachine, String metadata) {
 		Instant start = Instant.now();
 		Milk milk = steamerMachine.steam();
-		Instant finish = Instant.now();
-		String timeElapsed = CoffeeUtility.timeElapsed(start, finish);
-		CoffeeUtility.collectMetric(CoffeeUtility.buildThreadMeta(metadata, Thread.currentThread().getName()),
-				Step.STEAM_MILK, timeElapsed);
+		Instant end = Instant.now();
+		CoffeeUtility.collectApexMetric(CoffeeUtility.buildThreadMeta(metadata, Thread.currentThread().getName()),
+				Step.STEAM_MILK, start, end);
 		return milk;
 	}
 }

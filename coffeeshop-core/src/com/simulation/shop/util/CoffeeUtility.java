@@ -2,7 +2,6 @@ package com.simulation.shop.util;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,35 +10,38 @@ import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import com.simulation.shop.config.CoffeeShopRuntime;
 import com.simulation.shop.config.Config;
 import com.simulation.shop.config.Step;
 import com.simulation.shop.model.Coffee;
 import com.simulation.shop.model.Latte;
 import com.simulation.shop.model.Milk;
-import com.simulation.shop.stats.ChartsStats;
-import com.simulation.shop.stats.ConsoleStats;
+import com.simulation.shop.stats.ApexTimelineChart;
 import com.simulation.shop.stats.IStats;
 
 public class CoffeeUtility {
 
-	private static final String COLLECT_METRIC_FORMAT = "%s::%s::%s::%s";
+	private static final String COLLECT_APEX_METRIC_FORMAT = "%s::%s::%s::%s";
+
 	private static BlockingQueue<String> queue = new ArrayBlockingQueue<String>(1024);
 
-	private static IStats statsReporter = new ConsoleStats();
+	private static IStats timelineReporter = new ApexTimelineChart();
 
-	public static void collectMetric(String threadName, Step step, String timeElapsedOnStep) {
+	public static void collectApexMetric(String threadName, Step step, Instant startInstant, Instant endInstant) {
 		if (isDebuggingEnabled()) {
-			LocalTime shopOpenTimestamp = CoffeeShopRuntime.getInstance().getShopOpenTimestamp();
-			String timeElapsedSinceOpen = Duration.between(shopOpenTimestamp, LocalTime.now()).toMillis() + "ms";
-			queue.add(String.format(COLLECT_METRIC_FORMAT, threadName, step, timeElapsedOnStep, timeElapsedSinceOpen));
+
+			String start = ApexUtil.formatApexDate(startInstant);
+			String end = ApexUtil.formatApexDate(endInstant);
+
+			queue.add(String.format(COLLECT_APEX_METRIC_FORMAT, threadName, step, start, end));
 		}
 	}
 
 	public static void benchmarks() {
 		if (isDebuggingEnabled()) {
 			Map<String, List<String>> map = processStats();
-			displayStats(map);
+			System.out.println(
+					"\n*******************BENCHMARK STATS (Apex Timeline chart)*******************");
+			displayApexStats(map);
 			queue.clear();
 		}
 
@@ -65,9 +67,8 @@ public class CoffeeUtility {
 		return map;
 	}
 
-	private static void displayStats(Map<String, List<String>> map) {
-		statsReporter.report(map);
-		new ChartsStats().report(map);
+	private static void displayApexStats(Map<String, List<String>> map) {
+		timelineReporter.report(map);
 	}
 
 	public static Latte mix(Coffee coffee, Milk milk) {
