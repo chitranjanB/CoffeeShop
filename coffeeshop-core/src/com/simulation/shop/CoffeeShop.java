@@ -15,23 +15,31 @@ import com.simulation.shop.machine.GrinderMachine;
 import com.simulation.shop.machine.SteamerMachine;
 import com.simulation.shop.model.Coffee;
 import com.simulation.shop.model.Grounds;
-import com.simulation.shop.model.Milk;
+import com.simulation.shop.model.SteamedMilk;
 import com.simulation.shop.util.CoffeeUtility;
 
 public class CoffeeShop {
+	
 	private GrinderMachine grinderMachine = new GrinderMachine();
 	private EspressoMachine espressoMachine = new EspressoMachine();
 	private SteamerMachine steamerMachine = new SteamerMachine();
-	
+
 	
 	public static void main(String[] args) throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = args.length > 0 ? Integer.parseInt(args[0]) : Config.CUSTOMERS;
-		shop.start(customers);
+		CoffeeUtility.loadupBeans(Config.BEANS_INVENTORY_LIMIT);
+		CoffeeUtility.loadupMilk(Config.MILK_INVENTORY_LIMIT);
+		try {
+			shop.start(customers);
+		} catch (CoffeeShopException e) {
+			System.err.println("We are currently experiencing some issues " + e.getLocalizedMessage());
+		}
 	}
 
 	public void start(int customers) throws Exception {
 		CoffeeShopRuntime.getInstance().setShopOpenTimestamp(LocalTime.now());
+		
 		System.out.println("-----------------------COFFEE SHOP STARTED-----------------------------");
 		
 		List<CompletableFuture<Object>> futures = new ArrayList<>();
@@ -39,9 +47,10 @@ public class CoffeeShop {
 		for (int i = 0; i < customers; i++) {
 			String metadata = CoffeeUtility.buildMetadata(i);
 
-			CompletableFuture<Object> future = CompletableFuture.supplyAsync(() -> grindCoffee(grinderMachine, metadata))
+			CompletableFuture<Object> future = CompletableFuture
+					.supplyAsync(() -> grindCoffee(grinderMachine, metadata))
 					.thenApply(grounds -> makeEspresso(espressoMachine, grounds, metadata))
-					.thenApply(coffee -> steamMilk(steamerMachine, metadata));
+					.thenApply(espresso -> steamMilk(steamerMachine, metadata)).thenApply(steamedMilk -> mix());
 
 			futures.add(future);
 		}
@@ -55,7 +64,6 @@ public class CoffeeShop {
 		System.out.println("---------------------COFFEE SHOP CLOSED ("+millis+"ms) --------------------------");
 		CoffeeUtility.benchmarks();
 	}
-
 
 	private Grounds grindCoffee(GrinderMachine grinderMachine, String metadata) {
 		Instant start = Instant.now();
@@ -75,12 +83,18 @@ public class CoffeeShop {
 		return coffee;
 	}
 
-	private Milk steamMilk(SteamerMachine steamerMachine, String metadata) {
+	private SteamedMilk steamMilk(SteamerMachine steamerMachine, String metadata) {
 		Instant start = Instant.now();
-		Milk milk = steamerMachine.steam();
+		SteamedMilk milk = steamerMachine.steam();
 		Instant end = Instant.now();
 		CoffeeUtility.collectApexMetric(CoffeeUtility.buildThreadMeta(metadata, Thread.currentThread().getName()),
 				Step.STEAM_MILK, start, end);
 		return milk;
 	}
+	
+	private Coffee mix() {
+		Coffee coffee = new Coffee();
+		return coffee;
+	}
+	
 }

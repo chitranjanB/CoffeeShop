@@ -1,5 +1,7 @@
 # Coffee Shop Simulation
 ## _Multi Threaded Approach with thread pool using completable future, each task in pipeline manner with lock interface_
+## _Reads/Write file for simulating inventory for Coffee beans and Milk_
+
 
 Coffee Shop Simulation is an attempt to understand performance of code and enhancing them using new features of the language and better design
 
@@ -10,6 +12,8 @@ Coffee Shop Simulation is an attempt to understand performance of code and enhan
 	- Future
 	- ExecutorService
 	- CompletableFuture
+	- Buffered Reader/Writer
+	- PrintWriter
 
 
 ## Full Report with 3 Customers and 1 pool

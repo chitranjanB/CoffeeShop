@@ -3,9 +3,9 @@ package com.simulation.shop.model;
 public class Latte {
 
 	private Coffee coffee;
-	private Milk milk;
+	private SteamedMilk milk;
 
-	public Latte(Coffee coffee, Milk milk) {
+	public Latte(Coffee coffee, SteamedMilk milk) {
 		this.coffee = coffee;
 		this.milk = milk;
 	}

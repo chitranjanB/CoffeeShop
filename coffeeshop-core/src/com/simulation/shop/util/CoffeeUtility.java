@@ -1,5 +1,7 @@
 package com.simulation.shop.util;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -14,7 +16,7 @@ import com.simulation.shop.config.Config;
 import com.simulation.shop.config.Step;
 import com.simulation.shop.model.Coffee;
 import com.simulation.shop.model.Latte;
-import com.simulation.shop.model.Milk;
+import com.simulation.shop.model.SteamedMilk;
 import com.simulation.shop.stats.ApexTimelineChart;
 import com.simulation.shop.stats.IStats;
 
@@ -26,6 +28,22 @@ public class CoffeeUtility {
 
 	private static IStats timelineReporter = new ApexTimelineChart();
 
+	public static void loadupBeans(int limit) throws IOException {
+		try (PrintWriter pw = new PrintWriter(Config.BEANS_INVENTORY)) {
+			for (int i = 1; i <= limit; i++) {
+				pw.println("**************" + i);
+			}
+		}
+	}
+	
+	public static void loadupMilk(int limit) throws IOException {
+		try (PrintWriter pw = new PrintWriter(Config.MILK_INVENTORY)) {
+			for (int i = 1; i <= limit; i++) {
+				pw.println("==============" + i);
+			}
+		}
+	}
+	
 	public static void collectApexMetric(String threadName, Step step, Instant startInstant, Instant endInstant) {
 		if (isDebuggingEnabled()) {
 
@@ -71,7 +89,7 @@ public class CoffeeUtility {
 		timelineReporter.report(map);
 	}
 
-	public static Latte mix(Coffee coffee, Milk milk) {
+	public static Latte mix(Coffee coffee, SteamedMilk milk) {
 		return new Latte(coffee, milk);
 	}
 
