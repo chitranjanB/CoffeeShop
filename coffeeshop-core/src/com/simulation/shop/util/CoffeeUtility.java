@@ -28,22 +28,41 @@ public class CoffeeUtility {
 
 	private static IStats timelineReporter = new ApexTimelineChart();
 
-	public static void loadupBeans(int limit) throws IOException {
-		try (PrintWriter pw = new PrintWriter(Config.BEANS_INVENTORY)) {
-			for (int i = 1; i <= limit; i++) {
-				pw.println("**************" + i);
+	public static int fetchRequiredMachines(int customers) {
+		return customers >= Config.MACHINES_LIMIT ? Config.MACHINES_LIMIT : customers;
+	}
+
+	public static int fetchCustomerId(String metadata) {
+		return Integer.parseInt(metadata.split("-")[1]);
+	}
+
+	public static int fetchMachineId() {
+		String machineName = Thread.currentThread().getName();
+		String[] split = machineName.split("-");
+		int machineId = Integer.parseInt(split[split.length - 1]);
+		return machineId - 1;
+	}
+
+	public static void loadupBeans(int machines, int limit) throws IOException {
+		for (int machine = 0; machine < machines; machine++) {
+			try (PrintWriter pw = new PrintWriter(String.format(Config.BEANS_INVENTORY, machine))) {
+				for (int i = 1; i <= limit; i++) {
+					pw.println("**************" + i);
+				}
 			}
 		}
 	}
-	
-	public static void loadupMilk(int limit) throws IOException {
-		try (PrintWriter pw = new PrintWriter(Config.MILK_INVENTORY)) {
-			for (int i = 1; i <= limit; i++) {
-				pw.println("==============" + i);
+
+	public static void loadupMilk(int machines, int limit) throws IOException {
+		for (int machine = 0; machine < machines; machine++) {
+			try (PrintWriter pw = new PrintWriter(String.format(Config.MILK_INVENTORY, machine))) {
+				for (int i = 1; i <= limit; i++) {
+					pw.println("==============" + i);
+				}
 			}
 		}
 	}
-	
+
 	public static void collectApexMetric(String threadName, Step step, Instant startInstant, Instant endInstant) {
 		if (isDebuggingEnabled()) {
 
@@ -57,8 +76,7 @@ public class CoffeeUtility {
 	public static void benchmarks() {
 		if (isDebuggingEnabled()) {
 			Map<String, List<String>> map = processStats();
-			System.out.println(
-					"\n*******************BENCHMARK STATS (Apex Timeline chart)*******************");
+			System.out.println("\n*******************BENCHMARK STATS (Apex Timeline chart)*******************");
 			displayApexStats(map);
 			queue.clear();
 		}

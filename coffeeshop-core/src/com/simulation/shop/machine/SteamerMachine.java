@@ -17,12 +17,12 @@ public class SteamerMachine {
 
 	private Lock steamerLock = new ReentrantLock();
 
-	public SteamedMilk steam() {
+	public SteamedMilk steam(int customerId) {
 		steamerLock.lock();
 		SteamedMilk steamedMilk = null;
 		try {
 			Thread.sleep(CoffeeUtility.buildStepTimeWithJitter());
-			String raw_milk = fetchMilkFromInventory();
+			String raw_milk = fetchMilkFromInventory(customerId);
 			
 			if (raw_milk == null) {
 				throw new OutOfIngredientsException("Milk is not in stock");
@@ -37,13 +37,14 @@ public class SteamerMachine {
 		return steamedMilk;
 	}
 	
-	private String fetchMilkFromInventory() {
-		File milkInventory = new File(Config.MILK_INVENTORY);
-		File tempFile = new File("resources/milk-temp.txt");
-		
-		String beans = getMilkFromInventory(milkInventory, tempFile);
+	private String fetchMilkFromInventory(int customerId) {
+		int machineId = CoffeeUtility.fetchMachineId();
+		File milkInventory = new File(String.format(Config.MILK_INVENTORY, machineId));
+		File tempFile = new File(String.format(Config.MILK_INVENTORY, "-temp" + machineId));
+
+		String milk = getMilkFromInventory(milkInventory, tempFile);
 		updateMilkInventory(milkInventory, tempFile);
-		return beans;
+		return milk;
 	}
 
 	private String getMilkFromInventory(File milkInventory, File tempFile) {
@@ -82,6 +83,10 @@ public class SteamerMachine {
 			System.err.println("Something went wrong " + e.getLocalizedMessage());
 		}
 		return isUpdated;
+	}
+
+	public Lock getSteamerLock() {
+		return steamerLock;
 	}
 
 

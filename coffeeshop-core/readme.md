@@ -1,6 +1,8 @@
 # Coffee Shop Simulation
 ## _Multi Threaded Approach with thread pool using completable future, each task in pipeline manner with lock interface_
-## _Reads/Write file for simulating inventory for Coffee beans and Milk_
+## _Reads/Write file with muliple instances for simulating inventory for Coffee beans and Milk_
+## _Multiple machine instance locking and each machine use only a particular inventory_
+e.g. machine-1 uses inventory-0 ...
 
 
 Coffee Shop Simulation is an attempt to understand performance of code and enhancing them using new features of the language and better design

@@ -23,5 +23,9 @@ public class EspressoMachine {
 		}
 		return coffee;
 	}
+	
+	public Lock getEspressoLock() {
+		return espressoLock;
+	}
 
 }
