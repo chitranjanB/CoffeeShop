@@ -17,12 +17,12 @@ public class SteamerMachine {
 
 	private Lock steamerLock = new ReentrantLock();
 
-	public SteamedMilk steam(int customerId) {
+	public SteamedMilk steam() {
 		steamerLock.lock();
 		SteamedMilk steamedMilk = null;
 		try {
 			Thread.sleep(CoffeeUtility.buildStepTimeWithJitter());
-			String raw_milk = fetchMilkFromInventory(customerId);
+			String raw_milk = fetchMilkFromInventory();
 			
 			if (raw_milk == null) {
 				throw new OutOfIngredientsException("Milk is not in stock");
@@ -37,7 +37,7 @@ public class SteamerMachine {
 		return steamedMilk;
 	}
 	
-	private String fetchMilkFromInventory(int customerId) {
+	private String fetchMilkFromInventory() {
 		int machineId = CoffeeUtility.fetchMachineId();
 		File milkInventory = new File(String.format(Config.MILK_INVENTORY, machineId));
 		File tempFile = new File(String.format(Config.MILK_INVENTORY, "-temp" + machineId));

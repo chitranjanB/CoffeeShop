@@ -86,8 +86,7 @@ public class CoffeeShop {
 
 	private Grounds grindCoffee(List<GrinderMachine> grinderMachines, String metadata) {
 		Instant start = Instant.now();
-		int customerId = CoffeeUtility.fetchCustomerId(metadata);
-		Grounds grounds = getAvailableGrinderMachine(grinderMachines).grind(customerId);
+		Grounds grounds = getAvailableGrinderMachine(grinderMachines).grind();
 		Instant end = Instant.now();
 		CoffeeUtility.collectApexMetric(CoffeeUtility.buildThreadMeta(metadata, Thread.currentThread().getName()),
 				Step.GRIND_COFFEE, start, end);
@@ -105,8 +104,7 @@ public class CoffeeShop {
 
 	private SteamedMilk steamMilk(List<SteamerMachine> steamerMachines, String metadata) {
 		Instant start = Instant.now();
-		int customerId = CoffeeUtility.fetchCustomerId(metadata);
-		SteamedMilk milk = getAvailableSteamerMachine(steamerMachines).steam(customerId);
+		SteamedMilk milk = getAvailableSteamerMachine(steamerMachines).steam();
 		Instant end = Instant.now();
 		CoffeeUtility.collectApexMetric(CoffeeUtility.buildThreadMeta(metadata, Thread.currentThread().getName()),
 				Step.STEAM_MILK, start, end);

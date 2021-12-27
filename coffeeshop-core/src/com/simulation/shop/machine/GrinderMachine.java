@@ -17,12 +17,12 @@ public class GrinderMachine {
 
 	private Lock grinderLock = new ReentrantLock();
 
-	public Grounds grind(int customerId) {
+	public Grounds grind() {
 		grinderLock.lock();
 		Grounds grounds = null;
 		try {
 			Thread.sleep(CoffeeUtility.buildStepTimeWithJitter());
-			String beans = fetchBeanFromInventory(customerId);
+			String beans = fetchBeanFromInventory();
 			if (beans == null) {
 				throw new OutOfIngredientsException("Beans are not in stock");
 			}
@@ -40,7 +40,7 @@ public class GrinderMachine {
 		return grinderLock;
 	}
 	
-	private String fetchBeanFromInventory(int customerId) {
+	private String fetchBeanFromInventory() {
 		int machineId = CoffeeUtility.fetchMachineId();
 		File beanInventory = new File(String.format(Config.BEANS_INVENTORY, machineId));
 		File tempFile = new File(String.format(Config.BEANS_INVENTORY, "-temp" + machineId));
