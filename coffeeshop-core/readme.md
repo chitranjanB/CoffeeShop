@@ -18,7 +18,5 @@ Coffee Shop Simulation is an attempt to understand performance of code and enhan
 	- PrintWriter
 
 
-## Full Report with 3 Customers and 1 pool
-customer-2--ForkJoinPool.commonPool-worker-1::[grindCoffee|263ms|1923ms, makeEspreso|263ms|2186ms, steaminMilk|266ms|2452ms]
-customer-0--ForkJoinPool.commonPool-worker-1::[grindCoffee|264ms|296ms, makeEspreso|261ms|616ms, steaminMilk|259ms|876ms]
-customer-1--ForkJoinPool.commonPool-worker-1::[grindCoffee|258ms|1135ms, makeEspreso|261ms|1396ms, steaminMilk|264ms|1660ms]
+## Timeline with 10 customers
+![Apex Chart](https://github.com/chitranjanB/CoffeeShop/blob/completablefuture_multiinstance_fileio/coffeeshop-core/chart.png)
