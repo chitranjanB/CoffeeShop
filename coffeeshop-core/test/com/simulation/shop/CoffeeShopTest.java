@@ -65,14 +65,4 @@ public class CoffeeShopTest {
 		int customers = 30;
 		shop.start(customers);
 	}
-	
-	@Test(expected = ExecutionException.class)
-	public void test_InventoryOver() throws Exception {
-		int limit = 1;
-		CoffeeUtility.loadupBeans(limit,limit);
-		CoffeeUtility.loadupMilk(limit,limit);
-		CoffeeShop shop = new CoffeeShop();
-		int customers = 2;
-		shop.start(customers);
-	}
 }

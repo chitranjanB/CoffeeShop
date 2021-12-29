@@ -38,6 +38,7 @@ public class CoffeeUtility {
 
 	public static int fetchMachineId() {
 		String machineName = Thread.currentThread().getName();
+		System.out.println(machineName);
 		String[] split = machineName.split("-");
 		int machineId = Integer.parseInt(split[split.length - 1]);
 		return machineId - 1;
