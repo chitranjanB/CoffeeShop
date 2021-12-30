@@ -1,17 +1,5 @@
 package com.simulation.shop.util;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-
 import com.simulation.shop.config.Config;
 import com.simulation.shop.config.Step;
 import com.simulation.shop.model.Coffee;
@@ -19,6 +7,17 @@ import com.simulation.shop.model.Latte;
 import com.simulation.shop.model.SteamedMilk;
 import com.simulation.shop.stats.ApexTimelineChart;
 import com.simulation.shop.stats.IStats;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public class CoffeeUtility {
 
@@ -44,23 +43,25 @@ public class CoffeeUtility {
 		return machineId - 1;
 	}
 
-	public static void loadupBeans(int machines, int limit) throws IOException {
-		for (int machine = 0; machine < machines; machine++) {
-			try (PrintWriter pw = new PrintWriter(String.format(Config.BEANS_INVENTORY, machine))) {
-				for (int i = 1; i <= limit; i++) {
-					pw.println("**************" + i);
-				}
-			}
-		}
+	public static void loadupBeans(int machines, int productLimit) {
+		Stream.iterate(0, i -> i + 1)
+				.limit(machines)
+				.forEach(machine -> loadMachine(productLimit, machine, Config.BEANS_INVENTORY));
 	}
 
-	public static void loadupMilk(int machines, int limit) throws IOException {
-		for (int machine = 0; machine < machines; machine++) {
-			try (PrintWriter pw = new PrintWriter(String.format(Config.MILK_INVENTORY, machine))) {
-				for (int i = 1; i <= limit; i++) {
-					pw.println("==============" + i);
-				}
-			}
+	public static void loadupMilk(int machines, int productLimit) {
+		Stream.iterate(0, i -> i + 1)
+				.limit(machines)
+				.forEach(machine -> loadMachine(productLimit, machine, Config.MILK_INVENTORY));
+	}
+
+	private static void loadMachine(int beansLimit, Integer machineId, String inventoryName) {
+		try (PrintWriter pw = new PrintWriter(String.format(inventoryName, machineId))) {
+			Stream.iterate(1, i -> i + 1)
+					.limit(beansLimit)
+					.forEach(i -> pw.println("**************" + i));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -81,7 +82,6 @@ public class CoffeeUtility {
 			displayApexStats(map);
 			queue.clear();
 		}
-
 	}
 
 	private static Map<String, List<String>> processStats() {
@@ -171,5 +171,26 @@ public class CoffeeUtility {
 
 	public static String buildThreadMeta(String oldMeta, String threadInfo) {
 		return oldMeta + "--" + threadInfo;
+	}
+
+	/**
+	 * Handles consumers which throws checked exception
+	 */
+	public static <T, E extends Exception> Consumer<T> handlingConsumerWrapper(
+			ThrowingConsumer<T, E> throwingConsumer, Class<E> exceptionClass) {
+
+		return i -> {
+			try {
+				throwingConsumer.accept(i);
+			} catch (Exception ex) {
+				try {
+					E exCast = exceptionClass.cast(ex);
+					System.err.println(
+							"Exception occured : " + exCast.getMessage());
+				} catch (ClassCastException ccEx) {
+					throw new RuntimeException(ex);
+				}
+			}
+		};
 	}
 }

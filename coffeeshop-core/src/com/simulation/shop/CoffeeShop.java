@@ -1,14 +1,19 @@
 package com.simulation.shop;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.simulation.shop.config.CoffeeShopRuntime;
 import com.simulation.shop.config.Config;
@@ -47,42 +52,46 @@ public class CoffeeShop {
 		
 		System.out.println("-----------------------COFFEE SHOP STARTED-----------------------------");
 		
-		grinderMachines = new ArrayList<>();
-		espressoMachines = new ArrayList<>();
-		steamerMachines = new ArrayList<>();
+		grinderMachines = Stream.iterate(1, i -> i + 1)
+				.limit(customers)
+				.map(i -> new GrinderMachine())
+				.collect(Collectors.toList());
 
-		for (int i = 1; i <= customers; i++) {
-			grinderMachines.add(new GrinderMachine());
-			espressoMachines.add(new EspressoMachine());
-			steamerMachines.add(new SteamerMachine());
-		}
-		
-		List<CompletableFuture<Object>> futures = new ArrayList<>();
-		
+		espressoMachines = Stream.iterate(1, i -> i + 1)
+				.limit(customers)
+				.map(i -> new EspressoMachine())
+				.collect(Collectors.toList());
+
+		steamerMachines = Stream.iterate(1, i -> i + 1)
+				.limit(customers)
+				.map(i -> new SteamerMachine())
+				.collect(Collectors.toList());
+		 
 		ExecutorService executor = Executors.newFixedThreadPool(CoffeeUtility.fetchRequiredMachines(customers));
-		
-		for (int i = 1; i <= customers; i++) {
-			String metadata = CoffeeUtility.buildMetadata(i);
 
-			CompletableFuture<Object> future = CompletableFuture
-					.supplyAsync(() -> grindCoffee(grinderMachines, metadata), executor)
-					.thenApply(grounds -> makeEspresso(espressoMachines, grounds, metadata))
-					.thenApply(espresso -> steamMilk(steamerMachines, metadata)).thenApply(steamedMilk -> mix());
+		List<CompletableFuture<Coffee>> futures = Stream.iterate(1, i -> i + 1)
+				.limit(customers)
+				.map(i -> {
+					String metadata = CoffeeUtility.buildMetadata(i);
+					return CompletableFuture
+							.supplyAsync(() -> grindCoffee(grinderMachines, metadata), executor)
+							.thenApply(grounds -> makeEspresso(espressoMachines, grounds, metadata))
+							.thenApply(espresso -> steamMilk(steamerMachines, metadata)).thenApply(steamedMilk -> mix());
+				})
+				.collect(Collectors.toList());
 
-			futures.add(future);
-		}
 
 		// Wait for Async threads to complete
-		for(CompletableFuture<Object> future:futures) {
-			future.get();
-		}
-		
+		futures.stream().
+				forEach(CoffeeUtility.handlingConsumerWrapper(future -> future.get(), Exception.class));
+
 		long millis = Duration.between(CoffeeShopRuntime.getInstance().getShopOpenTimestamp(), LocalTime.now()).toMillis();
 		System.out.println("---------------------COFFEE SHOP CLOSED ("+millis+"ms) --------------------------");
 		CoffeeUtility.benchmarks();
 		
 		executor.shutdown();
 	}
+
 
 	private Grounds grindCoffee(List<GrinderMachine> grinderMachines, String metadata) {
 		Instant start = Instant.now();
@@ -117,48 +126,15 @@ public class CoffeeShop {
 	}
 	
 	private GrinderMachine getAvailableGrinderMachine(List<GrinderMachine> machines) {
-		GrinderMachine availableMachine = null;
-		while (availableMachine == null) {
-			for (int i = 0; i < machines.size(); i++) {
-				GrinderMachine machine = machines.get(i);
-				Lock machineLock = machine.getGrinderLock();
-				if (machineLock.tryLock()) {
-					availableMachine = machine;
-					break;
-				}
-			}
-		}
-		return availableMachine;
+		return machines.stream().filter(m->m.getGrinderLock().tryLock()).findAny().get();
 	}
 	
 	private EspressoMachine getAvailableEspressoMachine(List<EspressoMachine> machines) {
-		EspressoMachine availableMachine = null;
-		while (availableMachine == null) {
-			for (int i = 0; i < machines.size(); i++) {
-				EspressoMachine machine = machines.get(i);
-				Lock machineLock = machine.getEspressoLock();
-				if (machineLock.tryLock()) {
-					availableMachine = machine;
-					break;
-				}
-			}
-		}
-		return availableMachine;
+		return machines.stream().filter(m->m.getEspressoLock().tryLock()).findAny().get();
 	}
 	
 	private SteamerMachine getAvailableSteamerMachine(List<SteamerMachine> machines) {
-		SteamerMachine availableMachine = null;
-		while (availableMachine == null) {
-			for (int i = 0; i < machines.size(); i++) {
-				SteamerMachine machine = machines.get(i);
-				Lock machineLock = machine.getSteamerLock();
-				if (machineLock.tryLock()) {
-					availableMachine = machine;
-					break;
-				}
-			}
-		}
-		return availableMachine;
+		return machines.stream().filter(m->m.getSteamerLock().tryLock()).findAny().get();
 	}
 	
 }

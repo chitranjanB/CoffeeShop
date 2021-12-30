@@ -59,6 +59,7 @@ public class GrinderMachine {
 			beans = br.readLine();
 
 			int temp;
+
 			while (beans != null && (temp = br.read()) != -1) {
 				bw.write((char) temp);
 			}
