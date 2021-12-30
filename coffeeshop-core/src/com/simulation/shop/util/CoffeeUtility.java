@@ -8,9 +8,7 @@ import com.simulation.shop.model.SteamedMilk;
 import com.simulation.shop.stats.ApexTimelineChart;
 import com.simulation.shop.stats.IStats;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -37,7 +35,6 @@ public class CoffeeUtility {
 
 	public static int fetchMachineId() {
 		String machineName = Thread.currentThread().getName();
-		System.out.println(machineName);
 		String[] split = machineName.split("-");
 		int machineId = Integer.parseInt(split[split.length - 1]);
 		return machineId - 1;
@@ -54,6 +51,7 @@ public class CoffeeUtility {
 				.limit(machines)
 				.forEach(machine -> loadMachine(productLimit, machine, Config.MILK_INVENTORY));
 	}
+
 
 	private static void loadMachine(int beansLimit, Integer machineId, String inventoryName) {
 		try (PrintWriter pw = new PrintWriter(String.format(inventoryName, machineId))) {
@@ -193,4 +191,5 @@ public class CoffeeUtility {
 			}
 		};
 	}
+
 }

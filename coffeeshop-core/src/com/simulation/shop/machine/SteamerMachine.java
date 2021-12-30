@@ -17,7 +17,7 @@ public class SteamerMachine {
 
 	private Lock steamerLock = new ReentrantLock();
 
-	public SteamedMilk steam() {
+	public SteamedMilk steam(String metadata) {
 		steamerLock.lock();
 		SteamedMilk steamedMilk = null;
 		try {
@@ -25,12 +25,12 @@ public class SteamerMachine {
 			String raw_milk = fetchMilkFromInventory();
 			
 			if (raw_milk == null) {
-				throw new OutOfIngredientsException("Milk is not in stock");
+				throw new OutOfIngredientsException("Milk is not in stock - " + metadata);
 			}
 			
 			steamedMilk = new SteamedMilk(raw_milk);
 		} catch (InterruptedException e) {
-			System.err.println("Something went wrong " + e.getLocalizedMessage());
+			System.err.println("Something went wrong - " + metadata + e.getLocalizedMessage());
 		} finally {
 			steamerLock.unlock();
 		}
@@ -89,6 +89,4 @@ public class SteamerMachine {
 		return steamerLock;
 	}
 
-
-	
 }

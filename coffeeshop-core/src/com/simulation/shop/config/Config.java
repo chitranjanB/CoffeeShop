@@ -3,7 +3,9 @@ package com.simulation.shop.config;
 public class Config {
 	public static final String BEANS_INVENTORY = "resources/beans%s.txt";
 	public static final String MILK_INVENTORY = "resources/milk%s.txt";
-	
+	public static final String ORDER_POOL = "resources/orders.txt";
+
+
 	public static final int BEANS_INVENTORY_LIMIT = 10;
 	public static final int MILK_INVENTORY_LIMIT = 10;
 	

@@ -1,17 +1,14 @@
 package com.simulation.shop;
 
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.locks.Lock;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,7 +29,6 @@ public class CoffeeShop {
 	private List<EspressoMachine> espressoMachines;
 	private List<SteamerMachine> steamerMachines;
 
-	
 	public static void main(String[] args) throws Exception {
 		CoffeeShop shop = new CoffeeShop();
 		int customers = args.length > 0 ? Integer.parseInt(args[0]) : Config.CUSTOMERS;
@@ -47,11 +43,15 @@ public class CoffeeShop {
 		}
 	}
 
+	/**
+	 * The CoffeeShop on-start keeps polling orders.txt for continuous orders
+	 * The application stops, if -1 is encountered in orders.txt
+	 */
 	public void start(int customers) throws Exception {
 		CoffeeShopRuntime.getInstance().setShopOpenTimestamp(LocalTime.now());
 		
 		System.out.println("-----------------------COFFEE SHOP STARTED-----------------------------");
-		
+
 		grinderMachines = Stream.iterate(1, i -> i + 1)
 				.limit(customers)
 				.map(i -> new GrinderMachine())
@@ -69,21 +69,14 @@ public class CoffeeShop {
 		 
 		ExecutorService executor = Executors.newFixedThreadPool(CoffeeUtility.fetchRequiredMachines(customers));
 
-		List<CompletableFuture<Coffee>> futures = Stream.iterate(1, i -> i + 1)
-				.limit(customers)
-				.map(i -> {
-					String metadata = CoffeeUtility.buildMetadata(i);
-					return CompletableFuture
-							.supplyAsync(() -> grindCoffee(grinderMachines, metadata), executor)
-							.thenApply(grounds -> makeEspresso(espressoMachines, grounds, metadata))
-							.thenApply(espresso -> steamMilk(steamerMachines, metadata)).thenApply(steamedMilk -> mix());
-				})
-				.collect(Collectors.toList());
+		try (BufferedReader br = new BufferedReader(new FileReader(Config.ORDER_POOL));) {
+			String orderData = null;
 
-
-		// Wait for Async threads to complete
-		futures.stream().
-				forEach(CoffeeUtility.handlingConsumerWrapper(future -> future.get(), Exception.class));
+			while ((orderData = br.readLine()) != null) {
+				customers = Integer.parseInt(orderData);
+				service(customers, executor);
+			}
+		}
 
 		long millis = Duration.between(CoffeeShopRuntime.getInstance().getShopOpenTimestamp(), LocalTime.now()).toMillis();
 		System.out.println("---------------------COFFEE SHOP CLOSED ("+millis+"ms) --------------------------");
@@ -92,10 +85,34 @@ public class CoffeeShop {
 		executor.shutdown();
 	}
 
+	private boolean service(int customers, ExecutorService executor) {
+		if (customers == -1) {
+			//Close the shop
+			return true;
+		} else {
+			List<CompletableFuture<Coffee>> futures = Stream.iterate(1, i -> i + 1)
+					.limit(customers)
+					.map(i -> {
+						String metadata = CoffeeUtility.buildMetadata(i);
+						return CompletableFuture
+								.supplyAsync(() -> grindCoffee(grinderMachines, metadata), executor)
+								.thenApply(grounds -> makeEspresso(espressoMachines, grounds, metadata))
+								.thenApply(espresso -> steamMilk(steamerMachines, metadata)).thenApply(steamedMilk -> mix());
+					})
+					.collect(Collectors.toList());
+
+			// Wait for Async threads to complete
+			futures.stream()
+					.forEach(CoffeeUtility.handlingConsumerWrapper(future -> future.get(),
+							Exception.class));
+		}
+		return false;
+	}
+
 
 	private Grounds grindCoffee(List<GrinderMachine> grinderMachines, String metadata) {
 		Instant start = Instant.now();
-		Grounds grounds = getAvailableGrinderMachine(grinderMachines).grind();
+		Grounds grounds = getAvailableGrinderMachine(grinderMachines).grind(metadata);
 		Instant end = Instant.now();
 		CoffeeUtility.collectApexMetric(CoffeeUtility.buildThreadMeta(metadata, Thread.currentThread().getName()),
 				Step.GRIND_COFFEE, start, end);
@@ -104,7 +121,7 @@ public class CoffeeShop {
 
 	private Coffee makeEspresso(List<EspressoMachine> espressoMachines, Grounds grounds, String metadata) {
 		Instant start = Instant.now();
-		Coffee coffee = getAvailableEspressoMachine(espressoMachines).concentrate();
+		Coffee coffee = getAvailableEspressoMachine(espressoMachines).concentrate(metadata);
 		Instant end = Instant.now();
 		CoffeeUtility.collectApexMetric(CoffeeUtility.buildThreadMeta(metadata, Thread.currentThread().getName()),
 				Step.MAKE_ESPRESSO, start, end);
@@ -113,7 +130,7 @@ public class CoffeeShop {
 
 	private SteamedMilk steamMilk(List<SteamerMachine> steamerMachines, String metadata) {
 		Instant start = Instant.now();
-		SteamedMilk milk = getAvailableSteamerMachine(steamerMachines).steam();
+		SteamedMilk milk = getAvailableSteamerMachine(steamerMachines).steam(metadata);
 		Instant end = Instant.now();
 		CoffeeUtility.collectApexMetric(CoffeeUtility.buildThreadMeta(metadata, Thread.currentThread().getName()),
 				Step.STEAM_MILK, start, end);

@@ -17,19 +17,19 @@ public class GrinderMachine {
 
 	private Lock grinderLock = new ReentrantLock();
 
-	public Grounds grind() {
+	public Grounds grind(String metadata) {
 		grinderLock.lock();
 		Grounds grounds = null;
 		try {
 			Thread.sleep(CoffeeUtility.buildStepTimeWithJitter());
 			String beans = fetchBeanFromInventory();
 			if (beans == null) {
-				throw new OutOfIngredientsException("Beans are not in stock");
+				throw new OutOfIngredientsException("Beans are not in stock - "+metadata);
 			}
 			
 			grounds = new Grounds(beans);
 		} catch (InterruptedException e) {
-			System.err.println("Something went wrong - " + e.getLocalizedMessage());
+			System.err.println("Something went wrong - " + metadata + e.getLocalizedMessage());
 		} finally {
 			grinderLock.unlock();
 		}

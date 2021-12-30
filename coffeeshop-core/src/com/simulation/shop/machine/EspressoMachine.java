@@ -10,14 +10,14 @@ public class EspressoMachine {
 
 	private Lock espressoLock = new ReentrantLock();
 
-	public Coffee concentrate() {
+	public Coffee concentrate(String metadata) {
 		espressoLock.lock();
 		Coffee coffee = null;
 		try {
 			Thread.sleep(CoffeeUtility.buildStepTimeWithJitter());
 			coffee = new Coffee();
 		} catch (InterruptedException e) {
-			System.err.println("Something went wrong " + e.getLocalizedMessage());
+			System.err.println("Something went wrong - " + metadata + e.getLocalizedMessage());
 		} finally {
 			espressoLock.unlock();
 		}
