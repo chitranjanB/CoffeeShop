@@ -29,25 +29,23 @@ public class CoffeeShop {
 	private List<EspressoMachine> espressoMachines;
 	private List<SteamerMachine> steamerMachines;
 
-	public static void main(String[] args)  {
+	public static void main(String[] args) throws IOException {
+		PipedOutputStream pop = new PipedOutputStream();
+		PipedInputStream pip = new PipedInputStream();
+		pop.connect(pip);
 
 		Runnable kioskOperator = () -> {
 			try {
-				PrintWriter pw = new PrintWriter(new FileWriter(Config.ORDER_POOL, true));
 				Scanner sc = new Scanner(System.in);
+				int orders = -1;
 
-				String orders = "";
-				pw.println(orders);
-
-				while (CoffeeUtility.isShopClosed(orders)) {
+				while (!CoffeeUtility.isShopClosed(orders)) {
 					System.out.println("Input no. of orders to be placed : ");
-					orders = sc.nextLine();
-					pw.println(orders);
-					pw.flush();
+					orders = sc.nextInt();
+					CoffeeUtility.writeNoOfOrders(pop, orders);
 				}
 				sc.close();
-				pw.close();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				System.err.println("Error while placing order " + e.getLocalizedMessage());
 			}
 		};
@@ -57,55 +55,47 @@ public class CoffeeShop {
 
 		//The below code is given to main thread, so that results are ready once all orders are processed
 		CoffeeShop shop = new CoffeeShop();
-		int customers = args.length > 0 ? Integer.parseInt(args[0]) : Config.CUSTOMERS;
-		int machines = CoffeeUtility.fetchRequiredMachines(customers);
+		int machines = CoffeeUtility.fetchRequiredMachines(Config.CUSTOMERS);
 
 		CoffeeUtility.loadupBeans(machines, Config.BEANS_INVENTORY_LIMIT);
 		CoffeeUtility.loadupMilk(machines, Config.MILK_INVENTORY_LIMIT);
 		try {
-			shop.start(customers);
+			shop.start(pip);
 		} catch (Exception e) {
 			System.err.println("We are currently experiencing some issues " + e.getLocalizedMessage());
 		}
-
-
 	}
 
 	/**
-	 * The CoffeeShop on-start keeps polling orders.txt for continuous orders
-	 * The application stops, if -1 is encountered in orders.txt
+	 * The CoffeeShop on-start keeps polling piped input stream for continuous orders
+	 * The application stops, if 0 is encountered in input stream
+	 * @param pip
 	 */
-	public void start(int customers) throws Exception {
+	public void start(PipedInputStream pip) throws Exception {
 		CoffeeShopRuntime.getInstance().setShopOpenTimestamp(LocalTime.now());
-		
+
 		System.out.println("-----------------------COFFEE SHOP STARTED-----------------------------");
 
 		grinderMachines = Stream.iterate(1, i -> i + 1)
-				.limit(customers)
+				.limit(Config.CUSTOMERS)
 				.map(i -> new GrinderMachine())
 				.collect(Collectors.toList());
 
 		espressoMachines = Stream.iterate(1, i -> i + 1)
-				.limit(customers)
+				.limit(Config.CUSTOMERS)
 				.map(i -> new EspressoMachine())
 				.collect(Collectors.toList());
 
 		steamerMachines = Stream.iterate(1, i -> i + 1)
-				.limit(customers)
+				.limit(Config.CUSTOMERS)
 				.map(i -> new SteamerMachine())
 				.collect(Collectors.toList());
-		 
-		ExecutorService executor = Executors.newFixedThreadPool(CoffeeUtility.fetchRequiredMachines(customers));
 
-		try (BufferedReader br = new BufferedReader(new FileReader(Config.ORDER_POOL));) {
-			String orderData = null;
+		ExecutorService executor = Executors.newFixedThreadPool(CoffeeUtility.fetchRequiredMachines(Config.CUSTOMERS));
 
-			while ((orderData = br.readLine()) != null) {
-				if (!orderData.equals("")) {
-					customers = Integer.parseInt(orderData);
-					service(customers, executor);
-				}
-			}
+		int orders = 0;
+		while ((orders = CoffeeUtility.readNoOfOrders(pip)) !=0) {
+			service(orders, executor);
 		}
 
 		long millis = Duration.between(CoffeeShopRuntime.getInstance().getShopOpenTimestamp(), LocalTime.now()).toMillis();
@@ -115,13 +105,13 @@ public class CoffeeShop {
 		executor.shutdown();
 	}
 
-	private boolean service(int customers, ExecutorService executor) {
-		if (customers == -1) {
+	private boolean service(int orders, ExecutorService executor) {
+		if (orders == -1) {
 			//Close the shop
 			return true;
 		} else {
 			List<CompletableFuture<Coffee>> futures = Stream.iterate(1, i -> i + 1)
-					.limit(customers)
+					.limit(orders)
 					.map(i -> {
 						String metadata = CoffeeUtility.buildMetadata(i);
 						return CompletableFuture

@@ -9,6 +9,8 @@ import com.simulation.shop.stats.ApexTimelineChart;
 import com.simulation.shop.stats.IStats;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -25,8 +27,8 @@ public class CoffeeUtility {
 
 	private static IStats timelineReporter = new ApexTimelineChart();
 
-	public static boolean isShopClosed(String command) {
-		return !"-1".equals(command);
+	public static boolean isShopClosed(int command) {
+		return command == 0;
 	}
 
 	public static int fetchRequiredMachines(int customers) {
@@ -196,4 +198,43 @@ public class CoffeeUtility {
 		};
 	}
 
+	public static int readNoOfOrders(PipedInputStream orderInputStream) {
+		int noOfOrders = 0;
+		try {
+			noOfOrders = Integer.valueOf(readLine(orderInputStream));
+		} catch (Exception e) {
+			System.err.println("Exception occured : " + e.getMessage());
+		}
+		return noOfOrders;
+	}
+
+	public static void writeNoOfOrders(PipedOutputStream orderProducer, int noOfOrders) {
+		String orders = String.valueOf(noOfOrders);
+		int length = orders.length();
+		for (int i = 3; i > length; i--) {
+			orders = "0" + orders;
+		}
+		writeLine(orderProducer, orders);
+	}
+
+	public static String readLine(PipedInputStream orderInputStream) {
+		String data = "";
+		try {
+			for (int i = 0; i < 3; i++) {
+				data = data + String.valueOf((char) orderInputStream.read());
+			}
+
+		} catch (IOException e) {
+			System.err.println("Exception occured : " + e.getMessage());
+		}
+		return data;
+	}
+
+	public static void writeLine(PipedOutputStream orderProducer, String orders) {
+		try {
+			orderProducer.write(orders.getBytes(), 0, orders.length());
+		} catch (IOException e) {
+			System.err.println("Exception occured : " + e.getMessage());
+		}
+	}
 }
