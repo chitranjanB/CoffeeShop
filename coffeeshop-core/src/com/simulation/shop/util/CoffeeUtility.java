@@ -25,6 +25,10 @@ public class CoffeeUtility {
 
 	private static IStats timelineReporter = new ApexTimelineChart();
 
+	public static boolean isShopClosed(String command) {
+		return !"-1".equals(command);
+	}
+
 	public static int fetchRequiredMachines(int customers) {
 		return customers >= Config.MACHINES_LIMIT ? Config.MACHINES_LIMIT : customers;
 	}

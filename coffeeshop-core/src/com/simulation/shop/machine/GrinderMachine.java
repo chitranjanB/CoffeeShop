@@ -39,7 +39,7 @@ public class GrinderMachine {
 	public Lock getGrinderLock() {
 		return grinderLock;
 	}
-	
+
 	private String fetchBeanFromInventory() {
 		int machineId = CoffeeUtility.fetchMachineId();
 		File beanInventory = new File(String.format(Config.BEANS_INVENTORY, machineId));

@@ -1,11 +1,11 @@
 package com.simulation.shop;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,18 +29,46 @@ public class CoffeeShop {
 	private List<EspressoMachine> espressoMachines;
 	private List<SteamerMachine> steamerMachines;
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args)  {
+
+		Runnable kioskOperator = () -> {
+			try {
+				PrintWriter pw = new PrintWriter(new FileWriter(Config.ORDER_POOL, true));
+				Scanner sc = new Scanner(System.in);
+
+				String orders = "";
+				pw.println(orders);
+
+				while (CoffeeUtility.isShopClosed(orders)) {
+					System.out.println("Input no. of orders to be placed : ");
+					orders = sc.nextLine();
+					pw.println(orders);
+					pw.flush();
+				}
+				sc.close();
+				pw.close();
+			} catch (IOException e) {
+				System.err.println("Error while placing order " + e.getLocalizedMessage());
+			}
+		};
+
+		Thread kioskOperatorThread = new Thread(kioskOperator);
+		kioskOperatorThread.start();
+
+		//The below code is given to main thread, so that results are ready once all orders are processed
 		CoffeeShop shop = new CoffeeShop();
 		int customers = args.length > 0 ? Integer.parseInt(args[0]) : Config.CUSTOMERS;
 		int machines = CoffeeUtility.fetchRequiredMachines(customers);
-		
+
 		CoffeeUtility.loadupBeans(machines, Config.BEANS_INVENTORY_LIMIT);
 		CoffeeUtility.loadupMilk(machines, Config.MILK_INVENTORY_LIMIT);
 		try {
 			shop.start(customers);
-		} catch (CoffeeShopException e) {
+		} catch (Exception e) {
 			System.err.println("We are currently experiencing some issues " + e.getLocalizedMessage());
 		}
+
+
 	}
 
 	/**
@@ -73,8 +101,10 @@ public class CoffeeShop {
 			String orderData = null;
 
 			while ((orderData = br.readLine()) != null) {
-				customers = Integer.parseInt(orderData);
-				service(customers, executor);
+				if (!orderData.equals("")) {
+					customers = Integer.parseInt(orderData);
+					service(customers, executor);
+				}
 			}
 		}
 
