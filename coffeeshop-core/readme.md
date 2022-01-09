@@ -30,4 +30,4 @@ Coffee Shop Simulation is an attempt to understand performance of code and enhan
 
 ## Timeline with 10 customers
 
-![Apex Chart](https://github.com/chitranjanB/CoffeeShop/blob/completablefuture_multiinstance_fileio/coffeeshop-core/chart.png)
+![Apex Chart](https://github.com/chitranjanB/CoffeeShop/blob/completablefuture_multiinstance_fileio_polling/coffeeshop-core/chart.png)
