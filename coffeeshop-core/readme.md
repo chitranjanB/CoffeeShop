@@ -28,6 +28,10 @@ Coffee Shop Simulation is an attempt to understand performance of code and enhan
   - PrintWriter
   - PipedStreams
 
+## Architecture of implementation
+
+![Architecture](https://github.com/chitranjanB/CoffeeShop/blob/completablefuture_multiinstance_pipedstream/coffeeshop-core/assets/CoffeeShop_Architecture.drawio.png)
+
 ## Timeline with 10 customers
 
-![Apex Chart](https://github.com/chitranjanB/CoffeeShop/blob/completablefuture_multiinstance_pipedstream/coffeeshop-core/chart.png)
+![Apex Chart](https://github.com/chitranjanB/CoffeeShop/blob/completablefuture_multiinstance_pipedstream/coffeeshop-core/assets/chart.png)
