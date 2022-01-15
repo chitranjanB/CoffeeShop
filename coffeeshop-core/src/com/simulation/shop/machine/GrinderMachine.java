@@ -15,7 +15,12 @@ import com.simulation.shop.util.CoffeeUtility;
 
 public class GrinderMachine {
 
+	private String machineName;
 	private Lock grinderLock = new ReentrantLock();
+
+	public GrinderMachine(String machineName) {
+		this.machineName = machineName;
+	}
 
 	public Grounds grind(String metadata) {
 		grinderLock.lock();
@@ -35,13 +40,22 @@ public class GrinderMachine {
 		}
 		return grounds;
 	}
-	
+
 	public Lock getGrinderLock() {
 		return grinderLock;
 	}
 
+	public int getMachineId() {
+		return CoffeeUtility.fetchMachineId(this.machineName);
+	}
+
+	public boolean isBeanInventoryEmpty() {
+		File file = new File(String.format(Config.BEANS_INVENTORY, getMachineId()));
+		return file.length() == 0;
+	}
+
 	private String fetchBeanFromInventory() {
-		int machineId = CoffeeUtility.fetchMachineId();
+		int machineId = CoffeeUtility.fetchMachineId(this.machineName);
 		File beanInventory = new File(String.format(Config.BEANS_INVENTORY, machineId));
 		File tempFile = new File(String.format(Config.BEANS_INVENTORY, "-temp" + machineId));
 		
@@ -70,7 +84,6 @@ public class GrinderMachine {
 		return beans;
 	}
 
-	
 	private boolean updateBeanInventory(File beanInventory, File tempFile)  {
 		boolean isUpdated = true;
 		

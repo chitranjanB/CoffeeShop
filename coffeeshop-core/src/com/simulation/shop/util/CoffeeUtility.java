@@ -39,21 +39,24 @@ public class CoffeeUtility {
 		return Integer.parseInt(metadata.split("-")[1]);
 	}
 
-	public static int fetchMachineId() {
-		String machineName = Thread.currentThread().getName();
+	/**
+	 * It calculates where to pick the beans/milk inventory
+	 * @return
+	 */
+	public static int fetchMachineId(String machineName) {
 		String[] split = machineName.split("-");
 		int machineId = Integer.parseInt(split[split.length - 1]);
-		return machineId - 1;
+		return machineId;
 	}
 
 	public static void loadupBeans(int machines, int productLimit) {
-		Stream.iterate(0, i -> i + 1)
+		Stream.iterate(1, i -> i + 1)
 				.limit(machines)
 				.forEach(machine -> loadMachine(productLimit, machine, Config.BEANS_INVENTORY));
 	}
 
 	public static void loadupMilk(int machines, int productLimit) {
-		Stream.iterate(0, i -> i + 1)
+		Stream.iterate(1, i -> i + 1)
 				.limit(machines)
 				.forEach(machine -> loadMachine(productLimit, machine, Config.MILK_INVENTORY));
 	}
@@ -170,7 +173,7 @@ public class CoffeeUtility {
 	}
 
 	public static String buildMetadata(int i) {
-		return "customer-" + i;
+		return String.format(Config.CUSTOMER_PREFIX, UUID.randomUUID());
 	}
 
 	public static String buildThreadMeta(String oldMeta, String threadInfo) {

@@ -8,7 +8,12 @@ import com.simulation.shop.util.CoffeeUtility;
 
 public class EspressoMachine {
 
+	private String espressoMachineId;
 	private Lock espressoLock = new ReentrantLock();
+
+	public EspressoMachine(String espressoMachineId) {
+		this.espressoMachineId = espressoMachineId;
+	}
 
 	public Coffee concentrate(String metadata) {
 		espressoLock.lock();

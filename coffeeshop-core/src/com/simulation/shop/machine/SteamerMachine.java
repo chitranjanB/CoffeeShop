@@ -15,7 +15,21 @@ import com.simulation.shop.util.CoffeeUtility;
 
 public class SteamerMachine {
 
+	private String machineName;
 	private Lock steamerLock = new ReentrantLock();
+
+	public SteamerMachine(String machineName) {
+		this.machineName = machineName;
+	}
+
+	public int getMachineId(){
+		return CoffeeUtility.fetchMachineId(this.machineName);
+	}
+
+	public boolean isMilkInventoryEmpty() {
+		File file = new File(String.format(Config.MILK_INVENTORY, getMachineId()));
+		return file.length() == 0;
+	}
 
 	public SteamedMilk steam(String metadata) {
 		steamerLock.lock();
@@ -38,7 +52,7 @@ public class SteamerMachine {
 	}
 	
 	private String fetchMilkFromInventory() {
-		int machineId = CoffeeUtility.fetchMachineId();
+		int machineId = CoffeeUtility.fetchMachineId(this.machineName);
 		File milkInventory = new File(String.format(Config.MILK_INVENTORY, machineId));
 		File tempFile = new File(String.format(Config.MILK_INVENTORY, "-temp" + machineId));
 

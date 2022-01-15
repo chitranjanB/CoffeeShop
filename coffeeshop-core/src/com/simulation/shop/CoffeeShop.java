@@ -5,10 +5,13 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -78,17 +81,17 @@ public class CoffeeShop {
 
 		grinderMachines = Stream.iterate(1, i -> i + 1)
 				.limit(Config.CUSTOMERS)
-				.map(i -> new GrinderMachine())
+				.map(i -> new GrinderMachine(String.format(Config.MACHINEID_FORMAT, Config.GRINDER_PREFIX, i)))
 				.collect(Collectors.toList());
 
 		espressoMachines = Stream.iterate(1, i -> i + 1)
 				.limit(Config.CUSTOMERS)
-				.map(i -> new EspressoMachine())
+				.map(i -> new EspressoMachine(String.format(Config.MACHINEID_FORMAT, Config.ESPRESSO_PREFIX, i)))
 				.collect(Collectors.toList());
 
 		steamerMachines = Stream.iterate(1, i -> i + 1)
 				.limit(Config.CUSTOMERS)
-				.map(i -> new SteamerMachine())
+				.map(i -> new SteamerMachine(String.format(Config.MACHINEID_FORMAT, Config.STEAMER_PREFIX, i)))
 				.collect(Collectors.toList());
 
 		ExecutorService executor = Executors.newFixedThreadPool(CoffeeUtility.fetchRequiredMachines(Config.CUSTOMERS));
@@ -129,7 +132,6 @@ public class CoffeeShop {
 		return false;
 	}
 
-
 	private Grounds grindCoffee(List<GrinderMachine> grinderMachines, String metadata) {
 		Instant start = Instant.now();
 		Grounds grounds = getAvailableGrinderMachine(grinderMachines).grind(metadata);
@@ -161,17 +163,44 @@ public class CoffeeShop {
 		Coffee coffee = new Coffee();
 		return coffee;
 	}
-	
+
 	private GrinderMachine getAvailableGrinderMachine(List<GrinderMachine> machines) {
-		return machines.stream().filter(m->m.getGrinderLock().tryLock()).findAny().get();
+		Optional<GrinderMachine> optional = machines.stream().filter(m -> {
+			boolean isAvailable = false;
+			try {
+				isAvailable = !m.isBeanInventoryEmpty() && m.getGrinderLock().tryLock(100, TimeUnit.MILLISECONDS);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			return isAvailable;
+		}).findAny();
+		return optional.orElseThrow(()->new OutOfIngredientsException("Beans Inventory is empty"));
 	}
-	
+
 	private EspressoMachine getAvailableEspressoMachine(List<EspressoMachine> machines) {
-		return machines.stream().filter(m->m.getEspressoLock().tryLock()).findAny().get();
+		return machines.stream().filter(m -> {
+			boolean isAvailable = false;
+			try {
+				isAvailable = m.getEspressoLock().tryLock(100, TimeUnit.MILLISECONDS);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			return isAvailable;
+		}).findAny().get();
 	}
-	
+
 	private SteamerMachine getAvailableSteamerMachine(List<SteamerMachine> machines) {
-		return machines.stream().filter(m->m.getSteamerLock().tryLock()).findAny().get();
+		Optional<SteamerMachine> optional = machines.stream().filter(m -> {
+			boolean isAvailable = false;
+			try {
+				isAvailable =  !m.isMilkInventoryEmpty() && m.getSteamerLock().tryLock(100, TimeUnit.MILLISECONDS);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			return isAvailable;
+		}).findAny();
+
+		return optional.orElseThrow(()->new OutOfIngredientsException("Milk Inventory is empty"));
 	}
 	
 }
