@@ -13,6 +13,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import com.simulation.shop.config.CoffeeShopRuntime;
 import com.simulation.shop.config.Config;
@@ -167,6 +169,34 @@ public class CoffeeShop {
 	
 	private Coffee mix(StringBuffer metadata) {
 		Coffee coffee = new Coffee();
+		FileOutputStream fout = null;
+		try {
+			String[] split = metadata.toString().split(":");
+			String customerName = split[0];
+			String customerId = customerName.split("customer-")[1];
+			String grindingMachine = split[1];
+			String espressoMachine = split[2];
+			String steamingMachine = split[3];
+
+			fout = new FileOutputStream(String.format(Config.COFFEE_FORMAT, customerId));
+			ZipOutputStream zout = new ZipOutputStream(fout);
+
+			ZipEntry entry = new ZipEntry(Config.COFFEE_INFO);
+			zout.putNextEntry(entry);
+			String info = String.format(Config.DATA_FORMAT, customerName, grindingMachine, espressoMachine, steamingMachine);
+			InputStream fis = new ByteArrayInputStream(info.getBytes());
+
+			int data = 0;
+			while ((data = fis.read()) != -1) {
+				zout.write(data);
+			}
+
+			zout.closeEntry();
+			zout.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return coffee;
 	}
 
