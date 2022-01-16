@@ -6,7 +6,6 @@ import java.time.Instant;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -116,11 +115,12 @@ public class CoffeeShop {
 			List<CompletableFuture<Coffee>> futures = Stream.iterate(1, i -> i + 1)
 					.limit(orders)
 					.map(i -> {
-						String metadata = CoffeeUtility.buildMetadata(i);
+						StringBuffer metadata = CoffeeUtility.buildMetadata(i);
 						return CompletableFuture
 								.supplyAsync(() -> grindCoffee(grinderMachines, metadata), executor)
 								.thenApply(grounds -> makeEspresso(espressoMachines, grounds, metadata))
-								.thenApply(espresso -> steamMilk(steamerMachines, metadata)).thenApply(steamedMilk -> mix());
+								.thenApply(espresso -> steamMilk(steamerMachines, metadata))
+								.thenApply(steamedMilk -> mix(metadata));
 					})
 					.collect(Collectors.toList());
 
@@ -132,34 +132,40 @@ public class CoffeeShop {
 		return false;
 	}
 
-	private Grounds grindCoffee(List<GrinderMachine> grinderMachines, String metadata) {
+	private Grounds grindCoffee(List<GrinderMachine> grinderMachines, StringBuffer metadata) {
 		Instant start = Instant.now();
-		Grounds grounds = getAvailableGrinderMachine(grinderMachines).grind(metadata);
+		GrinderMachine machine = getAvailableGrinderMachine(grinderMachines);
+		metadata = CoffeeUtility.addMachineMetadata(metadata, machine.getMachineName());
+		Grounds grounds = machine.grind(metadata);
 		Instant end = Instant.now();
 		CoffeeUtility.collectApexMetric(CoffeeUtility.buildThreadMeta(metadata, Thread.currentThread().getName()),
 				Step.GRIND_COFFEE, start, end);
 		return grounds;
 	}
 
-	private Coffee makeEspresso(List<EspressoMachine> espressoMachines, Grounds grounds, String metadata) {
+	private Coffee makeEspresso(List<EspressoMachine> espressoMachines, Grounds grounds, StringBuffer metadata) {
 		Instant start = Instant.now();
-		Coffee coffee = getAvailableEspressoMachine(espressoMachines).concentrate(metadata);
+		EspressoMachine machine = getAvailableEspressoMachine(espressoMachines);
+		metadata = CoffeeUtility.addMachineMetadata(metadata, machine.getMachineName());
+		Coffee coffee = machine.concentrate(metadata);
 		Instant end = Instant.now();
 		CoffeeUtility.collectApexMetric(CoffeeUtility.buildThreadMeta(metadata, Thread.currentThread().getName()),
 				Step.MAKE_ESPRESSO, start, end);
 		return coffee;
 	}
 
-	private SteamedMilk steamMilk(List<SteamerMachine> steamerMachines, String metadata) {
+	private SteamedMilk steamMilk(List<SteamerMachine> steamerMachines, StringBuffer metadata) {
 		Instant start = Instant.now();
-		SteamedMilk milk = getAvailableSteamerMachine(steamerMachines).steam(metadata);
+		SteamerMachine machine = getAvailableSteamerMachine(steamerMachines);
+		metadata = CoffeeUtility.addMachineMetadata(metadata, machine.getMachineName());
+		SteamedMilk milk = machine.steam(metadata);
 		Instant end = Instant.now();
 		CoffeeUtility.collectApexMetric(CoffeeUtility.buildThreadMeta(metadata, Thread.currentThread().getName()),
 				Step.STEAM_MILK, start, end);
 		return milk;
 	}
 	
-	private Coffee mix() {
+	private Coffee mix(StringBuffer metadata) {
 		Coffee coffee = new Coffee();
 		return coffee;
 	}

@@ -9,8 +9,6 @@ import com.simulation.shop.stats.ApexTimelineChart;
 import com.simulation.shop.stats.IStats;
 
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -172,11 +170,11 @@ public class CoffeeUtility {
 		return totalBrewTime;
 	}
 
-	public static String buildMetadata(int i) {
-		return String.format(Config.CUSTOMER_PREFIX, UUID.randomUUID());
+	public static StringBuffer buildMetadata(int i) {
+		return new StringBuffer(String.format(Config.CUSTOMER_PREFIX, UUID.randomUUID()));
 	}
 
-	public static String buildThreadMeta(String oldMeta, String threadInfo) {
+	public static String buildThreadMeta(StringBuffer oldMeta, String threadInfo) {
 		return oldMeta + "--" + threadInfo;
 	}
 
@@ -239,5 +237,9 @@ public class CoffeeUtility {
 		} catch (IOException e) {
 			System.err.println("Exception occured : " + e.getMessage());
 		}
+	}
+
+	public static StringBuffer addMachineMetadata(StringBuffer metadata, String machineName) {
+		return metadata.append(":").append(machineName);
 	}
 }

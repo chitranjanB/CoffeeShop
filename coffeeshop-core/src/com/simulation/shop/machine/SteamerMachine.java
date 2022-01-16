@@ -22,26 +22,22 @@ public class SteamerMachine {
 		this.machineName = machineName;
 	}
 
-	public int getMachineId(){
-		return CoffeeUtility.fetchMachineId(this.machineName);
-	}
-
 	public boolean isMilkInventoryEmpty() {
 		File file = new File(String.format(Config.MILK_INVENTORY, getMachineId()));
 		return file.length() == 0;
 	}
 
-	public SteamedMilk steam(String metadata) {
+	public SteamedMilk steam(StringBuffer metadata) {
 		steamerLock.lock();
 		SteamedMilk steamedMilk = null;
 		try {
 			Thread.sleep(CoffeeUtility.buildStepTimeWithJitter());
 			String raw_milk = fetchMilkFromInventory();
-			
+
 			if (raw_milk == null) {
 				throw new OutOfIngredientsException("Milk is not in stock - " + metadata);
 			}
-			
+
 			steamedMilk = new SteamedMilk(raw_milk);
 		} catch (InterruptedException e) {
 			System.err.println("Something went wrong - " + metadata + e.getLocalizedMessage());
@@ -50,7 +46,15 @@ public class SteamerMachine {
 		}
 		return steamedMilk;
 	}
-	
+
+	public int getMachineId() {
+		return CoffeeUtility.fetchMachineId(this.machineName);
+	}
+
+	public String getMachineName() {
+		return this.machineName;
+	}
+
 	private String fetchMilkFromInventory() {
 		int machineId = CoffeeUtility.fetchMachineId(this.machineName);
 		File milkInventory = new File(String.format(Config.MILK_INVENTORY, machineId));
@@ -79,10 +83,10 @@ public class SteamerMachine {
 		return milk;
 	}
 
-	
+
 	private boolean updateMilkInventory(File milkInventory, File tempFile)  {
 		boolean isUpdated = true;
-		
+
 		try (BufferedWriter bw1 = new BufferedWriter(new FileWriter(milkInventory));
 				BufferedReader br1 = new BufferedReader(new FileReader(tempFile));) {
 			int original;

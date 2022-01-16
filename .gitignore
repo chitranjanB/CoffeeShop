@@ -8,6 +8,11 @@ target
 .project
 .settings
 
+# IDEA workspace
+*/.idea
+*/bin
+*.iml
+
 # Log file
 *.log
 

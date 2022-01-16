@@ -1,10 +1,6 @@
 package com.simulation.shop.machine;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -22,7 +18,7 @@ public class GrinderMachine {
 		this.machineName = machineName;
 	}
 
-	public Grounds grind(String metadata) {
+	public Grounds grind(StringBuffer metadata) {
 		grinderLock.lock();
 		Grounds grounds = null;
 		try {
@@ -47,6 +43,10 @@ public class GrinderMachine {
 
 	public int getMachineId() {
 		return CoffeeUtility.fetchMachineId(this.machineName);
+	}
+
+	public String getMachineName() {
+		return this.machineName;
 	}
 
 	public boolean isBeanInventoryEmpty() {
