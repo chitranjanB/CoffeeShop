@@ -8,13 +8,13 @@
 
 ## _Order from console will be pushed to pipedoutput stream and sent for processing through pipedinputstream_
 
-### Scenario:
-
-- Runs a game loop, Place 10 orders through console, realtime processing is done using pipedstreams, it waits for machine to become available and also checks if ingredients are in stock
-
 ## Introduction
 
 Coffee Shop Simulation is an attempt to understand performance of code and enhancing them using new features of the language and better design
+
+### Scenario:
+
+- Runs a game loop, Place 10(N) orders through console, realtime processing is done using pipedstreams, it waits for machine to become available and also checks if ingredients are in stock, It also keeps track of customer and machines used to make coffee. It then creates a zip file to simulate the end product with customer and machine details
 
 ## Features
 
@@ -27,6 +27,7 @@ Coffee Shop Simulation is an attempt to understand performance of code and enhan
   - Buffered Reader/Writer
   - PrintWriter
   - PipedStreams
+  - ZipStream
 
 ## Architecture of implementation
 
