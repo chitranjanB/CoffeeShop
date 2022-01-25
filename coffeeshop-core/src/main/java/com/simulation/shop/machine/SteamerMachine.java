@@ -4,6 +4,8 @@ import com.simulation.shop.OutOfIngredientsException;
 import com.simulation.shop.config.Constants;
 import com.simulation.shop.model.SteamedMilk;
 import com.simulation.shop.util.CoffeeUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.*;
@@ -11,6 +13,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class SteamerMachine {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SteamerMachine.class);
 
     private String machineName;
     private Lock steamerLock = new ReentrantLock();
@@ -40,7 +44,7 @@ public class SteamerMachine {
 
             steamedMilk = new SteamedMilk(raw_milk);
         } catch (InterruptedException e) {
-            System.err.println("Something went wrong - " + metadata + e.getLocalizedMessage());
+            LOGGER.error("Error while steaming milk for " + metadata + e.getLocalizedMessage(), e);
         } finally {
             steamerLock.unlock();
         }
@@ -85,7 +89,7 @@ public class SteamerMachine {
                 bw.write((char) temp);
             }
         } catch (Exception e) {
-            System.err.println("Something went wrong " + e.getLocalizedMessage());
+            LOGGER.error("Error while getting milk from inventory " + e.getLocalizedMessage(), e);
         }
         return milk;
     }
@@ -104,7 +108,7 @@ public class SteamerMachine {
             tempFile.deleteOnExit();
         } catch (Exception e) {
             isUpdated = false;
-            System.err.println("Something went wrong " + e.getLocalizedMessage());
+            LOGGER.error("Error while updating milk inventory " + e.getLocalizedMessage(), e);
         }
         return isUpdated;
     }

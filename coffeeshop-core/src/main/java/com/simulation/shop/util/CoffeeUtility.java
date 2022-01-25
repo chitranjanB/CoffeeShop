@@ -7,6 +7,8 @@ import com.simulation.shop.model.Latte;
 import com.simulation.shop.model.SteamedMilk;
 import com.simulation.shop.stats.ApexTimelineChart;
 import com.simulation.shop.stats.IStats;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -20,6 +22,8 @@ import java.util.stream.Stream;
 
 @Component
 public class CoffeeUtility {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoffeeUtility.class);
 
     private static final String COLLECT_APEX_METRIC_FORMAT = "%s::%s::%s::%s";
 
@@ -86,7 +90,7 @@ public class CoffeeUtility {
     public void benchmarks() {
         if (isDebuggingEnabled()) {
             Map<String, List<String>> map = processStats();
-            System.out.println("\n*******************BENCHMARK STATS (Apex Timeline chart)*******************");
+            LOGGER.info("\n*******************BENCHMARK STATS (Apex Timeline chart)*******************");
             displayApexStats(map);
             queue.clear();
         }
@@ -157,10 +161,9 @@ public class CoffeeUtility {
         }
         timePerLatte = timePerLatte / samples.size();
 
-        System.out.println(
+        LOGGER.info(
                 String.format(Constants.STATS_FORMAT, samples.size(), maxBrewTime, timePerLatte, totalBrewTime, samples));
-        System.out.println("-----------------------------------------------------------------------");
-        System.out.println();
+        LOGGER.info("-----------------------------------------------------------------------");
         return timePerLatte;
 
     }
@@ -193,8 +196,8 @@ public class CoffeeUtility {
             } catch (Exception ex) {
                 try {
                     E exCast = exceptionClass.cast(ex);
-                    System.err.println(
-                            "Exception occured 1 : " + exCast.getMessage());
+                    LOGGER.error(
+                            "Exception occured : " + exCast.getMessage(), exCast);
                 } catch (ClassCastException ccEx) {
                     throw new RuntimeException(ex);
                 }
@@ -207,7 +210,8 @@ public class CoffeeUtility {
         try {
             noOfOrders = Integer.valueOf(readLine(orderInputStream));
         } catch (Exception e) {
-            System.err.println("Exception occured : " + e.getMessage());
+            LOGGER.error(
+                    "Exception occured : " + e.getMessage(), e);
         }
         return noOfOrders;
     }
@@ -229,7 +233,8 @@ public class CoffeeUtility {
             }
 
         } catch (IOException e) {
-            System.err.println("Exception occured : " + e.getMessage());
+            LOGGER.error(
+                    "Exception occured : " + e.getMessage(), e);
         }
         return data;
     }
@@ -238,7 +243,8 @@ public class CoffeeUtility {
         try {
             orderProducer.write(orders.getBytes(), 0, orders.length());
         } catch (IOException e) {
-            System.err.println("Exception occured : " + e.getMessage());
+            LOGGER.error(
+                    "Exception occured : " + e.getMessage(), e);
         }
     }
 

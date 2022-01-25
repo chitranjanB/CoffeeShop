@@ -4,6 +4,8 @@ import com.simulation.shop.OutOfIngredientsException;
 import com.simulation.shop.config.Constants;
 import com.simulation.shop.model.Grounds;
 import com.simulation.shop.util.CoffeeUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.*;
@@ -11,6 +13,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class GrinderMachine {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(GrinderMachine.class);
 
 	@Autowired
 	private CoffeeUtility utility;
@@ -34,7 +38,7 @@ public class GrinderMachine {
 
 			grounds = new Grounds(beans);
 		} catch (InterruptedException e) {
-			System.err.println("Something went wrong - " + metadata + e.getLocalizedMessage());
+			LOGGER.error("Error while grinding beans " + e.getLocalizedMessage(), e);
 		} finally {
 			grinderLock.unlock();
 		}
@@ -91,7 +95,7 @@ public class GrinderMachine {
 			}
 		}
 		catch (Exception e) {
-			System.err.println("Something went wrong " + e.getLocalizedMessage());
+			LOGGER.error("Error while fetching beans from bean inventory " + e.getLocalizedMessage(), e);
 		}
 		return beans;
 	}
@@ -110,7 +114,7 @@ public class GrinderMachine {
 		}
 		catch (Exception e) {
 			isUpdated = false;
-			System.err.println("Something went wrong " + e.getLocalizedMessage());
+			LOGGER.error("Error while updating bean inventory " + e.getLocalizedMessage(), e);
 		}
 		return isUpdated;
 	}

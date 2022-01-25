@@ -11,6 +11,8 @@ import com.simulation.shop.model.Coffee;
 import com.simulation.shop.model.Grounds;
 import com.simulation.shop.model.SteamedMilk;
 import com.simulation.shop.util.CoffeeUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +36,8 @@ import java.util.zip.ZipOutputStream;
 
 @Component
 public class CoffeeShop {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoffeeShop.class);
 
     @Autowired
     private List<GrinderMachine> grinderMachines;
@@ -59,7 +63,7 @@ public class CoffeeShop {
     public void start(PipedInputStream pip) throws Exception {
         CoffeeShopRuntime.getInstance().setShopOpenTimestamp(LocalTime.now());
 
-        System.out.println("-----------------------COFFEE SHOP STARTED-----------------------------");
+        LOGGER.info("-----------------------COFFEE SHOP STARTED-----------------------------");
         ExecutorService executor = Executors.newFixedThreadPool(utility.fetchRequiredMachines(Constants.CUSTOMERS));
 
         int orders = 0;
@@ -68,7 +72,7 @@ public class CoffeeShop {
         }
 
         long millis = Duration.between(CoffeeShopRuntime.getInstance().getShopOpenTimestamp(), LocalTime.now()).toMillis();
-        System.out.println("---------------------COFFEE SHOP CLOSED (" + millis + "ms) --------------------------");
+        LOGGER.info("---------------------COFFEE SHOP CLOSED (" + millis + "ms) --------------------------");
         utility.benchmarks();
 
         executor.shutdown();
@@ -107,6 +111,7 @@ public class CoffeeShop {
         Instant end = Instant.now();
         utility.collectApexMetric(utility.buildThreadMeta(metadata, Thread.currentThread().getName()),
                 Step.GRIND_COFFEE, start, end);
+        LOGGER.debug("Grinding Coffee - Completed - " + metadata);
         return grounds;
     }
 
@@ -118,6 +123,7 @@ public class CoffeeShop {
         Instant end = Instant.now();
         utility.collectApexMetric(utility.buildThreadMeta(metadata, Thread.currentThread().getName()),
                 Step.MAKE_ESPRESSO, start, end);
+        LOGGER.debug("Espresso brew - Completed - " + metadata);
         return coffee;
     }
 
@@ -129,6 +135,7 @@ public class CoffeeShop {
         Instant end = Instant.now();
         utility.collectApexMetric(utility.buildThreadMeta(metadata, Thread.currentThread().getName()),
                 Step.STEAM_MILK, start, end);
+        LOGGER.debug("Steamed milk - Completed - " + metadata);
         return milk;
     }
 
@@ -159,9 +166,8 @@ public class CoffeeShop {
             zout.closeEntry();
             zout.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Error while mixing coffee " + e.getLocalizedMessage(), e);
         }
-
         return coffee;
     }
 
@@ -171,7 +177,7 @@ public class CoffeeShop {
             try {
                 isAvailable = !m.isBeanInventoryEmpty() && m.getGrinderLock().tryLock(100, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOGGER.error("Error while getting available grinding machine " + e.getLocalizedMessage(), e);
             }
             return isAvailable;
         }).findAny();
@@ -184,7 +190,7 @@ public class CoffeeShop {
             try {
                 isAvailable = m.getEspressoLock().tryLock(100, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOGGER.error("Error while getting available espresso machine " + e.getLocalizedMessage(), e);
             }
             return isAvailable;
         }).findAny().get();
@@ -196,12 +202,11 @@ public class CoffeeShop {
             try {
                 isAvailable = !m.isMilkInventoryEmpty() && m.getSteamerLock().tryLock(100, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOGGER.error("Error while getting available steamer machine " + e.getLocalizedMessage(), e);
             }
             return isAvailable;
         }).findAny();
 
         return optional.orElseThrow(() -> new OutOfIngredientsException("Milk Inventory is empty"));
     }
-
 }

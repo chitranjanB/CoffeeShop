@@ -7,10 +7,14 @@ import java.util.Set;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 @SuppressWarnings("unchecked")
 public class ApexTimelineChart implements IStats {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ApexTimelineChart.class);
 
 	private static final String FORMAT = "node=%s, start=%s, end=%s";
 	private static final String APEX_DATE_RENDER = "new Date(%s).getTime()";
@@ -49,7 +53,7 @@ public class ApexTimelineChart implements IStats {
 		String report = buildJsonReport(grindBeans, makeEspresso, steamMilk);
 		String sanitizedReport = sanitizeReport(report);
 
-		System.out.println(sanitizedReport);
+		LOGGER.info(sanitizedReport);
 	}
 
 	private String buildJsonReport(List<String> grindBeans, List<String> makeEspresso, List<String> steamMilk) {

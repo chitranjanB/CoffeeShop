@@ -1,13 +1,18 @@
 package com.simulation.shop.machine;
 
+import com.simulation.shop.CoffeeShop;
 import com.simulation.shop.model.Coffee;
 import com.simulation.shop.util.CoffeeUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class EspressoMachine {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(EspressoMachine.class);
 
 	@Autowired
 	private CoffeeUtility utility;
@@ -26,7 +31,7 @@ public class EspressoMachine {
 			Thread.sleep(utility.buildStepTimeWithJitter());
 			coffee = new Coffee();
 		} catch (InterruptedException e) {
-			System.err.println("Something went wrong - " + metadata + e.getLocalizedMessage());
+			LOGGER.error("Error while making espresso " + e.getLocalizedMessage(), e);
 		} finally {
 			espressoLock.unlock();
 		}
