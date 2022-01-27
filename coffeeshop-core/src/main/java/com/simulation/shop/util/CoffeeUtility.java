@@ -1,5 +1,6 @@
 package com.simulation.shop.util;
 
+import com.simulation.shop.config.CoffeeShopPropConfig;
 import com.simulation.shop.config.Constants;
 import com.simulation.shop.config.Step;
 import com.simulation.shop.model.Coffee;
@@ -9,6 +10,7 @@ import com.simulation.shop.stats.ApexTimelineChart;
 import com.simulation.shop.stats.IStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -23,6 +25,9 @@ import java.util.stream.Stream;
 @Component
 public class CoffeeUtility {
 
+    @Autowired
+    private CoffeeShopPropConfig config;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CoffeeUtility.class);
 
     private static final String COLLECT_APEX_METRIC_FORMAT = "%s::%s::%s::%s";
@@ -36,7 +41,8 @@ public class CoffeeUtility {
     }
 
     public int fetchRequiredMachines(int customers) {
-        return customers >= Constants.MACHINES_LIMIT ? Constants.MACHINES_LIMIT : customers;
+        int machineLimit = config.getMachine().getLimit();
+        return customers >= machineLimit ? machineLimit : customers;
     }
 
     public int fetchCustomerId(String metadata) {
@@ -137,9 +143,9 @@ public class CoffeeUtility {
         jitter = jitter > 0 ? random.nextInt(jitter) : jitter;
 
         if (random.nextBoolean()) {
-            result = Constants.STEP_PROCESSING_TIME + jitter;
+            result = config.getStep().getProcessing() + jitter;
         } else {
-            result = Constants.STEP_PROCESSING_TIME - jitter;
+            result = config.getStep().getProcessing() - jitter;
         }
         return result;
     }

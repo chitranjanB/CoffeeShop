@@ -1,6 +1,6 @@
 package com.simulation.shop;
 
-import com.simulation.shop.config.CoffeeShopConfig;
+import com.simulation.shop.config.CoffeeShopPropConfig;
 import com.simulation.shop.config.Constants;
 import com.simulation.shop.util.CoffeeUtility;
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ public class CoffeeshopCoreApplication {
     private CoffeeShop shop;
 
     @Autowired
-    private CoffeeShopConfig config;
+    private CoffeeShopPropConfig config;
 
     @Autowired
     private CoffeeUtility utility;
@@ -62,12 +62,12 @@ public class CoffeeshopCoreApplication {
             kioskOperatorThread.start();
 
             //The below code is given to main thread, so that results are ready once all orders are processed
-            int machines = utility.fetchRequiredMachines(Constants.CUSTOMERS);
+            int machines = utility.fetchRequiredMachines(config.getCustomer().getLimit());
 
             utility.loadupBeans(machines, config.getInventory().getBeans().getLimit());
             utility.loadupMilk(machines, config.getInventory().getMilk().getLimit());
             try {
-                shop.start(pip);
+                shop.service(pip);
             } catch (Exception e) {
                 LOGGER.error("We are currently experiencing some issues " + e.getLocalizedMessage(), e);
             }

@@ -1,26 +1,19 @@
 package com.simulation.shop.config;
 
+import org.springframework.stereotype.Component;
+
 import java.time.LocalTime;
 
+@Component
 public class CoffeeShopRuntime {
+    private LocalTime shopOpenTimestamp;
 
-	private static CoffeeShopRuntime coffeeRuntime = new CoffeeShopRuntime();
+    public LocalTime getShopOpenTimestamp() {
+        return shopOpenTimestamp;
+    }
 
-	private LocalTime shopOpenTimestamp;
-
-	public static CoffeeShopRuntime getInstance() {
-		if (coffeeRuntime != null) {
-			return coffeeRuntime;
-		}
-		return new CoffeeShopRuntime();
-	}
-
-	public LocalTime getShopOpenTimestamp() {
-		return shopOpenTimestamp;
-	}
-
-	public void setShopOpenTimestamp(LocalTime shopOpenTimestamp) {
-		this.shopOpenTimestamp = shopOpenTimestamp;
-	}
+    public void setShopOpenTimestamp(LocalTime shopOpenTimestamp) {
+        this.shopOpenTimestamp = shopOpenTimestamp;
+    }
 
 }

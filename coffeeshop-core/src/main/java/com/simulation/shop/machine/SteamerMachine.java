@@ -94,7 +94,6 @@ public class SteamerMachine {
         return milk;
     }
 
-
     private boolean updateMilkInventory(File milkInventory, File tempFile) {
         boolean isUpdated = true;
 

@@ -1,6 +1,6 @@
 package com.simulation.shop;
 
-import com.simulation.shop.config.CoffeeShopConfig;
+import com.simulation.shop.config.CoffeeShopPropConfig;
 import com.simulation.shop.config.CoffeeShopRuntime;
 import com.simulation.shop.config.Constants;
 import com.simulation.shop.config.Step;
@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -30,6 +32,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -49,10 +52,26 @@ public class CoffeeShop {
     private List<SteamerMachine> steamerMachines;
 
     @Autowired
-    private CoffeeShopConfig config;
+    private CoffeeShopPropConfig config;
 
     @Autowired
     private CoffeeUtility utility;
+
+    @Autowired
+    private CoffeeShopRuntime coffeeShopRuntime;
+
+    @PostConstruct
+    public void start() {
+        coffeeShopRuntime.setShopOpenTimestamp(LocalTime.now());
+        LOGGER.info("-----------------------COFFEE SHOP STARTED-----------------------------");
+    }
+
+    @PreDestroy
+    public void stop() {
+        long millis = Duration.between(coffeeShopRuntime.getShopOpenTimestamp(), LocalTime.now()).toMillis();
+        LOGGER.info("---------------------COFFEE SHOP CLOSED (" + millis + "ms) --------------------------");
+        utility.benchmarks();
+    }
 
     /**
      * The CoffeeShop on-start keeps polling piped input stream for continuous orders
@@ -60,25 +79,18 @@ public class CoffeeShop {
      *
      * @param pip
      */
-    public void start(PipedInputStream pip) throws Exception {
-        CoffeeShopRuntime.getInstance().setShopOpenTimestamp(LocalTime.now());
-
-        LOGGER.info("-----------------------COFFEE SHOP STARTED-----------------------------");
-        ExecutorService executor = Executors.newFixedThreadPool(utility.fetchRequiredMachines(Constants.CUSTOMERS));
+    public void service(PipedInputStream pip) throws Exception {
+        int customerLimit = config.getCustomer().getLimit();
+        ExecutorService executor = Executors.newFixedThreadPool(utility.fetchRequiredMachines(customerLimit));
 
         int orders = 0;
         while ((orders = utility.readNoOfOrders(pip)) != 0) {
-            service(orders, executor);
+            process(orders, executor);
         }
-
-        long millis = Duration.between(CoffeeShopRuntime.getInstance().getShopOpenTimestamp(), LocalTime.now()).toMillis();
-        LOGGER.info("---------------------COFFEE SHOP CLOSED (" + millis + "ms) --------------------------");
-        utility.benchmarks();
-
         executor.shutdown();
     }
 
-    private boolean service(int orders, ExecutorService executor) {
+    private boolean process(int orders, ExecutorService executor) {
         if (orders == -1) {
             //Close the shop
             return true;
@@ -141,7 +153,6 @@ public class CoffeeShop {
 
     private Coffee mix(StringBuffer metadata) {
         Coffee coffee = new Coffee();
-        FileOutputStream fout = null;
         try {
             String[] split = metadata.toString().split(":");
             String customerName = split[0];
@@ -150,21 +161,21 @@ public class CoffeeShop {
             String espressoMachine = split[2];
             String steamingMachine = split[3];
 
-            fout = new FileOutputStream(String.format(Constants.COFFEE_FORMAT, customerId));
-            ZipOutputStream zout = new ZipOutputStream(fout);
+            try (FileOutputStream fout = new FileOutputStream(String.format(Constants.COFFEE_FORMAT, customerId));
+                 ZipOutputStream zout = new ZipOutputStream(fout);) {
+                ZipEntry entry = new ZipEntry(Constants.COFFEE_JAR_ENTRY);
+                zout.putNextEntry(entry);
+                String info = String.format(Constants.DATA_FORMAT, customerName, grindingMachine, espressoMachine, steamingMachine);
+                InputStream fis = new ByteArrayInputStream(info.getBytes());
 
-            ZipEntry entry = new ZipEntry(Constants.COFFEE_JAR_ENTRY);
-            zout.putNextEntry(entry);
-            String info = String.format(Constants.DATA_FORMAT, customerName, grindingMachine, espressoMachine, steamingMachine);
-            InputStream fis = new ByteArrayInputStream(info.getBytes());
+                int data = 0;
+                while ((data = fis.read()) != -1) {
+                    zout.write(data);
+                }
 
-            int data = 0;
-            while ((data = fis.read()) != -1) {
-                zout.write(data);
+                zout.closeEntry();
+                fis.close();
             }
-
-            zout.closeEntry();
-            zout.close();
         } catch (Exception e) {
             LOGGER.error("Error while mixing coffee " + e.getLocalizedMessage(), e);
         }

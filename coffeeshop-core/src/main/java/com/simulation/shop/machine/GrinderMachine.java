@@ -14,109 +14,107 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class GrinderMachine {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(GrinderMachine.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GrinderMachine.class);
 
-	@Autowired
-	private CoffeeUtility utility;
+    @Autowired
+    private CoffeeUtility utility;
 
-	private String machineName;
-	private Lock grinderLock = new ReentrantLock();
+    private String machineName;
+    private Lock grinderLock = new ReentrantLock();
 
-	public GrinderMachine(String machineName) {
-		this.machineName = machineName;
-	}
+    public GrinderMachine(String machineName) {
+        this.machineName = machineName;
+    }
 
-	public Grounds grind(StringBuffer metadata) {
-		grinderLock.lock();
-		Grounds grounds = null;
-		try {
-			Thread.sleep(utility.buildStepTimeWithJitter());
-			String beans = fetchBeanFromInventory();
-			if (beans == null) {
-				throw new OutOfIngredientsException("Beans are not in stock - "+metadata);
-			}
+    public Grounds grind(StringBuffer metadata) {
+        grinderLock.lock();
+        Grounds grounds = null;
+        try {
+            Thread.sleep(utility.buildStepTimeWithJitter());
+            String beans = fetchBeanFromInventory();
+            if (beans == null) {
+                throw new OutOfIngredientsException("Beans are not in stock - " + metadata);
+            }
 
-			grounds = new Grounds(beans);
-		} catch (InterruptedException e) {
-			LOGGER.error("Error while grinding beans " + e.getLocalizedMessage(), e);
-		} finally {
-			grinderLock.unlock();
-		}
-		return grounds;
-	}
+            grounds = new Grounds(beans);
+        } catch (InterruptedException e) {
+            LOGGER.error("Error while grinding beans " + e.getLocalizedMessage(), e);
+        } finally {
+            grinderLock.unlock();
+        }
+        return grounds;
+    }
 
-	public Lock getGrinderLock() {
-		return grinderLock;
-	}
+    public Lock getGrinderLock() {
+        return grinderLock;
+    }
 
-	public int getMachineId() {
-		return utility.fetchMachineId(this.machineName);
-	}
+    public int getMachineId() {
+        return utility.fetchMachineId(this.machineName);
+    }
 
-	public String getMachineName() {
-		return this.machineName;
-	}
+    public String getMachineName() {
+        return this.machineName;
+    }
 
-	public CoffeeUtility getUtility() {
-		return utility;
-	}
+    public CoffeeUtility getUtility() {
+        return utility;
+    }
 
-	public void setUtility(CoffeeUtility utility) {
-		this.utility = utility;
-	}
+    public void setUtility(CoffeeUtility utility) {
+        this.utility = utility;
+    }
 
-	public boolean isBeanInventoryEmpty() {
-		File file = new File(String.format(Constants.BEANS_INVENTORY, getMachineId()));
-		return file.length() == 0;
-	}
+    public boolean isBeanInventoryEmpty() {
+        File file = new File(String.format(Constants.BEANS_INVENTORY, getMachineId()));
+        return file.length() == 0;
+    }
 
-	private String fetchBeanFromInventory() {
-		int machineId = utility.fetchMachineId(this.machineName);
-		File beanInventory = new File(String.format(Constants.BEANS_INVENTORY, machineId));
-		File tempFile = new File(String.format(Constants.BEANS_INVENTORY, "-temp" + machineId));
+    private String fetchBeanFromInventory() {
+        int machineId = utility.fetchMachineId(this.machineName);
+        File beanInventory = new File(String.format(Constants.BEANS_INVENTORY, machineId));
+        File tempFile = new File(String.format(Constants.BEANS_INVENTORY, "-temp" + machineId));
 
-		String beans = getBeansFromInventory(beanInventory, tempFile);
-		updateBeanInventory(beanInventory, tempFile);
-		return beans;
-	}
+        String beans = getBeansFromInventory(beanInventory, tempFile);
+        updateBeanInventory(beanInventory, tempFile);
+        return beans;
+    }
 
-	private String getBeansFromInventory(File beanInventory, File tempFile) {
-		String beans = null;
+    private String getBeansFromInventory(File beanInventory, File tempFile) {
+        String beans = null;
 
-		try (BufferedReader br = new BufferedReader(new FileReader(beanInventory));
-			 BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));) {
+        try (BufferedReader br = new BufferedReader(new FileReader(beanInventory));
+             BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));) {
 
-			beans = br.readLine();
+            beans = br.readLine();
 
-			int temp;
+            int temp;
 
-			while (beans != null && (temp = br.read()) != -1) {
-				bw.write((char) temp);
-			}
-		}
-		catch (Exception e) {
-			LOGGER.error("Error while fetching beans from bean inventory " + e.getLocalizedMessage(), e);
-		}
-		return beans;
-	}
+            while (beans != null && (temp = br.read()) != -1) {
+                bw.write((char) temp);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error while fetching beans from bean inventory " + e.getLocalizedMessage(), e);
+        }
+        return beans;
+    }
 
-	private boolean updateBeanInventory(File beanInventory, File tempFile)  {
-		boolean isUpdated = true;
+    private boolean updateBeanInventory(File beanInventory, File tempFile) {
+        boolean isUpdated = true;
 
-		try (BufferedWriter bw1 = new BufferedWriter(new FileWriter(beanInventory));
-			 BufferedReader br1 = new BufferedReader(new FileReader(tempFile));) {
-			int original;
+        try (BufferedWriter bw1 = new BufferedWriter(new FileWriter(beanInventory));
+             BufferedReader br1 = new BufferedReader(new FileReader(tempFile));) {
+            int original;
 
-			while ((original = br1.read()) != -1) {
-				bw1.write((char) original);
-			}
-			tempFile.deleteOnExit();
-		}
-		catch (Exception e) {
-			isUpdated = false;
-			LOGGER.error("Error while updating bean inventory " + e.getLocalizedMessage(), e);
-		}
-		return isUpdated;
-	}
+            while ((original = br1.read()) != -1) {
+                bw1.write((char) original);
+            }
+            tempFile.deleteOnExit();
+        } catch (Exception e) {
+            isUpdated = false;
+            LOGGER.error("Error while updating bean inventory " + e.getLocalizedMessage(), e);
+        }
+        return isUpdated;
+    }
 
 }

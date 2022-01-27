@@ -14,15 +14,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Configuration
-public class AppConfig {
+public class CoffeeShopBeanConfig {
 
     @Autowired
     private CoffeeUtility utility;
 
+    @Autowired
+    private CoffeeShopPropConfig config;
+
     @Bean
     public List<GrinderMachine> grinderMachines() {
         return Stream.iterate(1, i -> i + 1)
-                .limit(Constants.CUSTOMERS)
+                .limit(config.getCustomer().getLimit())
                 .map(i -> {
                             GrinderMachine machine = new GrinderMachine(String.format(Constants.MACHINEID_FORMAT, Constants.GRINDER_PREFIX, i));
                             machine.setUtility(utility);
@@ -35,7 +38,7 @@ public class AppConfig {
     @Bean
     public List<EspressoMachine> espressoMachines() {
         return Stream.iterate(1, i -> i + 1)
-                .limit(Constants.CUSTOMERS)
+                .limit(config.getCustomer().getLimit())
                 .map(i -> {
                     EspressoMachine machine = new EspressoMachine(String.format(Constants.MACHINEID_FORMAT, Constants.ESPRESSO_PREFIX, i));
                     machine.setUtility(utility);
@@ -47,7 +50,7 @@ public class AppConfig {
     @Bean
     public List<SteamerMachine> steamerMachines() {
         return Stream.iterate(1, i -> i + 1)
-                .limit(Constants.CUSTOMERS)
+                .limit(config.getCustomer().getLimit())
                 .map(i -> {
                     SteamerMachine machine = new SteamerMachine(String.format(Constants.MACHINEID_FORMAT, Constants.STEAMER_PREFIX, i));
                     machine.setUtility(utility);

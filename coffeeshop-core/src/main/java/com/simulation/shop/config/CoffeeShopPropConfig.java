@@ -5,16 +5,16 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConfigurationProperties(prefix = "coffeeshop")
-public class CoffeeShopConfig {
+public class CoffeeShopPropConfig {
     private Inventory inventory;
     private Customer customer;
+    private Machine machine;
     private Step step;
     private Debug debug;
 
     public static class Inventory {
         private Beans beans;
         private Milk milk;
-        private Machine machine;
 
         public static class Beans {
             private int limit;
@@ -29,18 +29,6 @@ public class CoffeeShopConfig {
         }
 
         public static class Milk {
-            private int limit;
-
-            public int getLimit() {
-                return limit;
-            }
-
-            public void setLimit(int limit) {
-                this.limit = limit;
-            }
-        }
-
-        public static class Machine {
             private int limit;
 
             public int getLimit() {
@@ -67,17 +55,21 @@ public class CoffeeShopConfig {
         public void setMilk(Milk milk) {
             this.milk = milk;
         }
-
-        public Machine getMachine() {
-            return machine;
-        }
-
-        public void setMachine(Machine machine) {
-            this.machine = machine;
-        }
     }
 
     public static class Customer {
+        private int limit;
+
+        public int getLimit() {
+            return limit;
+        }
+
+        public void setLimit(int limit) {
+            this.limit = limit;
+        }
+    }
+
+    public static class Machine {
         private int limit;
 
         public int getLimit() {
@@ -127,6 +119,14 @@ public class CoffeeShopConfig {
 
     public void setCustomer(Customer customer) {
         this.customer = customer;
+    }
+
+    public Machine getMachine() {
+        return machine;
+    }
+
+    public void setMachine(Machine machine) {
+        this.machine = machine;
     }
 
     public Step getStep() {
