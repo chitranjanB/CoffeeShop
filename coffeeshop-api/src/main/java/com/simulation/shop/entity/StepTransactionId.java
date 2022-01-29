@@ -3,19 +3,23 @@ package com.simulation.shop.entity;
 import com.simulation.shop.config.Step;
 
 import javax.persistence.Embeddable;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
 public class StepTransactionId implements Serializable {
+    @Enumerated(EnumType.STRING)
     private Step step;
+
     private String transactionId;
 
     public StepTransactionId() {
 
     }
 
-    public StepTransactionId(String transactionId, Step step) {
+    public StepTransactionId(Step step, String transactionId) {
         this.transactionId = transactionId;
         this.step = step;
     }

@@ -1,4 +1,4 @@
-package com.simulation.shop.service;
+package com.simulation.shop.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

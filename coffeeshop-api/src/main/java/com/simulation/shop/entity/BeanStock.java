@@ -7,17 +7,28 @@ import javax.persistence.Table;
 
 @Entity
 @Table
-public class GrinderStock {
+public class BeanStock {
 
     @Id
     @Column
-    private Integer beanQty;
+    private String stockId;
 
-    public Integer getBeanQty() {
-        return beanQty;
+    @Column
+    private String beans;
+
+    public String getStockId() {
+        return stockId;
     }
 
-    public void setBeanQty(Integer beanQty) {
-        this.beanQty = beanQty;
+    public void setStockId(String stockId) {
+        this.stockId = stockId;
+    }
+
+    public String getBeans() {
+        return beans;
+    }
+
+    public void setBeans(String beans) {
+        this.beans = beans;
     }
 }

@@ -5,6 +5,10 @@ public class Grounds {
     private String coffeeBeans;
     private int coffeeBeansInGms;
 
+    public Grounds() {
+
+    }
+
     public Grounds(String beans) {
         this.coffeeBeans = beans;
         this.coffeeBeansInGms = beans.length();

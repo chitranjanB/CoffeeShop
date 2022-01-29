@@ -5,6 +5,10 @@ public class SteamedMilk {
     private int tempInC;
     private int milkVolumeInML;
 
+    public SteamedMilk() {
+
+    }
+
     public SteamedMilk(String rawMilk) {
         this.rawMilk = rawMilk;
         this.tempInC = 130;

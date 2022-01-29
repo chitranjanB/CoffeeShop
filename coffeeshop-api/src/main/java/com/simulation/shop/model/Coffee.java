@@ -9,6 +9,11 @@ public class Coffee {
         this.coffeeVolumeInML = 20;
     }
 
+    public Coffee(int tempInC, int coffeeVolumeInML) {
+        this.tempInC = tempInC;
+        this.coffeeVolumeInML = coffeeVolumeInML;
+    }
+
     public int getTempInC() {
         return tempInC;
     }

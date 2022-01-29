@@ -1,8 +1,8 @@
 package com.simulation.shop.controller;
 
-import com.simulation.shop.model.Grounds;
+import com.simulation.shop.model.Coffee;
 import com.simulation.shop.request.InputRequest;
-import com.simulation.shop.service.GrindingService;
+import com.simulation.shop.service.EspressoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,16 +13,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/machine")
-public class GrinderController {
+public class EspressoController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GrinderController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EspressoController.class);
 
     @Autowired
-    private GrindingService service;
+    private EspressoService service;
 
-    @PostMapping(value="/grind")
-    public Grounds grind(@RequestBody InputRequest request) {
-        return service.grind(request.getTransactionId());
+    @PostMapping(value = "/espresso")
+    public Coffee makeEspresso(@RequestBody InputRequest request) {
+        return service.makeEspresso(request.getTransactionId());
     }
-
 }

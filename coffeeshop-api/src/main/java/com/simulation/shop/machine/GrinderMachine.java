@@ -1,12 +1,15 @@
 package com.simulation.shop.machine;
 
 import com.simulation.shop.OutOfIngredientsException;
+import com.simulation.shop.config.Step;
+import com.simulation.shop.entity.StepTransactionId;
 import com.simulation.shop.model.Grounds;
 import com.simulation.shop.util.CoffeeUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.Instant;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -24,12 +27,11 @@ public class GrinderMachine {
         this.machineName = machineName;
     }
 
-    public Grounds grind(String customerId) {
-        grinderLock.lock();
+    public Grounds grind(String transactionId, String customerId, String beans) {
+        Instant start = Instant.now();
         Grounds grounds = null;
         try {
             Thread.sleep(utility.buildStepTimeWithJitter());
-            String beans = fetchBeanFromInventory();
             if (beans == null) {
                 throw new OutOfIngredientsException("Beans are not in stock - " + customerId);
             }
@@ -39,6 +41,10 @@ public class GrinderMachine {
         } finally {
             grinderLock.unlock();
         }
+
+        StepTransactionId stepTransactionId = new StepTransactionId(Step.GRIND_COFFEE, transactionId);
+        utility.auditLog(stepTransactionId, getMachineName(), customerId, start);
+
         return grounds;
     }
 
@@ -62,12 +68,4 @@ public class GrinderMachine {
         this.utility = utility;
     }
 
-    public boolean isBeanInventoryEmpty() {
-        return false;
-    }
-
-    private String fetchBeanFromInventory() {
-        int machineId = utility.fetchMachineId(this.machineName);
-        return "--------------------";
-    }
 }

@@ -5,6 +5,10 @@ public class Latte {
     private Coffee coffee;
     private SteamedMilk milk;
 
+    public Latte() {
+
+    }
+
     public Latte(Coffee coffee, SteamedMilk milk) {
         this.coffee = coffee;
         this.milk = milk;

@@ -3,11 +3,15 @@ package com.simulation.shop.config;
 import com.simulation.shop.machine.EspressoMachine;
 import com.simulation.shop.machine.GrinderMachine;
 import com.simulation.shop.machine.SteamerMachine;
+import com.simulation.shop.service.AuditLogService;
 import com.simulation.shop.util.CoffeeUtility;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -16,10 +20,21 @@ import java.util.stream.Stream;
 public class CoffeeShopBeanConfig {
 
     @Autowired
+    private AuditLogService auditLogService;
+
+    @Autowired
     private CoffeeUtility utility;
 
     @Autowired
     private CoffeeShopPropConfig config;
+
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder
+                .setConnectTimeout(Duration.ofMillis(3000))
+                .setReadTimeout(Duration.ofMillis(3000))
+                .build();
+    }
 
     @Bean
     public List<GrinderMachine> grinderMachines() {
