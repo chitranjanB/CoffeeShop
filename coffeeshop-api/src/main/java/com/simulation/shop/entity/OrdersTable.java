@@ -1,9 +1,8 @@
 package com.simulation.shop.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import com.simulation.shop.model.Status;
+
+import javax.persistence.*;
 
 @Entity
 @Table
@@ -15,7 +14,8 @@ public class OrdersTable {
     @Column
     private String customerId;
     @Column
-    private boolean completed;
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     public String getTransactionId() {
         return transactionId;
@@ -33,11 +33,11 @@ public class OrdersTable {
         this.customerId = customerId;
     }
 
-    public boolean isCompleted() {
-        return completed;
+    public Status getStatus() {
+        return status;
     }
 
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }

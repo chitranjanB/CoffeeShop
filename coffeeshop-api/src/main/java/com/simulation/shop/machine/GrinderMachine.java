@@ -52,10 +52,6 @@ public class GrinderMachine {
         return grinderLock;
     }
 
-    public int getMachineId() {
-        return utility.fetchMachineId(this.machineName);
-    }
-
     public String getMachineName() {
         return this.machineName;
     }

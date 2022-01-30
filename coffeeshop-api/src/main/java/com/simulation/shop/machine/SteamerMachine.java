@@ -52,10 +52,6 @@ public class SteamerMachine {
         return steamerLock;
     }
 
-    public int getMachineId() {
-        return utility.fetchMachineId(this.machineName);
-    }
-
     public String getMachineName() {
         return this.machineName;
     }

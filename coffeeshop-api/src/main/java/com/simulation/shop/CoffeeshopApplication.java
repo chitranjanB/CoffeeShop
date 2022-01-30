@@ -1,7 +1,5 @@
 package com.simulation.shop;
 
-import com.simulation.shop.entity.BeanStock;
-import com.simulation.shop.entity.MilkStock;
 import com.simulation.shop.repository.BeansRepository;
 import com.simulation.shop.repository.MilkRepository;
 import com.simulation.shop.util.CoffeeUtility;
@@ -46,9 +44,7 @@ public class CoffeeshopApplication {
 
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
-        return args -> {
-            utility.loadInventory();
-        };
+        return args -> utility.loadInventory();
     }
 
     @Scheduled(fixedRate = 2000)
