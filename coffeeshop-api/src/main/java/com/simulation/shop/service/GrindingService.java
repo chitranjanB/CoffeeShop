@@ -5,6 +5,7 @@ import com.simulation.shop.entity.BeanStock;
 import com.simulation.shop.entity.OrdersTable;
 import com.simulation.shop.machine.GrinderMachine;
 import com.simulation.shop.model.Grounds;
+import com.simulation.shop.model.Status;
 import com.simulation.shop.repository.BeansRepository;
 import com.simulation.shop.repository.OrdersRepository;
 import org.slf4j.Logger;
@@ -35,16 +36,24 @@ public class GrindingService {
 
     public Grounds grind(String transactionId) {
         //fetch beans from inventory
+        //TODO issue multiple thread(customers) gets the same stock, as all stock are pending status
         BeanStock stock = StreamSupport.stream(
                 beanInventory.findAll().spliterator(), false)
+                .filter(b -> Status.PENDING.equals(b.getStatus()))
                 .findAny().orElseThrow(() -> new OutOfIngredientsException("Beans Inventory is empty"));
+
+        stock.setStatus(Status.COMPLETE);
+        beanInventory.save(stock);
+
         GrinderMachine machine = getAvailableGrinderMachine(grinderMachines);
 
         //TODO grind using multithreading later
         OrdersTable order = ordersRepository.findById(transactionId).get();
         Grounds grounds = machine.grind(transactionId, order.getCustomerId(), stock.getBeans());
+
         //consume the bean stock
-        beanInventory.delete(stock);
+        //TODO issue when multiple thread(customers) gets the same stock
+        beanInventory.deleteById(stock.getStockId());
 
         LOGGER.debug("Grinding Coffee - Completed");
         return grounds;
@@ -64,7 +73,7 @@ public class GrindingService {
                 }
                 return isAvailable;
             }).findAny();
-            machine = optional.get();
+            machine = optional.orElse(null);
         }
         return machine;
     }

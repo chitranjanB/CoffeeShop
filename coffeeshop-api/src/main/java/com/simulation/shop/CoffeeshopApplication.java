@@ -47,7 +47,7 @@ public class CoffeeshopApplication {
         return args -> utility.loadInventory();
     }
 
-    @Scheduled(fixedRate = 2000)
+    @Scheduled(fixedRate = 2000, initialDelay = 10 * 1000)
     public void scheduleInventoryLoad() {
         utility.loadInventory();
     }

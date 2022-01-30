@@ -6,6 +6,7 @@ import com.simulation.shop.entity.AuditLog;
 import com.simulation.shop.entity.BeanStock;
 import com.simulation.shop.entity.MilkStock;
 import com.simulation.shop.entity.StepTransactionId;
+import com.simulation.shop.model.Status;
 import com.simulation.shop.repository.BeansRepository;
 import com.simulation.shop.repository.MilkRepository;
 import com.simulation.shop.service.AuditLogService;
@@ -54,24 +55,27 @@ public class CoffeeUtility {
     }
 
     public void loadInventory() {
+        int limit = config.getInventory().getBeans().getLimit();
         long count = StreamSupport.stream(
                 beansRepository.findAll().spliterator(), false)
                 .count();
 
-        if (count >= 100) {
+        if (count >= limit) {
             LOGGER.debug("Skipping inventory load, Count :" + count);
         } else {
             LOGGER.info("Loading inventory - current count :" + count);
-            for (int i = 1; i < 11; i++) {
+            for (int i = 1; i <= limit; i++) {
                 String stockId = UUID.randomUUID().toString();
 
                 BeanStock beanStock = new BeanStock();
                 beanStock.setStockId("bean-" + stockId);
                 beanStock.setBeans("**********");
+                beanStock.setStatus(Status.PENDING);
 
                 MilkStock milkStock = new MilkStock();
                 milkStock.setStockId("milk-" + stockId);
                 milkStock.setMilk("----------");
+                milkStock.setStatus(Status.PENDING);
 
                 beansRepository.save(beanStock);
                 milkRepository.save(milkStock);

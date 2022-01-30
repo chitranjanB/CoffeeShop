@@ -52,7 +52,7 @@ public class EspressoService {
                 }
                 return isAvailable;
             }).findAny();
-            machine = optional.get();
+            machine = optional.orElse(null);
         }
         return machine;
     }

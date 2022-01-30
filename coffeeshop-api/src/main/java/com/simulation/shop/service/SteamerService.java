@@ -4,6 +4,7 @@ import com.simulation.shop.OutOfIngredientsException;
 import com.simulation.shop.entity.MilkStock;
 import com.simulation.shop.entity.OrdersTable;
 import com.simulation.shop.machine.SteamerMachine;
+import com.simulation.shop.model.Status;
 import com.simulation.shop.model.SteamedMilk;
 import com.simulation.shop.repository.MilkRepository;
 import com.simulation.shop.repository.OrdersRepository;
@@ -35,15 +36,22 @@ public class SteamerService {
 
     public SteamedMilk steam(String transactionId) {
         //fetch beans from inventory
+        //TODO many customer gets the same stock, all stock are pending at beginning
         MilkStock stock = StreamSupport.stream(
                 milkRepository.findAll().spliterator(), false)
+                .filter(m -> Status.PENDING.equals(m.getStatus()))
                 .findAny().orElseThrow(() -> new OutOfIngredientsException("Milk Inventory is empty"));
         SteamerMachine machine = getAvailableSteamerMachine(steamerMachines);
+
+        stock.setStatus(Status.COMPLETE);
+        milkRepository.save(stock);
 
         //TODO grind using multithreading later
         OrdersTable order = ordersRepository.findById(transactionId).get();
         SteamedMilk grounds = machine.steam(transactionId, order.getCustomerId(), stock.getMilk());
+
         //consume the milk stock
+        //TODO many customer gets the same milk stock, and deleting gives error
         milkRepository.delete(stock);
 
         LOGGER.debug("Steamed milk - Completed");
@@ -64,7 +72,7 @@ public class SteamerService {
                 }
                 return isAvailable;
             }).findAny();
-            machine = optional.get();
+            machine = optional.orElse(null);
         }
         return machine;
     }

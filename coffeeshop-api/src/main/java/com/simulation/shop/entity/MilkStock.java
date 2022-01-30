@@ -1,9 +1,8 @@
 package com.simulation.shop.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import com.simulation.shop.model.Status;
+
+import javax.persistence.*;
 
 @Entity
 @Table
@@ -15,6 +14,10 @@ public class MilkStock {
 
     @Column
     private String milk;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     public String getStockId() {
         return stockId;
@@ -30,5 +33,13 @@ public class MilkStock {
 
     public void setMilk(String milk) {
         this.milk = milk;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }
