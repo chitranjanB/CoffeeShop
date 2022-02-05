@@ -51,12 +51,10 @@ public class ProcessService {
         for (int i = 0; i < orders; i++) {
             OrdersTable ordersTable = new OrdersTable();
             ordersTable.setCustomerId(request.getCustomerId());
-            String transactionId = UUID.randomUUID().toString();
-            transactionList.add(transactionId);
-            ordersTable.setTransactionId(transactionId);
             ordersTable.setStatus(Status.PENDING);
-
             ordersRepository.save(ordersTable);
+
+            transactionList.add(ordersTable.getTransactionId());
         }
         return transactionList;
     }

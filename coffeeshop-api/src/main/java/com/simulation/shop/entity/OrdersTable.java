@@ -1,6 +1,7 @@
 package com.simulation.shop.entity;
 
 import com.simulation.shop.model.Status;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 
@@ -9,6 +10,8 @@ import javax.persistence.*;
 public class OrdersTable {
 
     @Id
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     @Column
     private String transactionId;
     @Column
