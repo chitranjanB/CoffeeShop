@@ -19,6 +19,9 @@ public class BeanStock {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Column
+    private String assignedTo;
+
     public String getStockId() {
         return stockId;
     }
@@ -41,5 +44,13 @@ public class BeanStock {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public String getAssignedTo() {
+        return assignedTo;
+    }
+
+    public void setAssignedTo(String assignedTo) {
+        this.assignedTo = assignedTo;
     }
 }

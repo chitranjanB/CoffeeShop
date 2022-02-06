@@ -38,8 +38,6 @@ public class SteamerMachine {
             steamedMilk = new SteamedMilk(milk);
         } catch (InterruptedException e) {
             LOGGER.error("Error while steaming milk for " + e.getLocalizedMessage(), e);
-        } finally {
-            steamerLock.unlock();
         }
 
         StepTransactionId stepTransactionId = new StepTransactionId(Step.STEAM_MILK, transactionId);

@@ -38,8 +38,6 @@ public class GrinderMachine {
             grounds = new Grounds(beans);
         } catch (InterruptedException e) {
             LOGGER.error("Error while grinding beans " + e.getLocalizedMessage(), e);
-        } finally {
-            grinderLock.unlock();
         }
 
         StepTransactionId stepTransactionId = new StepTransactionId(Step.GRIND_COFFEE, transactionId);

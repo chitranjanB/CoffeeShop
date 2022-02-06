@@ -15,7 +15,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -35,45 +38,52 @@ public class GrindingService {
     private List<GrinderMachine> grinderMachines;
 
     public Grounds grind(String transactionId) {
-        //fetch beans from inventory
-        //TODO issue multiple thread(customers) gets the same stock, as all stock are pending status
-        BeanStock stock = StreamSupport.stream(
-                beanInventory.findAll().spliterator(), false)
-                .filter(b -> Status.PENDING.equals(b.getStatus()))
-                .findAny().orElseThrow(() -> new OutOfIngredientsException("Beans Inventory is empty"));
+        Lock grinderLock = null;
+        Grounds grounds = null;
+        try {
+            GrinderMachine machine = getAvailableGrinderMachine(grinderMachines);
+            grinderLock = machine.getGrinderLock();
 
-        stock.setStatus(Status.COMPLETE);
-        beanInventory.save(stock);
+            //fetch beans from inventory
+            //TODO issue multiple thread(customers) gets the same stock, as all stock are pending status
+            BeanStock stock = StreamSupport.stream(
+                            beanInventory.findAll().spliterator(), false)
+                    .filter(b -> Status.PENDING.equals(b.getStatus()))
+                    .filter(b -> b.getAssignedTo().equalsIgnoreCase(machine.getMachineName()))
+                    .findAny().orElseThrow(() -> new OutOfIngredientsException("Beans Inventory is empty "+machine.getMachineName()));
 
-        GrinderMachine machine = getAvailableGrinderMachine(grinderMachines);
+            stock.setStatus(Status.COMPLETE);
+            beanInventory.save(stock);
 
-        //TODO grind using multithreading later
-        OrdersTable order = ordersRepository.findById(transactionId).get();
-        Grounds grounds = machine.grind(transactionId, order.getCustomerId(), stock.getBeans());
+            //TODO grind using multithreading later
+            OrdersTable order = ordersRepository.findById(transactionId).get();
+            grounds = machine.grind(transactionId, order.getCustomerId(), stock.getBeans());
 
-        //consume the bean stock
-        //TODO issue when multiple thread(customers) gets the same stock
-        beanInventory.deleteById(stock.getStockId());
+            //consume the bean stock
+            //TODO issue when multiple thread(customers) gets the same stock
+            beanInventory.deleteById(stock.getStockId());
 
-        LOGGER.debug("Grinding Coffee - Completed");
+            LOGGER.debug("Grinding Coffee - Completed");
+        } finally {
+            grinderLock.unlock();
+        }
         return grounds;
     }
 
 
     private GrinderMachine getAvailableGrinderMachine(List<GrinderMachine> machines) {
         GrinderMachine machine = null;
-        // block until lock available
+
         while (machine == null) {
-            Optional<GrinderMachine> optional = machines.stream().filter(m -> {
+            machine = new Random().ints(0, 4).filter(i -> {
                 boolean isAvailable = false;
                 try {
-                    isAvailable = m.getGrinderLock().tryLock(100, TimeUnit.MILLISECONDS);
+                    isAvailable = machines.get(i).getGrinderLock().tryLock(100, TimeUnit.MILLISECONDS);
                 } catch (InterruptedException e) {
                     LOGGER.error("Error while getting available grinding machine " + e.getLocalizedMessage(), e);
                 }
                 return isAvailable;
-            }).findAny();
-            machine = optional.orElse(null);
+            }).mapToObj(i -> machines.get(i)).findAny().orElse(null);
         }
         return machine;
     }

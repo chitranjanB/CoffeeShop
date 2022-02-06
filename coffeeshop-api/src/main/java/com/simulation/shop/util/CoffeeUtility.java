@@ -65,22 +65,38 @@ public class CoffeeUtility {
         } else {
             LOGGER.info("Loading inventory - current count :" + count);
             for (int i = 1; i <= limit; i++) {
-                String stockId = UUID.randomUUID().toString();
+                //TODO change this to bulk insert
+                beansRepository.save(generateBeanStock(1));
+                beansRepository.save(generateBeanStock(2));
+                beansRepository.save(generateBeanStock(3));
+                beansRepository.save(generateBeanStock(4));
 
-                BeanStock beanStock = new BeanStock();
-                beanStock.setStockId("bean-" + stockId);
-                beanStock.setBeans("**********");
-                beanStock.setStatus(Status.PENDING);
-
-                MilkStock milkStock = new MilkStock();
-                milkStock.setStockId("milk-" + stockId);
-                milkStock.setMilk("----------");
-                milkStock.setStatus(Status.PENDING);
-
-                beansRepository.save(beanStock);
-                milkRepository.save(milkStock);
+                milkRepository.save(generateMilkStock(1));
+                milkRepository.save(generateMilkStock(2));
+                milkRepository.save(generateMilkStock(3));
+                milkRepository.save(generateMilkStock(4));
             }
         }
+    }
+
+    private BeanStock generateBeanStock(int machineId) {
+        String stockId = UUID.randomUUID().toString();
+        BeanStock beanStock = new BeanStock();
+        beanStock.setStockId("bean-" + stockId);
+        beanStock.setBeans("**********");
+        beanStock.setStatus(Status.PENDING);
+        beanStock.setAssignedTo(String.format(Constants.MACHINEID_FORMAT, Constants.GRINDER_PREFIX, machineId));
+        return beanStock;
+    }
+
+    private MilkStock generateMilkStock(int machineId) {
+        String stockId = UUID.randomUUID().toString();
+        MilkStock milkStock = new MilkStock();
+        milkStock.setStockId("milk-" + stockId);
+        milkStock.setMilk("----------");
+        milkStock.setStatus(Status.PENDING);
+        milkStock.setAssignedTo(String.format(Constants.MACHINEID_FORMAT, Constants.STEAMER_PREFIX, machineId));
+        return milkStock;
     }
 
     public int buildStepTimeWithJitter() {
@@ -89,11 +105,11 @@ public class CoffeeUtility {
         int jitter = Constants.JITTER;
         jitter = jitter > 0 ? random.nextInt(jitter) : jitter;
 
-        if (random.nextBoolean()) {
-            result = config.getStep().getProcessing() + jitter;
-        } else {
-            result = config.getStep().getProcessing() - jitter;
-        }
+//        if (random.nextBoolean()) {
+//            result = config.getStep().getProcessing() + jitter;
+//        } else {
+//            result = config.getStep().getProcessing() - jitter;
+//        }
         return result;
     }
 
