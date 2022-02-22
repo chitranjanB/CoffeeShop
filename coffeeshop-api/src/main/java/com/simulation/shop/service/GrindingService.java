@@ -56,7 +56,8 @@ public class GrindingService {
             beanInventory.save(stock);
 
             //TODO grind using multithreading later
-            OrdersTable order = ordersRepository.findById(transactionId).get();
+            OrdersTable order = ordersRepository.findById(transactionId)
+                    .orElseThrow(() -> new IllegalStateException("Unable to find the orderId " + transactionId));
             grounds = machine.grind(transactionId, order.getCustomerId(), stock.getBeans());
 
             //consume the bean stock

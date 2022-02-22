@@ -13,7 +13,7 @@ public class Constants {
     public static final String MACHINEID_FORMAT = "%s-%s";
 
     // +- Jitter gets added randomly to each step
-    public static final int JITTER = 6000;
+    public static final int JITTER = 1000;
 
     public static final String DATA_FORMAT = "Customer ID: %s, " +
             "Grinding Machine Name: %s, Thread: %s, Time taken: %s | " +

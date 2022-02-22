@@ -32,7 +32,7 @@ public class EspressoService {
         EspressoMachine machine = getAvailableEspressoMachine(espressoMachines);
 
         //TODO grind using multithreading later
-        OrdersTable order = ordersRepository.findById(transactionId).get();
+        OrdersTable order = ordersRepository.findById(transactionId).orElseThrow(() -> new IllegalStateException("Unable to find the orderId " + transactionId));;
         Coffee coffee = machine.concentrate(transactionId, order.getCustomerId());
 
         LOGGER.debug("Espresso brew - Completed");

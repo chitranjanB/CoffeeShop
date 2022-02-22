@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Date;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -51,6 +52,8 @@ public class CoffeeUtility {
         auditLog.setThreadName(Thread.currentThread().getName());
         Instant end = Instant.now();
         auditLog.setTimeElapsed(Duration.between(start, end).toMillis());
+        auditLog.setTimeStarted(Date.from(start));
+        auditLog.setTimeEnded(Date.from(end));
         return auditLog;
     }
 
@@ -101,16 +104,9 @@ public class CoffeeUtility {
 
     public int buildStepTimeWithJitter() {
         Random random = new Random();
-        int result = 0;
         int jitter = Constants.JITTER;
         jitter = jitter > 0 ? random.nextInt(jitter) : jitter;
-
-//        if (random.nextBoolean()) {
-//            result = config.getStep().getProcessing() + jitter;
-//        } else {
-//            result = config.getStep().getProcessing() - jitter;
-//        }
-        return result;
+        return jitter;
     }
 
     /**

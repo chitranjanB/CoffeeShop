@@ -94,7 +94,7 @@ public class ProcessService {
 
     public OrdersTable findOrder(String transactionId) {
         Optional<OrdersTable> optional = ordersRepository.findById(transactionId);
-        return optional.get();
+        return optional.orElseThrow(() -> new IllegalStateException("Unable to find order orderId: " + transactionId));
     }
 
     public AuditLog findAuditLog(Step step, String transactionId) {

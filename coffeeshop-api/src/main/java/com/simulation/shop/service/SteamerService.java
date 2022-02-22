@@ -56,7 +56,7 @@ public class SteamerService {
             milkRepository.save(stock);
 
             //TODO grind using multithreading later
-            OrdersTable order = ordersRepository.findById(transactionId).get();
+            OrdersTable order = ordersRepository.findById(transactionId).orElseThrow(() -> new IllegalStateException("Unable to find the orderId " + transactionId));
             steamedMilk = machine.steam(transactionId, order.getCustomerId(), stock.getMilk());
 
             //consume the milk stock
@@ -84,7 +84,6 @@ public class SteamerService {
                 } catch (InterruptedException e) {
                     LOGGER.error("Error while getting available grinding machine " + e.getLocalizedMessage(), e);
                 }
-                System.out.println("value " + i + " " + isAvailable);
                 return isAvailable;
             }).mapToObj(i -> machines.get(i)).findAny().orElse(null);
         }
