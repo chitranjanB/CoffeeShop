@@ -1,8 +1,8 @@
 package com.simulation.shop.controller;
 
-import com.simulation.shop.model.OrderStatus;
-import com.simulation.shop.request.InputRequests;
-import com.simulation.shop.request.OrderRequest;
+import com.coffee.shared.model.OrderStatus;
+import com.coffee.shared.request.InputRequests;
+import com.coffee.shared.request.OrderRequest;
 import com.simulation.shop.service.ProcessService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

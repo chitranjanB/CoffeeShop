@@ -1,7 +1,7 @@
 package com.simulation.shop.controller;
 
-import com.simulation.shop.model.Coffee;
-import com.simulation.shop.request.InputRequest;
+import com.coffee.shared.model.Coffee;
+import com.coffee.shared.request.InputRequest;
 import com.simulation.shop.service.EspressoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

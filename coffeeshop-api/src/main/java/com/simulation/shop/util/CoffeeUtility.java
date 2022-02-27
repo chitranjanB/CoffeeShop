@@ -1,12 +1,12 @@
 package com.simulation.shop.util;
 
+import com.coffee.shared.entity.AuditLog;
+import com.coffee.shared.entity.BeanStock;
+import com.coffee.shared.entity.MilkStock;
+import com.coffee.shared.entity.StepTransactionId;
+import com.coffee.shared.model.Status;
 import com.simulation.shop.config.CoffeeShopPropConfig;
 import com.simulation.shop.config.Constants;
-import com.simulation.shop.entity.AuditLog;
-import com.simulation.shop.entity.BeanStock;
-import com.simulation.shop.entity.MilkStock;
-import com.simulation.shop.entity.StepTransactionId;
-import com.simulation.shop.model.Status;
 import com.simulation.shop.repository.BeansRepository;
 import com.simulation.shop.repository.MilkRepository;
 import com.simulation.shop.service.AuditLogService;
@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
-import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.StreamSupport;

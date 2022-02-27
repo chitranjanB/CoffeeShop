@@ -1,7 +1,7 @@
 package com.simulation.shop.controller;
 
-import com.simulation.shop.model.Grounds;
-import com.simulation.shop.request.InputRequest;
+import com.coffee.shared.model.Grounds;
+import com.coffee.shared.request.InputRequest;
 import com.simulation.shop.service.GrindingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

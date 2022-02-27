@@ -1,6 +1,6 @@
 package com.simulation.shop.service;
 
-import com.simulation.shop.entity.AuditLog;
+import com.coffee.shared.entity.AuditLog;
 import com.simulation.shop.repository.AuditLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,18 +1,17 @@
 package com.simulation.shop.service;
 
+import com.coffee.shared.entity.AuditLog;
+import com.coffee.shared.entity.OrdersTable;
+import com.coffee.shared.entity.StepTransactionId;
+import com.coffee.shared.model.*;
+import com.coffee.shared.request.InputRequest;
+import com.coffee.shared.request.InputRequests;
+import com.coffee.shared.request.OrderRequest;
 import com.simulation.shop.CoffeeShopException;
 import com.simulation.shop.config.Constants;
-import com.simulation.shop.config.Step;
 import com.simulation.shop.controller.ProcessController;
-import com.simulation.shop.entity.AuditLog;
-import com.simulation.shop.entity.OrdersTable;
-import com.simulation.shop.entity.StepTransactionId;
-import com.simulation.shop.model.*;
 import com.simulation.shop.repository.AuditLogRepository;
 import com.simulation.shop.repository.OrdersRepository;
-import com.simulation.shop.request.InputRequest;
-import com.simulation.shop.request.InputRequests;
-import com.simulation.shop.request.OrderRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +27,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 

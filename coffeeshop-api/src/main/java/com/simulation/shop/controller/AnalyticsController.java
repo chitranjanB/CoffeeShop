@@ -1,6 +1,6 @@
 package com.simulation.shop.controller;
 
-import com.simulation.shop.model.Benchmark;
+import com.coffee.shared.model.Benchmark;
 import com.simulation.shop.service.AnalyticsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

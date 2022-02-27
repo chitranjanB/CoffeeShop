@@ -1,7 +1,7 @@
 package com.simulation.shop.controller;
 
-import com.simulation.shop.model.SteamedMilk;
-import com.simulation.shop.request.InputRequest;
+import com.coffee.shared.model.SteamedMilk;
+import com.coffee.shared.request.InputRequest;
 import com.simulation.shop.service.SteamerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

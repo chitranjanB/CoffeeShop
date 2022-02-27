@@ -1,13 +1,16 @@
 package com.simulation.shop.service;
 
+import com.coffee.shared.entity.BeanStock;
+import com.coffee.shared.entity.OrdersTable;
+import com.coffee.shared.entity.StepTransactionId;
+import com.coffee.shared.model.Grounds;
+import com.coffee.shared.model.Status;
+import com.coffee.shared.model.Step;
+import com.machine.grinder.GrinderMachine;
 import com.simulation.shop.OutOfIngredientsException;
-import com.simulation.shop.entity.BeanStock;
-import com.simulation.shop.entity.OrdersTable;
-import com.simulation.shop.machine.GrinderMachine;
-import com.simulation.shop.model.Grounds;
-import com.simulation.shop.model.Status;
 import com.simulation.shop.repository.BeansRepository;
 import com.simulation.shop.repository.OrdersRepository;
+import com.simulation.shop.util.CoffeeUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +40,9 @@ public class GrindingService {
     @Autowired
     private List<GrinderMachine> grinderMachines;
 
+    @Autowired
+    private CoffeeUtility utility;
+
     public Grounds grind(String transactionId) {
         Lock grinderLock = null;
         Grounds grounds = null;
@@ -59,6 +65,9 @@ public class GrindingService {
             OrdersTable order = ordersRepository.findById(transactionId)
                     .orElseThrow(() -> new IllegalStateException("Unable to find the orderId " + transactionId));
             grounds = machine.grind(transactionId, order.getCustomerId(), stock.getBeans());
+
+            StepTransactionId stepTransactionId = new StepTransactionId(Step.GRIND_COFFEE, transactionId);
+            utility.auditLog(stepTransactionId, grounds.getMachineName(), grounds.getCustomerId(), grounds.getStart());
 
             //consume the bean stock
             //TODO issue when multiple thread(customers) gets the same stock

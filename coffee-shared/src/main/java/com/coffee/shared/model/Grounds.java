@@ -1,7 +1,5 @@
 package com.coffee.shared.model;
 
-import com.coffee.shared.entity.StepTransactionId;
-
 import java.time.Instant;
 
 public class Grounds {
@@ -9,8 +7,6 @@ public class Grounds {
     private String coffeeBeans;
     private int coffeeBeansInGms;
 
-    private String transactionId;
-    private StepTransactionId stepTransactionId;
     private String customerId;
     private String machineName;
     private Instant start;
@@ -39,22 +35,6 @@ public class Grounds {
 
     public void setCoffeeBeansInGms(int coffeeBeansInGms) {
         this.coffeeBeansInGms = coffeeBeansInGms;
-    }
-
-    public String getTransactionId() {
-        return transactionId;
-    }
-
-    public void setTransactionId(String transactionId) {
-        this.transactionId = transactionId;
-    }
-
-    public StepTransactionId getStepTransactionId() {
-        return stepTransactionId;
-    }
-
-    public void setStepTransactionId(StepTransactionId stepTransactionId) {
-        this.stepTransactionId = stepTransactionId;
     }
 
     public String getCustomerId() {
@@ -94,8 +74,7 @@ public class Grounds {
         return "Grounds{" +
                 "coffeeBeans='" + coffeeBeans + '\'' +
                 ", coffeeBeansInGms=" + coffeeBeansInGms +
-                ", transactionId='" + transactionId + '\'' +
-                ", stepTransactionId=" + stepTransactionId +
+                ", customerId='" + customerId + '\'' +
                 ", machineName='" + machineName + '\'' +
                 ", start=" + start +
                 ", end=" + end +

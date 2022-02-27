@@ -1,9 +1,12 @@
 package com.simulation.shop.service;
 
-import com.simulation.shop.entity.OrdersTable;
-import com.simulation.shop.machine.EspressoMachine;
-import com.simulation.shop.model.Coffee;
+import com.coffee.shared.entity.OrdersTable;
+import com.coffee.shared.entity.StepTransactionId;
+import com.coffee.shared.model.Coffee;
+import com.coffee.shared.model.Step;
+import com.machine.espresso.EspressoMachine;
 import com.simulation.shop.repository.OrdersRepository;
+import com.simulation.shop.util.CoffeeUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,13 +30,19 @@ public class EspressoService {
     @Autowired
     private List<EspressoMachine> espressoMachines;
 
+    @Autowired
+    private CoffeeUtility utility;
+
     public Coffee makeEspresso(String transactionId) {
         //fetch beans from inventory
         EspressoMachine machine = getAvailableEspressoMachine(espressoMachines);
 
-        //TODO grind using multithreading later
         OrdersTable order = ordersRepository.findById(transactionId).orElseThrow(() -> new IllegalStateException("Unable to find the orderId " + transactionId));;
         Coffee coffee = machine.concentrate(transactionId, order.getCustomerId());
+
+        StepTransactionId stepTransactionId = new StepTransactionId(Step.MAKE_ESPRESSO, transactionId);
+        //TODO fix
+        utility.auditLog(stepTransactionId, coffee.getMachineName(), coffee.getCustomerId(), coffee.getStart());
 
         LOGGER.debug("Espresso brew - Completed");
         return coffee;

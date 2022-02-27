@@ -1,7 +1,7 @@
 package com.simulation.shop.repository;
 
-import com.simulation.shop.entity.AuditLog;
-import com.simulation.shop.entity.StepTransactionId;
+import com.coffee.shared.entity.AuditLog;
+import com.coffee.shared.entity.StepTransactionId;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;

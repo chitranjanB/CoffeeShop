@@ -1,21 +1,22 @@
 package com.simulation.shop.service;
 
-import com.simulation.shop.OutOfIngredientsException;
-import com.simulation.shop.entity.MilkStock;
-import com.simulation.shop.entity.OrdersTable;
-import com.simulation.shop.machine.SteamerMachine;
-import com.simulation.shop.model.Grounds;
-import com.simulation.shop.model.Status;
-import com.simulation.shop.model.SteamedMilk;
+import com.coffee.shared.entity.MilkStock;
+import com.coffee.shared.entity.OrdersTable;
+import com.coffee.shared.entity.StepTransactionId;
+import com.coffee.shared.exception.OutOfIngredientsException;
+import com.coffee.shared.model.Status;
+import com.coffee.shared.model.SteamedMilk;
+import com.coffee.shared.model.Step;
+import com.machine.steamer.SteamerMachine;
 import com.simulation.shop.repository.MilkRepository;
 import com.simulation.shop.repository.OrdersRepository;
+import com.simulation.shop.util.CoffeeUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -36,6 +37,9 @@ public class SteamerService {
 
     @Autowired
     private List<SteamerMachine> steamerMachines;
+
+    @Autowired
+    private CoffeeUtility utility;
 
     public SteamedMilk steam(String transactionId) {
 
@@ -58,6 +62,9 @@ public class SteamerService {
             //TODO grind using multithreading later
             OrdersTable order = ordersRepository.findById(transactionId).orElseThrow(() -> new IllegalStateException("Unable to find the orderId " + transactionId));
             steamedMilk = machine.steam(transactionId, order.getCustomerId(), stock.getMilk());
+
+            StepTransactionId stepTransactionId = new StepTransactionId(Step.STEAM_MILK, transactionId);
+            utility.auditLog(stepTransactionId, steamedMilk.getMachineName(), steamedMilk.getCustomerId(), steamedMilk.getStart());
 
             //consume the milk stock
             //TODO many customer gets the same milk stock, and deleting gives error

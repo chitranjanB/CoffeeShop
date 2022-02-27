@@ -36,8 +36,6 @@ public class GrinderMachine {
         }
 
         StepTransactionId stepTransactionId = new StepTransactionId(Step.GRIND_COFFEE, transactionId);
-        grounds.setStepTransactionId(stepTransactionId);
-        grounds.setTransactionId(transactionId);
         grounds.setCustomerId(customerId);
         grounds.setMachineName(machineName);
         grounds.setStart(start);
