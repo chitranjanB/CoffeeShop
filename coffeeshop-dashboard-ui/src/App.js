@@ -1,8 +1,13 @@
-import CoffeeShopChart from "./CoffeeShopChart.js";
+import CoffeeShopChart from "./coffeeShopChart/CoffeeShopChart.js";
+
 import React from "react";
 
 function App() {
-  return <CoffeeShopChart />;
+  return (
+    <>
+      <CoffeeShopChart />
+    </>
+  );
 }
 
 export default App;

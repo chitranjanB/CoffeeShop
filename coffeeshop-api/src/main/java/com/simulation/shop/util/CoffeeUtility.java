@@ -103,9 +103,9 @@ public class CoffeeUtility {
     }
 
     public int buildStepTimeWithJitter() {
-        Random random = new Random();
+       // Random random = new Random();
         int jitter = Constants.JITTER;
-        jitter = jitter > 0 ? random.nextInt(jitter) : jitter;
+       // jitter = jitter > 0 ? random.nextInt(jitter) : jitter;
         return jitter;
     }
 
