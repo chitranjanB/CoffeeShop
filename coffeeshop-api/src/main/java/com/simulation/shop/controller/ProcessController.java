@@ -1,7 +1,6 @@
 package com.simulation.shop.controller;
 
 import com.coffee.shared.model.OrderStatus;
-import com.coffee.shared.request.InputRequests;
 import com.coffee.shared.request.OrderRequest;
 import com.simulation.shop.service.ProcessService;
 import org.slf4j.Logger;
@@ -11,10 +10,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,14 +28,18 @@ public class ProcessController {
     public List<OrderStatus> process(@RequestBody OrderRequest request) {
         List<String> orderList = service.queueOrder(request);
         List<OrderStatus> orderStatusList = service.processOrder(orderList);
-        //TODO return response as downloadable zip
         return orderStatusList;
     }
 
-    @PostMapping(value = "/serveCoffee",
+    @PostMapping(value = "/packageCoffee")
+    public void packageCoffee(@RequestBody  String transactionId) {
+        service.packageCoffee(transactionId);
+    }
+
+    @PostMapping(value = "/collect",
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<ByteArrayResource> serveCoffee(@RequestBody InputRequests inputRequests) {
-        ByteArrayResource resource = service.buildBulkOrder(inputRequests);
+    public ResponseEntity<ByteArrayResource> collectCoffee(@RequestParam String transactionId) {
+        ByteArrayResource resource = service.fetchCoffee(transactionId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=coffee.zip")
                 .contentType(MediaType.valueOf(MediaType.APPLICATION_OCTET_STREAM_VALUE))

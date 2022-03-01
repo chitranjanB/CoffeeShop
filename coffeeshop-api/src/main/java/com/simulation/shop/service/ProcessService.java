@@ -1,16 +1,17 @@
 package com.simulation.shop.service;
 
 import com.coffee.shared.entity.AuditLog;
+import com.coffee.shared.entity.CoffeeEntity;
 import com.coffee.shared.entity.OrdersTable;
 import com.coffee.shared.entity.StepTransactionId;
 import com.coffee.shared.model.*;
 import com.coffee.shared.request.InputRequest;
-import com.coffee.shared.request.InputRequests;
 import com.coffee.shared.request.OrderRequest;
 import com.simulation.shop.CoffeeShopException;
 import com.simulation.shop.config.Constants;
 import com.simulation.shop.controller.ProcessController;
 import com.simulation.shop.repository.AuditLogRepository;
+import com.simulation.shop.repository.CoffeeRepository;
 import com.simulation.shop.repository.OrdersRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,9 @@ public class ProcessService {
     @Autowired
     private AuditLogRepository auditLogRepository;
 
+    @Autowired
+    private CoffeeRepository coffeeRepository;
+
     public List<String> queueOrder(OrderRequest request) {
         int orders = request.getOrders();
         List<String> transactionList = new ArrayList<>();
@@ -69,9 +73,11 @@ public class ProcessService {
 
             OrderStatus orderStatus = new OrderStatus(transactionId);
             try {
-                ResponseEntity<Grounds> groundsResponse = restTemplate.postForEntity("http://localhost:8080/machine/grind", inputRequest, Grounds.class);
-                ResponseEntity<Coffee> espressoResponse = restTemplate.postForEntity("http://localhost:8080/machine/espresso", inputRequest, Coffee.class);
-                ResponseEntity<SteamedMilk> steamedResponse = restTemplate.postForEntity("http://localhost:8080/machine/steam", inputRequest, SteamedMilk.class);
+                String host = "http://localhost:8080/";
+                ResponseEntity<Grounds> groundsResponse = restTemplate.postForEntity(host + "machine/grind", inputRequest, Grounds.class);
+                ResponseEntity<Coffee> espressoResponse = restTemplate.postForEntity(host + "machine/espresso", inputRequest, Coffee.class);
+                ResponseEntity<SteamedMilk> steamedResponse = restTemplate.postForEntity(host + "machine/steam", inputRequest, SteamedMilk.class);
+                restTemplate.postForLocation(host + "process/packageCoffee", transactionId);
                 orderStatus.setStatus(Status.COMPLETE);
             } catch (Exception e) {
                 LOGGER.error("Error while processing order " + transactionId, e);
@@ -103,33 +109,23 @@ public class ProcessService {
     /**
      * This method package coffee given a bulk order by a customer at one time
      *
-     * @param inputRequests
+     * @param transactionId
      * @return
      */
-    public ByteArrayResource buildBulkOrder(InputRequests inputRequests) {
-        ByteArrayResource resource = null;
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             ZipOutputStream zout = new ZipOutputStream(baos);) {
-
-            for (InputRequest request : inputRequests.getInputRequestList()) {
-                String transactionId = request.getTransactionId();
-                byte[] innerZipBytes = packageCoffee(zout, transactionId);
-
-                ZipEntry entry = new ZipEntry("coffee-" + transactionId + ".zip");
-                zout.putNextEntry(entry);
-                zout.write(innerZipBytes);
-                zout.closeEntry();
-            }
-            zout.flush();
-            zout.finish();
-            resource = new ByteArrayResource(baos.toByteArray());
+    public void packageCoffee(String transactionId) {
+        try {
+            byte[] innerZipBytes = buildCoffee(transactionId);
+            CoffeeEntity coffee = new CoffeeEntity();
+            coffee.setTransactionId(transactionId);
+            coffee.setData(innerZipBytes);
+            coffeeRepository.save(coffee);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Error while saving coffee to DB " + transactionId, e);
         }
-        return resource;
+
     }
 
-    private byte[] packageCoffee(ZipOutputStream zout, String transactionId) throws IOException {
+    private byte[] buildCoffee(String transactionId) throws IOException {
         byte[] innerByteArray = null;
 
         try (ByteArrayOutputStream innerZipBufferOutput = new ByteArrayOutputStream();
@@ -165,6 +161,12 @@ public class ProcessService {
         }
 
         return innerByteArray;
+    }
+
+    public ByteArrayResource fetchCoffee(String transactionId){
+        Optional<CoffeeEntity> optional = coffeeRepository.findById(transactionId);
+        byte[] data = optional.orElse(new CoffeeEntity()).getData();
+        return new ByteArrayResource(data);
     }
 
     private String buildCoffeeData(AuditLog grinderLog, AuditLog espressoLog, AuditLog steamerLog, String customerId) {
