@@ -26,12 +26,12 @@ public class GrinderMachine {
         Instant start = Instant.now();
         Grounds grounds = null;
         try {
-            Thread.sleep(1000);
+            TaskProcessor.process();
             if (beans == null) {
                 throw new OutOfIngredientsException("Beans are not in stock - " + customerId);
             }
             grounds = new Grounds(beans);
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             LOGGER.error("Error while grinding beans " + e.getLocalizedMessage(), e);
         }
 
