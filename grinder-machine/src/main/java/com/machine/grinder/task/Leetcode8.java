@@ -28,32 +28,30 @@ public class Leetcode8 {
             boolean isPositive = true;
             int threshold = Integer.MAX_VALUE / 10;
 
-            try {
-                int i = 0;
-                for (i = 0; i < s.length(); i++) {
-                    if (i == 0 && (s.charAt(i) == '+' || s.charAt(i) == '-')) {
-                        isPositive = checkSign(s.charAt(0));
-                        continue;
-                    }
-                    int digit = getNumericValue(s.charAt(i));
-
-                    if (Math.abs(result) > threshold) {
-                        result = isPositive ? Integer.MAX_VALUE : Integer.MIN_VALUE;
-                        return result;
-                    } else if (Math.abs(result) == threshold) {
-                        if (isPositive && digit > (Integer.MAX_VALUE % 10)) {
-                            return Integer.MAX_VALUE;
-                        } else if (!isPositive && digit > Math.abs(Integer.MIN_VALUE % 10)) {
-                            return Integer.MIN_VALUE;
-                        }
-                    }
-                    digit = isPositive ? digit : -digit;
-                    result = (result * 10) + digit;
+            int i = 0;
+            for (i = 0; i < s.length(); i++) {
+                if (i == 0 && (s.charAt(i) == '+' || s.charAt(i) == '-')) {
+                    isPositive = checkSign(s.charAt(0));
+                    continue;
                 }
-            } catch (Exception e) {
-                //Do nothing
-            }
+                int digit = (int) s.charAt(i) - (int) '0';
+                if (digit < 0 || digit > 9) {
+                    return result;
+                }
 
+                if (Math.abs(result) > threshold) {
+                    result = isPositive ? Integer.MAX_VALUE : Integer.MIN_VALUE;
+                    return result;
+                } else if (Math.abs(result) == threshold) {
+                    if (isPositive && digit > (Integer.MAX_VALUE % 10)) {
+                        return Integer.MAX_VALUE;
+                    } else if (!isPositive && digit > Math.abs(Integer.MIN_VALUE % 10)) {
+                        return Integer.MIN_VALUE;
+                    }
+                }
+                digit = isPositive ? digit : -digit;
+                result = (result * 10) + digit;
+            }
             return result;
         }
 
@@ -63,14 +61,6 @@ public class Leetcode8 {
                 isPositive = false;
             }
             return isPositive;
-        }
-
-        private int getNumericValue(char charAt) {
-            int digit = (int) charAt - (int) '0';
-            if (digit < 0 || digit > 9) {
-                throw new IllegalArgumentException("Non Numeric character encountered");
-            }
-            return digit;
         }
     }
 }
