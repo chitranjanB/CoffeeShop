@@ -21,16 +21,15 @@ public class Leetcode3 {
                 return 0;
             }
 
-            String currStr = "";
             while (i <= j && j < s.length()) {
-                currStr = s.substring(i, j);
-                String newChar = "" + s.charAt(j);
-                if (currStr.contains(newChar)) {
-                    i++;
-                } else {
+                String currStr = s.substring(i, j);
+                if (-1 == currStr.indexOf(s.charAt(j))) {
                     int newMax = j + 1 - i;
                     max = newMax > max ? newMax : max;
                     j++;
+                } else {
+
+                    i++;
                 }
             }
             return max;
