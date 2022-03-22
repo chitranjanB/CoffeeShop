@@ -46,19 +46,8 @@ public class Leetcode16 {
 
             for (int i = 0; i < nums.length - 2; i++) {
                 int p = i + 1;
-                //move i to next unique element
-                while (i < nums.length - 1 && nums[i] == nums[i + 1]) {
-                    i++;
-                }
                 int q = nums.length - 1;
-                int temp = Integer.MIN_VALUE;
                 while (p < q) {
-                    //skip when element at p is already visited for i
-                    if (nums[p] == temp) {
-                        p++;
-                        continue;
-                    }
-
                     int sum = nums[i] + nums[p] + nums[q];
 
                     if (sum == target) {
@@ -74,8 +63,6 @@ public class Leetcode16 {
                         closestSum = sum;
                     }
                 }
-                temp = Integer.MIN_VALUE;
-
             }
             return closestSum;
         }
