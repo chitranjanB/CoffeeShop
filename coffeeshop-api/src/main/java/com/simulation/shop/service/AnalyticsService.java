@@ -6,6 +6,8 @@ import com.coffee.shared.model.Data;
 import com.coffee.shared.model.Step;
 import com.simulation.shop.repository.AuditLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,12 +17,17 @@ import java.util.List;
 @Service
 public class AnalyticsService {
 
+    private static final int MAX_PAGES = 70;
+
     @Autowired
     private AuditLogRepository repository;
 
     public List<Benchmark> getData() {
-        //TODO take 10 recent orders only
-        Iterable<AuditLog> all = repository.findAll();
+        //Takes only recent 50 records
+        long count = repository.count();
+        PageRequest lastPageAsc = PageRequest.of((int)count/MAX_PAGES, MAX_PAGES);
+
+        List<AuditLog> all = repository.findAll(lastPageAsc).getContent();
 
         List<Benchmark> benchmarks = new ArrayList<>();
 
