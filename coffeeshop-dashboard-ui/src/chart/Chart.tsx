@@ -1,7 +1,12 @@
 import axios from 'axios'
 import { useCallback, useEffect, useState } from 'react'
 import ReactApexChart from 'react-apexcharts'
-import { AnalyticsResponseT, DataType, ResponseDataT, SeriesType } from './types'
+import {
+  AnalyticsResponseT,
+  DataType,
+  ResponseDataT,
+  SeriesType,
+} from './types'
 
 const Chart = () => {
   const [series, setSeries] = useState<SeriesType[] | undefined>(undefined)
@@ -78,7 +83,10 @@ const Chart = () => {
     (e: ResponseDataT): DataType => {
       const x = e.customerId
       // eslint-disable-next-line max-len
-      const y = [buildApexDateCallback(e.startTimestamp), buildApexDateCallback(e.endTimestamp)]
+      const y = [
+        buildApexDateCallback(e.startTimestamp),
+        buildApexDateCallback(e.endTimestamp),
+      ]
       return { x, y }
     },
     [buildApexDateCallback]
@@ -101,7 +109,7 @@ const Chart = () => {
 
   useEffect(() => {
     fetchAnalyticsCallback()
-    const timer = setInterval(fetchAnalyticsCallback, 3 * 1000)
+    const timer = setInterval(fetchAnalyticsCallback, 1000)
 
     return () => {
       clearInterval(timer)
@@ -111,7 +119,12 @@ const Chart = () => {
   return (
     <div id="chart">
       {series ? (
-        <ReactApexChart options={options} series={series} type="rangeBar" height={350} />
+        <ReactApexChart
+          options={options}
+          series={series}
+          type="rangeBar"
+          height={350}
+        />
       ) : (
         <h1>Waiting for data</h1>
       )}

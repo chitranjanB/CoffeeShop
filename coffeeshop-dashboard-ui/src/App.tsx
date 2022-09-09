@@ -1,7 +1,8 @@
-import Chart from "./chart/Chart";
+// import Chart from './chart/Chart'
+import Layout from './layout/Layout'
 
 function App() {
-  return <Chart />;
+  return <Layout />
 }
 
-export default App;
+export default App
