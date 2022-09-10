@@ -1,4 +1,4 @@
-import React from 'react'
+import { Typography } from '@mui/material'
 import './Card.css'
 
 interface CardProps {
@@ -8,8 +8,12 @@ interface CardProps {
 function Card({ title, content }: CardProps) {
   return (
     <div className="card">
-      <h3 className="title">{title}</h3>
-      <p className="data">{content}</p>
+      <Typography variant="h6" className="title" gutterBottom>
+        {title}
+      </Typography>
+      <Typography variant="h3" component={'p'} className="data">
+        {content}
+      </Typography>
     </div>
   )
 }

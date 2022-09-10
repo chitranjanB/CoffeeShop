@@ -1,7 +1,9 @@
+import { Button, IconButton, Stack } from '@mui/material'
 import axios from 'axios'
 import { useCallback, useEffect, useState } from 'react'
 import Card from '../card/Card'
 import Chart from '../chart/Chart'
+import { Dashboard } from '@mui/icons-material'
 import './Layout.css'
 
 function Layout() {
@@ -91,12 +93,21 @@ function Layout() {
       </div>
       <div className="body-container">
         <div className="left-nav">
-          <ul className="left-nav-container">
-            <li>Real Time Dashboard</li>
-            <li>Real Time Dashboard</li>
-            <li>Real Time Dashboard</li>
-            <li>Real Time Dashboard</li>
-          </ul>
+          <Stack direction="column" className="left-nav-container">
+            <Button startIcon={<Dashboard />}>Realtime Dashboard</Button>
+
+            <IconButton
+              size="large"
+              color="success"
+              onClick={() => console.log('Dashboard')}
+            >
+              <Dashboard />
+            </IconButton>
+
+            <Button>Realtime Dashboard</Button>
+
+            <Button>Realtime Dashboard</Button>
+          </Stack>
         </div>
         <div className="content">
           <Chart />
