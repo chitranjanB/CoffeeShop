@@ -1,10 +1,17 @@
-import { Button, IconButton, Stack } from '@mui/material'
+import {
+  Container,
+  IconButton,
+  Stack,
+  ToggleButton,
+  ToggleButtonGroup,
+} from '@mui/material'
 import axios from 'axios'
 import { useCallback, useEffect, useState } from 'react'
 import Card from '../card/Card'
 import Chart from '../chart/Chart'
 import { Dashboard } from '@mui/icons-material'
 import './Layout.css'
+import Kiosk from '../kiosk/Kiosk'
 
 function Layout() {
   const [healthStatus, setHealthStatus] = useState<'DOWN' | 'UP'>('DOWN')
@@ -13,6 +20,8 @@ function Layout() {
   const [ordersFailed, setOrdersFailed] = useState<number>(0)
   const [beansStock, setBeansStock] = useState<number>(0)
   const [milkStock, setMilkStock] = useState<number>(0)
+
+  const [activeNav, setActiveNav] = useState<string>('dashboard')
 
   const fetchHealthCallback = useCallback(() => {
     axios.get('http://localhost:8080/actuator/health').then((res) => {
@@ -94,24 +103,47 @@ function Layout() {
       <div className="body-container">
         <div className="left-nav">
           <Stack direction="column" className="left-nav-container">
-            <Button startIcon={<Dashboard />}>Realtime Dashboard</Button>
-
-            <IconButton
-              size="large"
+            <ToggleButtonGroup
+              value={activeNav}
+              onChange={(
+                e: React.MouseEvent<HTMLElement, MouseEvent>,
+                val: string
+              ) => {
+                setActiveNav(val)
+              }}
+              orientation="vertical"
+              exclusive
               color="success"
-              onClick={() => console.log('Dashboard')}
+              size="large"
             >
-              <Dashboard />
-            </IconButton>
+              <ToggleButton value="dashboard">
+                <IconButton size="large" disableRipple>
+                  <Dashboard />
+                </IconButton>
+              </ToggleButton>
+              <ToggleButton value="order">
+                <IconButton size="large" disableRipple>
+                  <Dashboard />
+                </IconButton>
+              </ToggleButton>
+              <ToggleButton value="Serve">
+                <IconButton size="large" disableRipple>
+                  <Dashboard />
+                </IconButton>
+              </ToggleButton>
 
-            <Button>Realtime Dashboard</Button>
-
-            <Button>Realtime Dashboard</Button>
+              <ToggleButton value="todo">
+                <IconButton size="large" disableRipple>
+                  <Dashboard />
+                </IconButton>
+              </ToggleButton>
+            </ToggleButtonGroup>
           </Stack>
         </div>
-        <div className="content">
-          <Chart />
-        </div>
+        <Container className="content">
+          {activeNav && activeNav === 'dashboard' && <Chart />}
+          {activeNav && activeNav === 'order' && <Kiosk />}
+        </Container>
       </div>
     </div>
   )

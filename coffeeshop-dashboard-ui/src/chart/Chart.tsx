@@ -7,6 +7,8 @@ import {
   ResponseDataT,
   SeriesType,
 } from './types'
+import './Chart.css'
+import { Typography } from '@mui/material'
 
 const Chart = () => {
   const [series, setSeries] = useState<SeriesType[] | undefined>(undefined)
@@ -126,7 +128,9 @@ const Chart = () => {
           height={350}
         />
       ) : (
-        <h1>Waiting for data</h1>
+        <Typography variant="h5" className="waiting" alignContent="center">
+          Waiting for data...
+        </Typography>
       )}
     </div>
   )
