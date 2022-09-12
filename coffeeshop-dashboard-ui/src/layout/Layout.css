@@ -1,22 +1,19 @@
 .container {
-  display: flex;
-  flex-direction: column;
-  margin-left: 24px;
-  margin-right: 24px;
+  padding: 24px;
+  width: 90vw;
+
+  height: 90vh;
+  text-align: center;
+  margin: auto;
 }
 
 .brand-bar {
-  width: 100vw;
-  height: 3rem;
   margin-bottom: 24px;
 }
 
 .brand-name {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   font-size: 30px;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .card-container {
@@ -26,26 +23,10 @@
 }
 
 .body-container {
-  display: flex;
-}
-
-.left-nav {
-  width: 10rem;
-  height: 100vh;
-}
-
-.left-nav-container {
-  display: flex;
-  flex-direction: column;
-  gap: 3rem;
-  list-style: none;
+  border: 1px solid black;
+  height: 100%;
 }
 
 h5 {
   margin-left: 12px;
-}
-
-.content {
-  width: 100vw;
-  height: 100vh;
 }
