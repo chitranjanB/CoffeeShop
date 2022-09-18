@@ -1,21 +1,19 @@
 package com.simulation.shop.controller;
 
 import com.coffee.shared.model.Benchmark;
-import com.simulation.shop.repository.AuditLogRepository;
 import com.simulation.shop.service.AnalyticsService;
-import com.simulation.shop.service.AuditLogService;
+import com.simulation.shop.service.MachineBenchmark;
+import com.simulation.shop.service.OrderTimeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/analytics")
+@CrossOrigin(origins = "http://localhost:3000")
 public class AnalyticsController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AnalyticsController.class);
@@ -23,12 +21,15 @@ public class AnalyticsController {
     @Autowired
     private AnalyticsService service;
 
-    @Autowired
-    private AuditLogService auditLogService;
-
     @PostMapping(value="/data")
     public List<Benchmark> grind() {
         return service.getData();
     }
+
+    @GetMapping(value="/machine-efficiency")
+    public List<MachineBenchmark> fetchMachineEfficiency(){return service.fetchMachineEfficiency();}
+
+    @GetMapping(value="/timeline")
+    public OrderTimeline fetch(@RequestParam String transactionId){return service.findAuditLog(transactionId);}
 
 }

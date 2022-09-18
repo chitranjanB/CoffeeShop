@@ -17,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("process")
+@CrossOrigin(origins = "http://localhost:3000")
 public class ProcessController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessController.class);

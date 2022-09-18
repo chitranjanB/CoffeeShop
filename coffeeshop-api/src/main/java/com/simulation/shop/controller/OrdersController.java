@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
 
 
 @RestController
 @RequestMapping("orders")
+@CrossOrigin(origins = "http://localhost:3000")
 public class OrdersController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrdersController.class);
@@ -24,8 +24,8 @@ public class OrdersController {
     private OrdersService service;
 
     @GetMapping
-    public List<OrdersTable> packageCoffee(@RequestParam String status) {
-        return service.findOrderByStatus(status);
+    public List<String> fetchOrderIds() {
+        return service.fetchOrders();
     }
 
 }

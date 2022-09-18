@@ -37,7 +37,7 @@ public class EspressoService {
         //fetch beans from inventory
         EspressoMachine machine = getAvailableEspressoMachine(espressoMachines);
 
-        OrdersTable order = ordersRepository.findById(transactionId).orElseThrow(() -> new IllegalStateException("Unable to find the orderId " + transactionId));;
+        OrdersTable order = ordersRepository.findById(transactionId).orElseThrow(() -> new IllegalStateException("Unable to find the orderId " + transactionId));
         Coffee coffee = machine.concentrate(transactionId, order.getCustomerId());
 
         StepTransactionId stepTransactionId = new StepTransactionId(Step.MAKE_ESPRESSO, transactionId);
