@@ -52,8 +52,14 @@ const Chart = () => {
       position: 'right',
     },
     tooltip: {
-      custom: function (opts) {
-        return ''
+      x: {
+        formatter: function (val) {
+          const date = new Date(val)
+          const ss = '0' + date.getSeconds()
+          const mms = date.getMilliseconds()
+
+          return `${ss.substr(-2)}:${mms}`
+        },
       },
     },
   })
@@ -111,7 +117,7 @@ const Chart = () => {
 
   useEffect(() => {
     fetchAnalyticsCallback()
-    const timer = setInterval(fetchAnalyticsCallback, 1000)
+    const timer = setInterval(fetchAnalyticsCallback, 3*1000)
 
     return () => {
       clearInterval(timer)

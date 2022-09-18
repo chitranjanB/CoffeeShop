@@ -10,28 +10,50 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import './kiosk.css'
 import { useState } from 'react'
+import axios from 'axios'
 
 const Kiosk = () => {
   const [dialogOpen, setDialogOpen] = useState<boolean>(false)
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
 
-  const orderCoffee = () => {
-    setDialogOpen(true)
+  const [customerName, setCustomerName] = useState<string | null>(null)
+  const [orderQty, setOrderQty] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const createOrder = () => {
+    setDialogOpen(false)
+    setIsLoading(true)
+    const order = { customerId: customerName, orders: orderQty }
+    axios
+      .post('http://localhost:8080/process', order)
+      .then((res) => {
+        setIsSubmitted(true)
+      })
+      .catch(() => {
+        setIsLoading(false)
+        setIsSubmitted(false)
+      })
+    setIsLoading(false)
+    setIsSubmitted(true)
   }
+
   return (
-    <>
-      <Typography
-        variant="h5"
-        className="waiting"
-        sx={{ display: 'flex', justifyContent: 'center' }}
-      >
-        Kiosk
+    <div className="kiosk">
+      <Typography variant="h5" className="waiting" sx={{ fontWeight: 400 }}>
+        Order Coffee
       </Typography>
       <Stack direction="row">
-        <TextField label="Customer Name"></TextField>
-        <TextField label="No of Orders"></TextField>
-        <Button variant="outlined" onClick={orderCoffee}>
+        <TextField
+          label="Customer Name"
+          onChange={(e) => setCustomerName(e.target.value)}
+        ></TextField>
+        <TextField
+          label="No of Orders"
+          onChange={(e) => setOrderQty(e.target.value)}
+        ></TextField>
+        <Button variant="outlined" onClick={() => setDialogOpen(true)}>
           Order Coffee
         </Button>
         <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
@@ -43,13 +65,7 @@ const Kiosk = () => {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button
-              onClick={() => {
-                setDialogOpen(false)
-                setIsSubmitted(true)
-              }}
-              autoFocus
-            >
+            <Button onClick={createOrder} autoFocus>
               Submit
             </Button>
           </DialogActions>
@@ -62,7 +78,7 @@ const Kiosk = () => {
           autoHideDuration={1000}
         />
       </Stack>
-    </>
+    </div>
   )
 }
 

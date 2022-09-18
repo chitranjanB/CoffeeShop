@@ -30,6 +30,7 @@ import {
   NavigateNext,
   Share,
   Print,
+  Inventory,
 } from '@mui/icons-material'
 import './Layout.css'
 import Kiosk from '../kiosk/Kiosk'
@@ -145,7 +146,7 @@ function Layout() {
       fetchOrdersFailedCallback()
       fetchBeanStockCallback()
       fetchMilkStockCallback()
-    }, 1000)
+    }, 3 * 1000)
 
     return () => {
       clearInterval(timer)
@@ -243,7 +244,10 @@ function Layout() {
                 color="success"
                 size="large"
               >
-                <ToggleButton value="dashboard">
+                <ToggleButton
+                  value="dashboard"
+                  sx={{ display: 'flex', justifyContent: 'flex-start' }}
+                >
                   <IconButton size="large" disableRipple>
                     <Stack
                       direction="row"
@@ -258,7 +262,29 @@ function Layout() {
                     </Stack>
                   </IconButton>
                 </ToggleButton>
-                <ToggleButton value="order">
+
+                <ToggleButton
+                  value="inventory"
+                  sx={{ display: 'flex', justifyContent: 'flex-start' }}
+                >
+                  <IconButton size="large" disableRipple>
+                    <Stack
+                      direction="row"
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                      }}
+                    >
+                      <Inventory />
+                      <Typography variant="h6">Inventory Dashboard</Typography>
+                    </Stack>
+                  </IconButton>
+                </ToggleButton>
+                <ToggleButton
+                  value="order"
+                  sx={{ display: 'flex', justifyContent: 'flex-start' }}
+                >
                   <IconButton size="large" disableRipple>
                     <Stack
                       direction="row"
@@ -273,15 +299,22 @@ function Layout() {
                     </Stack>
                   </IconButton>
                 </ToggleButton>
-                <ToggleButton value="Serve">
+                <ToggleButton
+                  value="Serve"
+                  sx={{ display: 'flex', justifyContent: 'flex-start' }}
+                >
                   <IconButton size="large" disableRipple>
-                    <Dashboard />
-                  </IconButton>
-                </ToggleButton>
-
-                <ToggleButton value="todo">
-                  <IconButton size="large" disableRipple>
-                    <Dashboard />
+                    <Stack
+                      direction="row"
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                      }}
+                    >
+                      <Dashboard />
+                      <Typography variant="h6">Order History</Typography>
+                    </Stack>
                   </IconButton>
                 </ToggleButton>
               </ToggleButtonGroup>
