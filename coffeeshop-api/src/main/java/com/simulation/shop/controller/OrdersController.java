@@ -22,6 +22,11 @@ public class OrdersController {
     private OrdersService service;
 
     @GetMapping
+    public List<OrdersTable> findOrderByStatus(@RequestParam String status) {
+        return service.findOrderByStatus(status);
+    }
+
+    @GetMapping("/all")
     public List<String> fetchOrderIds() {
         return service.fetchOrders();
     }

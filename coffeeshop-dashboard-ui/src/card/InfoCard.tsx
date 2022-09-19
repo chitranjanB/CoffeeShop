@@ -5,16 +5,16 @@ import {
   Skeleton,
   Typography,
 } from '@mui/material'
-import './MyCard.css'
+import './InfoCard.css'
 
 interface CardProps {
   title: string
   content: string
   loading: boolean
 }
-function MyCard({ title, content, loading }: CardProps) {
+function InfoCard({ title, content, loading }: CardProps) {
   return (
-    <Card sx={{ minWidth: '15rem' }}>
+    <Card sx={{ width: '15rem' }}>
       {loading ? (
         <Skeleton variant="rectangular" height="140px" />
       ) : (
@@ -46,4 +46,4 @@ function MyCard({ title, content, loading }: CardProps) {
   )
 }
 
-export default MyCard
+export default InfoCard

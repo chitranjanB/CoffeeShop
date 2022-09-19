@@ -21,7 +21,7 @@ import {
 
 import axios from 'axios'
 import { useCallback, useEffect, useState } from 'react'
-import MyCard from '../card/MyCard'
+import InfoCard from '../card/InfoCard'
 import Chart from '../chart/Chart'
 import {
   Apps,
@@ -34,6 +34,8 @@ import {
 } from '@mui/icons-material'
 import './Layout.css'
 import Kiosk from '../kiosk/Kiosk'
+import OrderTimeline from '../order-timeline/OrderTimeline'
+import MachineChart from '../machine/MachineChart'
 
 function Layout() {
   const [healthStatus, setHealthStatus] = useState<'DOWN' | 'UP'>('DOWN')
@@ -172,7 +174,7 @@ function Layout() {
           </Typography>
           <Stack direction="row" spacing={2}>
             <Button color="inherit">Getting Started</Button>
-            <Button color="inherit">Documentation</Button>
+            <Button color="inherit">Order Timeline</Button>
             <Button>
               <Badge badgeContent={4} color="secondary">
                 <Avatar src="https://i.pravatar.cc/50" alt="Chitranjan" />
@@ -196,40 +198,40 @@ function Layout() {
         </Breadcrumbs>
       </Box>
       <div className="container">
-        <Stack direction="row" className="card-container">
-          <MyCard
+        <div className="card-container">
+          <InfoCard
             title="Health Status"
             content={healthStatus}
             loading={healthLoading}
           />
-          <MyCard
+          <InfoCard
             title="Beans Stock"
             content={`${beansStock}`}
             loading={beansStockLoading}
           />
-          <MyCard
+          <InfoCard
             title="Milk Stock"
             content={`${milkStock}`}
             loading={milkStockLoading}
           />
-          <MyCard
+          <InfoCard
             title="Orders Pending"
             content={`${ordersPending}`}
             loading={ordersPendingLoading}
           />
-          <MyCard
+          <InfoCard
             title="Orders Completed"
             content={`${ordersCompleted}`}
             loading={ordersCompletedLoading}
           />
-          <MyCard
+          <InfoCard
             title="Orders Failed"
             content={`${ordersFailed}`}
             loading={ordersFailedLoading}
           />
-        </Stack>
-        <Grid container>
-          <Grid item xs={12} md={2}>
+        </div>
+        <Grid container spacing={4}>
+          <Grid item xs={12} sm={12} md={4} lg={3}>
             <Stack direction="column">
               <ToggleButtonGroup
                 value={activeNav}
@@ -264,7 +266,7 @@ function Layout() {
                 </ToggleButton>
 
                 <ToggleButton
-                  value="inventory"
+                  value="machine"
                   sx={{ display: 'flex', justifyContent: 'flex-start' }}
                 >
                   <IconButton size="large" disableRipple>
@@ -277,7 +279,7 @@ function Layout() {
                       }}
                     >
                       <Inventory />
-                      <Typography variant="h6">Inventory Dashboard</Typography>
+                      <Typography variant="h6">Machine Dashboard</Typography>
                     </Stack>
                   </IconButton>
                 </ToggleButton>
@@ -300,7 +302,7 @@ function Layout() {
                   </IconButton>
                 </ToggleButton>
                 <ToggleButton
-                  value="Serve"
+                  value="timeline"
                   sx={{ display: 'flex', justifyContent: 'flex-start' }}
                 >
                   <IconButton size="large" disableRipple>
@@ -313,17 +315,19 @@ function Layout() {
                       }}
                     >
                       <Dashboard />
-                      <Typography variant="h6">Order History</Typography>
+                      <Typography variant="h6">Order Timeline</Typography>
                     </Stack>
                   </IconButton>
                 </ToggleButton>
               </ToggleButtonGroup>
             </Stack>
           </Grid>
-          <Grid item xs={12} md={10}>
+          <Grid item xs={12} sm={12} md={8} lg={9}>
             <Paper className="body-container">
               {activeNav && activeNav === 'dashboard' && <Chart />}
+              {activeNav && activeNav === 'machine' && <MachineChart />}
               {activeNav && activeNav === 'order' && <Kiosk />}
+              {activeNav && activeNav === 'timeline' && <OrderTimeline />}
             </Paper>
           </Grid>
         </Grid>
