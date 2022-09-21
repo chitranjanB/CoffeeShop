@@ -36,6 +36,7 @@ import './Layout.css'
 import Kiosk from '../kiosk/Kiosk'
 import OrderTimeline from '../order-timeline/OrderTimeline'
 import MachineChart from '../machine/MachineChart'
+import OrderHistory from '../order-history/OrderHistory'
 
 function Layout() {
   const [healthStatus, setHealthStatus] = useState<'DOWN' | 'UP'>('DOWN')
@@ -302,6 +303,24 @@ function Layout() {
                   </IconButton>
                 </ToggleButton>
                 <ToggleButton
+                  value="history"
+                  sx={{ display: 'flex', justifyContent: 'flex-start' }}
+                >
+                  <IconButton size="large" disableRipple>
+                    <Stack
+                      direction="row"
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                      }}
+                    >
+                      <Dashboard />
+                      <Typography variant="h6">Order History</Typography>
+                    </Stack>
+                  </IconButton>
+                </ToggleButton>
+                <ToggleButton
                   value="timeline"
                   sx={{ display: 'flex', justifyContent: 'flex-start' }}
                 >
@@ -328,6 +347,7 @@ function Layout() {
               {activeNav && activeNav === 'machine' && <MachineChart />}
               {activeNav && activeNav === 'order' && <Kiosk />}
               {activeNav && activeNav === 'timeline' && <OrderTimeline />}
+              {activeNav && activeNav === 'history' && <OrderHistory />}
             </Paper>
           </Grid>
         </Grid>
