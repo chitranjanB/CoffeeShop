@@ -24,6 +24,7 @@ import {
 } from '@mui/icons-material'
 import { useCallback, useEffect, useState } from 'react'
 import axios from 'axios'
+import { OrderType } from './types'
 
 type AuditLogType = {
   stepTransactionId: {
@@ -60,8 +61,34 @@ export default function OrderTimeline() {
   const [activeTransaction, setActiveTransaction] = useState<
     string | undefined
   >()
+  const [orders, setOrders] = useState<string[]>([])
+  const [activeOrder, setActiveOrder] = useState<string | undefined>()
 
-  const fetchOrderTimelineCallback = useCallback(() => {
+  const fetchOrderIdsCallback = useCallback(() => {
+    axios
+      .get('http://localhost:8080/orders/all/ids')
+      .then((res) => {
+        setOrders(res.data)
+      })
+      .catch(() => {
+        setLoading(false)
+      })
+    setLoading(false)
+  }, [])
+
+  const fetchTransactionsByOrderId = (orderId: string) => {
+    axios
+      .get(`http://localhost:8080/orders/order?orderId=${orderId}`)
+      .then((res) => {
+        const order: OrderType = res.data
+        setTransactions(order.transactions.map((t) => t.transactionId))
+      })
+      .catch(() => {
+        setLoading(false)
+      })
+  }
+
+  const fetchTransactionTimelineCallback = useCallback(() => {
     if (activeTransaction) {
       axios
         .get(
@@ -77,30 +104,18 @@ export default function OrderTimeline() {
     }
   }, [activeTransaction])
 
-  const fetchOrderIdsCallback = useCallback(() => {
-    axios
-      .get('http://localhost:8080/transactions/all')
-      .then((res) => {
-        setTransactions(res.data)
-      })
-      .catch(() => {
-        setLoading(false)
-      })
-    setLoading(false)
-  }, [])
-
   useEffect(() => {
-    fetchOrderTimelineCallback()
+    fetchTransactionTimelineCallback()
     fetchOrderIdsCallback()
     const timer = setInterval(() => {
-      fetchOrderTimelineCallback()
+      fetchTransactionTimelineCallback()
       fetchOrderIdsCallback()
     }, 3 * 1000)
 
     return () => {
       clearInterval(timer)
     }
-  }, [fetchOrderTimelineCallback, fetchOrderIdsCallback])
+  }, [fetchOrderIdsCallback, fetchTransactionTimelineCallback])
 
   return (
     <>
@@ -112,7 +127,25 @@ export default function OrderTimeline() {
           justifyContent: 'center',
         }}
       >
-        <FormControl sx={{ width: '200px' }}>
+        <FormControl sx={{ width: '400px' }}>
+          <InputLabel>Order Id</InputLabel>
+          <Select
+            label="Order Id"
+            value={activeOrder}
+            onChange={(e) => {
+              setActiveOrder(e.target.value)
+              fetchTransactionsByOrderId(e.target.value)
+            }}
+          >
+            {orders.map((order) => (
+              <MenuItem key={order} value={order}>
+                {order}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl sx={{ width: '400px', marginTop: '24px' }}>
           <InputLabel>Transaction Id</InputLabel>
           <Select
             label="Transaction Id"
@@ -129,7 +162,7 @@ export default function OrderTimeline() {
           </Select>
         </FormControl>
         {data && (
-          <Timeline position="alternate">
+          <Timeline position="alternate" sx={{ width: '1000px' }}>
             <TimelineItem>
               <TimelineOppositeContent
                 sx={{ m: 'auto 0' }}
