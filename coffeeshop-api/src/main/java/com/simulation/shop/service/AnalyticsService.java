@@ -1,15 +1,12 @@
 package com.simulation.shop.service;
 
 import com.coffee.shared.entity.AuditLog;
-import com.coffee.shared.entity.OrdersTable;
 import com.coffee.shared.entity.StepTransactionId;
-import com.coffee.shared.exception.CoffeeShopException;
 import com.coffee.shared.model.Benchmark;
 import com.coffee.shared.model.Data;
-import com.coffee.shared.model.Status;
+import com.coffee.shared.model.MachineBenchmark;
 import com.coffee.shared.model.Step;
 import com.simulation.shop.repository.AuditLogRepository;
-import com.simulation.shop.repository.OrdersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -23,9 +20,6 @@ public class AnalyticsService {
 
     @Autowired
     private AuditLogRepository repository;
-
-    @Autowired
-    private OrdersRepository ordersRepository;
 
     public List<Benchmark> getData() {
         //Takes only recent 50 records
@@ -82,7 +76,6 @@ public class AnalyticsService {
     public List<MachineBenchmark> fetchMachineEfficiency() {
         Map<String, MachineBenchmark> map = new HashMap<>();
         List<AuditLog> all = repository.findAll();
-        List<OrdersTable> completedOrders = ordersRepository.findByStatus(Status.COMPLETE);
 
         //TODO filter out completed orders, show only last 10 orders
         for (AuditLog auditLog : all) {

@@ -1,15 +1,15 @@
 package com.simulation.shop.service;
 
 import com.coffee.shared.entity.MilkStock;
-import com.coffee.shared.entity.OrdersTable;
 import com.coffee.shared.entity.StepTransactionId;
+import com.coffee.shared.entity.TransactionSequence;
 import com.coffee.shared.exception.OutOfIngredientsException;
 import com.coffee.shared.model.Status;
 import com.coffee.shared.model.SteamedMilk;
 import com.coffee.shared.model.Step;
 import com.machine.steamer.SteamerMachine;
 import com.simulation.shop.repository.MilkRepository;
-import com.simulation.shop.repository.OrdersRepository;
+import com.simulation.shop.repository.TransactionSequenceRepository;
 import com.simulation.shop.util.CoffeeUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ public class SteamerService {
     private AuditLogService auditLogService;
 
     @Autowired
-    private OrdersRepository ordersRepository;
+    private TransactionSequenceRepository transactionSequenceRepository;
 
     @Autowired
     private MilkRepository milkRepository;
@@ -60,7 +60,7 @@ public class SteamerService {
             milkRepository.save(stock);
 
             //TODO grind using multithreading later
-            OrdersTable order = ordersRepository.findById(transactionId).orElseThrow(() -> new IllegalStateException("Unable to find the orderId " + transactionId));
+            TransactionSequence order = transactionSequenceRepository.findById(transactionId).orElseThrow(() -> new IllegalStateException("Unable to find the orderId " + transactionId));
             steamedMilk = machine.steam(transactionId, order.getCustomerId(), stock.getMilk());
 
             StepTransactionId stepTransactionId = new StepTransactionId(Step.STEAM_MILK, transactionId);

@@ -1,18 +1,13 @@
 package com.simulation.shop.service;
 
-import com.coffee.shared.entity.AuditLog;
-import com.coffee.shared.entity.CoffeeEntity;
-import com.coffee.shared.entity.OrdersTable;
-import com.coffee.shared.entity.StepTransactionId;
+import com.coffee.shared.entity.*;
 import com.coffee.shared.model.*;
 import com.coffee.shared.request.InputRequest;
 import com.coffee.shared.request.OrderRequest;
 import com.simulation.shop.CoffeeShopException;
 import com.simulation.shop.config.Constants;
 import com.simulation.shop.controller.ProcessController;
-import com.simulation.shop.repository.AuditLogRepository;
-import com.simulation.shop.repository.CoffeeRepository;
-import com.simulation.shop.repository.OrdersRepository;
+import com.simulation.shop.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
@@ -39,7 +35,10 @@ public class ProcessService {
     private RestTemplate restTemplate;
 
     @Autowired
-    private OrdersRepository ordersRepository;
+    private CoffeeOrderRepository coffeeOrderRepository;
+
+    @Autowired
+    private TransactionSequenceRepository transactionSequenceRepository;
 
     @Autowired
     private AuditLogRepository auditLogRepository;
@@ -47,57 +46,76 @@ public class ProcessService {
     @Autowired
     private CoffeeRepository coffeeRepository;
 
-    public List<String> queueOrder(OrderRequest request) {
-        int orders = request.getOrders();
-        List<String> transactionList = new ArrayList<>();
-        for (int i = 0; i < orders; i++) {
-            OrdersTable ordersTable = new OrdersTable();
-            ordersTable.setCustomerId(request.getCustomerId());
-            ordersTable.setStatus(Status.PENDING);
-            ordersRepository.save(ordersTable);
-
-            transactionList.add(ordersTable.getTransactionId());
+    public String queueOrder(OrderRequest request) {
+        int count = request.getOrders();
+        List<TransactionSequence> transactionSequences = new ArrayList<>();
+        CoffeeOrder order = new CoffeeOrder();
+        order.setCustomerId(request.getCustomerId());
+        order.setStatus(Status.PENDING);
+        order.setOrderCreatedDate(new Date());
+        for (int i = 0; i < count; i++) {
+            TransactionSequence transSeq = new TransactionSequence();
+            transSeq.setCustomerId(request.getCustomerId());
+            transSeq.setStatus(Status.PENDING);
+            transSeq.setTimeStarted(new Date());
+            transSeq.setOrder(order);
+            transactionSequences.add(transSeq);
         }
-        return transactionList;
+        order.setTransactionSequences(transactionSequences);
+        coffeeOrderRepository.save(order);
+
+        return order.getOrderId();
     }
 
-    public List<OrderStatus> processOrder(List<String> orderList) {
-        List<OrderStatus> statusList = new ArrayList<>();
+    public List<TransactionStatus> processOrder(String orderId) {
+        Optional<CoffeeOrder> optional = coffeeOrderRepository.findById(orderId);
+        CoffeeOrder order = optional.orElseThrow(() -> new CoffeeShopException("No Order details available for order " + orderId));
+        List<TransactionSequence> transactionSequences = transactionSequenceRepository.findByOrder(order);
 
-        for (String transactionId : orderList) {
+        List<TransactionStatus> statusList = new ArrayList<>();
+        for (TransactionSequence transactionSequence : transactionSequences) {
             InputRequest inputRequest = new InputRequest();
-            inputRequest.setTransactionId(transactionId);
+            inputRequest.setTransactionId(transactionSequence.getTransactionId());
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<InputRequest> requestEntity = new HttpEntity<InputRequest>(inputRequest, headers);
 
-            OrderStatus orderStatus = new OrderStatus(transactionId);
+            TransactionStatus transactionStatus = new TransactionStatus(transactionSequence.getTransactionId());
             try {
                 String host = "http://localhost:8080/";
                 ResponseEntity<Grounds> groundsResponse = restTemplate.postForEntity(host + "machine/grind", inputRequest, Grounds.class);
                 ResponseEntity<Coffee> espressoResponse = restTemplate.postForEntity(host + "machine/espresso", inputRequest, Coffee.class);
                 ResponseEntity<SteamedMilk> steamedResponse = restTemplate.postForEntity(host + "machine/steam", inputRequest, SteamedMilk.class);
-                restTemplate.postForLocation(host + "process/packageCoffee", transactionId);
-                orderStatus.setStatus(Status.COMPLETE);
+                restTemplate.postForLocation(host + "process/packageCoffee", transactionSequence.getTransactionId());
+                transactionStatus.setStatus(Status.COMPLETE);
             } catch (Exception e) {
-                LOGGER.error("Error while processing order " + transactionId, e);
-                orderStatus.setStatus(Status.ERROR);
+                LOGGER.error("Error while processing order " + transactionSequence.getTransactionId(), e);
+                transactionStatus.setStatus(Status.ERROR);
             }
-            archiveOrder(orderStatus);
-            statusList.add(orderStatus);
+            archiveTransaction(transactionStatus);
+            statusList.add(transactionStatus);
         }
         return statusList;
     }
 
-    private void archiveOrder(OrderStatus orderStatus) {
-        Optional<OrdersTable> optional = ordersRepository.findById(orderStatus.getTransactionId());
-        OrdersTable order = optional.orElseThrow(() -> new CoffeeShopException("No order details available"));
-        order.setStatus(orderStatus.getStatus());
-        ordersRepository.save(order);
+    private void archiveTransaction(TransactionStatus transactionStatus) {
+        Optional<TransactionSequence> optional = transactionSequenceRepository.findById(transactionStatus.getTransactionId());
+        TransactionSequence transaction = optional.orElseThrow(() -> new CoffeeShopException("No transaction details available"));
+        transaction.setStatus(transactionStatus.getStatus());
+        transaction.setTimeEnded(new Date());
+        transactionSequenceRepository.save(transaction);
     }
 
-    public OrdersTable findOrder(String transactionId) {
-        Optional<OrdersTable> optional = ordersRepository.findById(transactionId);
+    public void archiveOrder(String orderId) {
+        Optional<CoffeeOrder> optional = coffeeOrderRepository.findById(orderId);
+        CoffeeOrder order = optional.orElseThrow(() -> new CoffeeShopException("No Order details available for order " + orderId));
+        order.setStatus(Status.COMPLETE);
+        order.setOrderEndedDate(new Date());
+        coffeeOrderRepository.save(order);
+    }
+
+    public TransactionSequence findOrder(String transactionId) {
+        Optional<TransactionSequence> optional = transactionSequenceRepository.findById(transactionId);
         return optional.orElseThrow(() -> new IllegalStateException("Unable to find order orderId: " + transactionId));
     }
 
@@ -131,7 +149,7 @@ public class ProcessService {
         try (ByteArrayOutputStream innerZipBufferOutput = new ByteArrayOutputStream();
              ZipOutputStream innerZipOutput = new ZipOutputStream(new BufferedOutputStream(innerZipBufferOutput));) {
 
-            OrdersTable order = findOrder(transactionId);
+            TransactionSequence transactionSequence = findOrder(transactionId);
             AuditLog grinderLog = findAuditLog(Step.GRIND_COFFEE, transactionId);
             AuditLog espressoLog = findAuditLog(Step.MAKE_ESPRESSO, transactionId);
             AuditLog steamerLog = findAuditLog(Step.STEAM_MILK, transactionId);
@@ -141,7 +159,7 @@ public class ProcessService {
             innerZipOutput.setMethod(ZipOutputStream.STORED);
             innerZipOutput.setLevel(5);
 
-            String customerId = order.getCustomerId();
+            String customerId = transactionSequence.getCustomerId();
             String info = buildCoffeeData(grinderLog, espressoLog, steamerLog, customerId);
 
             InputStream is = new ByteArrayInputStream(info.getBytes());
@@ -187,4 +205,5 @@ public class ProcessService {
                 espressoMachineName, espressoThread, espressoTime,
                 steamingMachineName, steamingThread, steamingTime);
     }
+
 }

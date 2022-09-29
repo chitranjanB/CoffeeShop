@@ -1,8 +1,8 @@
 package com.simulation.shop.controller;
 
 import com.coffee.shared.model.Benchmark;
+import com.coffee.shared.model.MachineBenchmark;
 import com.simulation.shop.service.AnalyticsService;
-import com.simulation.shop.service.MachineBenchmark;
 import com.simulation.shop.service.OrderTimeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

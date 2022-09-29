@@ -79,7 +79,7 @@ export default function OrderTimeline() {
 
   const fetchOrderIdsCallback = useCallback(() => {
     axios
-      .get('http://localhost:8080/orders/all')
+      .get('http://localhost:8080/transactions/all')
       .then((res) => {
         setTransactions(res.data)
       })

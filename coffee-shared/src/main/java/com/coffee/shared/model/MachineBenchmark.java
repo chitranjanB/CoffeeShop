@@ -1,4 +1,4 @@
-package com.simulation.shop.service;
+package com.coffee.shared.model;
 
 public class MachineBenchmark {
 

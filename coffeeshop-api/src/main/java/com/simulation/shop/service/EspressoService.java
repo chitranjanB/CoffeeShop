@@ -1,11 +1,11 @@
 package com.simulation.shop.service;
 
-import com.coffee.shared.entity.OrdersTable;
 import com.coffee.shared.entity.StepTransactionId;
+import com.coffee.shared.entity.TransactionSequence;
 import com.coffee.shared.model.Coffee;
 import com.coffee.shared.model.Step;
 import com.machine.espresso.EspressoMachine;
-import com.simulation.shop.repository.OrdersRepository;
+import com.simulation.shop.repository.TransactionSequenceRepository;
 import com.simulation.shop.util.CoffeeUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ public class EspressoService {
     private AuditLogService auditLogService;
 
     @Autowired
-    private OrdersRepository ordersRepository;
+    private TransactionSequenceRepository repository;
 
     @Autowired
     private List<EspressoMachine> espressoMachines;
@@ -37,8 +37,8 @@ public class EspressoService {
         //fetch beans from inventory
         EspressoMachine machine = getAvailableEspressoMachine(espressoMachines);
 
-        OrdersTable order = ordersRepository.findById(transactionId).orElseThrow(() -> new IllegalStateException("Unable to find the orderId " + transactionId));
-        Coffee coffee = machine.concentrate(transactionId, order.getCustomerId());
+        TransactionSequence transactionSequence = repository.findById(transactionId).orElseThrow(() -> new IllegalStateException("Unable to find the orderId " + transactionId));
+        Coffee coffee = machine.concentrate(transactionId, transactionSequence.getCustomerId());
 
         StepTransactionId stepTransactionId = new StepTransactionId(Step.MAKE_ESPRESSO, transactionId);
         //TODO fix

@@ -1,8 +1,7 @@
 package com.simulation.shop.controller;
 
-import com.coffee.shared.entity.OrdersTable;
-import com.coffee.shared.model.Status;
-import com.simulation.shop.service.OrdersService;
+import com.coffee.shared.model.CoffeeOrder;
+import com.simulation.shop.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,19 +13,19 @@ import java.util.List;
 @RestController
 @RequestMapping("orders")
 @CrossOrigin(origins = "http://localhost:3000")
-public class OrdersController {
+public class OrderController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OrdersController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderController.class);
 
     @Autowired
-    private OrdersService service;
+    private OrderService service;
 
     @GetMapping
-    public List<OrdersTable> findOrderByStatus(@RequestParam String status) {
+    public List<CoffeeOrder> findOrderByStatus(@RequestParam String status) {
         return service.findOrderByStatus(status);
     }
 
-    @GetMapping("/all")
+    @GetMapping("/all/ids")
     public List<String> fetchOrderIds() {
         return service.fetchOrders();
     }

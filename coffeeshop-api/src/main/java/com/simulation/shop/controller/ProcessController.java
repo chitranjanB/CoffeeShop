@@ -1,6 +1,6 @@
 package com.simulation.shop.controller;
 
-import com.coffee.shared.model.OrderStatus;
+import com.coffee.shared.model.TransactionStatus;
 import com.coffee.shared.request.OrderRequest;
 import com.simulation.shop.service.ProcessService;
 import org.slf4j.Logger;
@@ -26,10 +26,11 @@ public class ProcessController {
     private ProcessService service;
 
     @PostMapping
-    public List<OrderStatus> process(@RequestBody OrderRequest request) {
-        List<String> orderList = service.queueOrder(request);
-        List<OrderStatus> orderStatusList = service.processOrder(orderList);
-        return orderStatusList;
+    public List<TransactionStatus> process(@RequestBody OrderRequest request) {
+        String orderId = service.queueOrder(request);
+        List<TransactionStatus> transactionStatusList = service.processOrder(orderId);
+        service.archiveOrder(orderId);
+        return transactionStatusList;
     }
 
     @PostMapping(value = "/packageCoffee")

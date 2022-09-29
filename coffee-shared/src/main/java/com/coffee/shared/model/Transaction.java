@@ -1,23 +1,12 @@
-package com.coffee.shared.entity;
+package com.coffee.shared.model;
 
-import com.coffee.shared.model.Status;
-import org.hibernate.annotations.GenericGenerator;
+import java.util.Date;
 
-import javax.persistence.*;
-
-@Entity
-@Table
-public class OrdersTable {
-
-    @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column
+public class Transaction {
     private String transactionId;
-    @Column
     private String customerId;
-    @Column
-    @Enumerated(EnumType.STRING)
+    private Date timeStarted;
+    private Date timeEnded;
     private Status status;
 
     public String getTransactionId() {
@@ -34,6 +23,22 @@ public class OrdersTable {
 
     public void setCustomerId(String customerId) {
         this.customerId = customerId;
+    }
+
+    public Date getTimeStarted() {
+        return timeStarted;
+    }
+
+    public void setTimeStarted(Date timeStarted) {
+        this.timeStarted = timeStarted;
+    }
+
+    public Date getTimeEnded() {
+        return timeEnded;
+    }
+
+    public void setTimeEnded(Date timeEnded) {
+        this.timeEnded = timeEnded;
     }
 
     public Status getStatus() {
