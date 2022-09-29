@@ -25,7 +25,7 @@ public class TransactionController {
         return service.findTransactionsByStatus(status);
     }
 
-    @GetMapping("/all")
+    @GetMapping("/all/ids")
     public List<String> fetchTransactionIds() {
         return service.fetchTransactionIds();
     }

@@ -1,6 +1,7 @@
 package com.simulation.shop.service;
 
 import com.coffee.shared.entity.*;
+import com.coffee.shared.entity.CoffeeOrder;
 import com.coffee.shared.model.*;
 import com.coffee.shared.request.InputRequest;
 import com.coffee.shared.request.OrderRequest;

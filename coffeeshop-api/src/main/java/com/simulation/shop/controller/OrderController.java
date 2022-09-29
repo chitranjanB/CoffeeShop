@@ -25,9 +25,20 @@ public class OrderController {
         return service.findOrderByStatus(status);
     }
 
+    @GetMapping("/order")
+    public CoffeeOrder findOrderById(@RequestParam String orderId) {
+        return service.findOrderById(orderId);
+    }
+
+    @GetMapping("/customer")
+    public List<CoffeeOrder> findOrderByCustomerId(@RequestParam String customerId) {
+        return service.findOrderByCustomerId(customerId);
+    }
+
     @GetMapping("/all/ids")
     public List<String> fetchOrderIds() {
         return service.fetchOrders();
     }
+
 
 }
