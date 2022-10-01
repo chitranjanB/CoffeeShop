@@ -1,6 +1,6 @@
 package com.simulation.shop.controller;
 
-import com.coffee.shared.model.Benchmark;
+import com.coffee.shared.model.AnalyticsTimeline;
 import com.coffee.shared.model.MachineBenchmark;
 import com.simulation.shop.service.AnalyticsService;
 import com.simulation.shop.service.OrderTimeline;
@@ -21,9 +21,9 @@ public class AnalyticsController {
     @Autowired
     private AnalyticsService service;
 
-    @PostMapping(value="/data")
-    public List<Benchmark> grind() {
-        return service.getData();
+    @PostMapping(value="/system-benchmark")
+    public List<AnalyticsTimeline> fetchSystemBenchmark() {
+        return service.fetchAnalyticsTimeline();
     }
 
     @GetMapping(value="/machine-efficiency")

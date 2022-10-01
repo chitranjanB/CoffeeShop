@@ -2,16 +2,16 @@ package com.coffee.shared.model;
 
 import java.util.Date;
 
-public class Data {
+public class TimelineData {
     private String customerId;
     private Date startDate;
     private Date endDate;
 
-    public Data(){
+    public TimelineData(){
         //empty constructor
     }
 
-    public Data(String customerId, Date startDate, Date endDate) {
+    public TimelineData(String customerId, Date startDate, Date endDate) {
         this.customerId = customerId;
         this.startDate = startDate;
         this.endDate = endDate;

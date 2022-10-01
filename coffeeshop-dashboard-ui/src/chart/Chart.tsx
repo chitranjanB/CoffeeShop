@@ -101,23 +101,25 @@ const Chart = () => {
   )
 
   const fetchAnalyticsCallback = useCallback(() => {
-    axios.post('http://localhost:8080/analytics/data').then((res) => {
-      const response: AnalyticsResponseT[] = res.data
+    axios
+      .post('http://localhost:8080/analytics/system-benchmark')
+      .then((res) => {
+        const response: AnalyticsResponseT[] = res.data
 
-      const seriesData: SeriesType[] = [...response].map((d) => {
-        const data: DataType[] = d.data.map((e) => {
-          return buildNodeCallback(e)
+        const seriesData: SeriesType[] = [...response].map((d) => {
+          const data: DataType[] = d.timelineDataList.map((e) => {
+            return buildNodeCallback(e)
+          })
+          const name = d.name
+          return { data, name }
         })
-        const name = d.name
-        return { data, name }
+        setSeries(seriesData)
       })
-      setSeries(seriesData)
-    })
   }, [buildNodeCallback])
 
   useEffect(() => {
     fetchAnalyticsCallback()
-    const timer = setInterval(fetchAnalyticsCallback, 3*1000)
+    const timer = setInterval(fetchAnalyticsCallback, 3 * 1000)
 
     return () => {
       clearInterval(timer)

@@ -3,7 +3,7 @@ export type SeriesType = { data: DataType[]; name: string }
 export type DataType = { x: string; y: number[] }
 
 export type AnalyticsResponseT = {
-  data: ResponseDataT[]
+  timelineDataList: ResponseDataT[]
   name: string
 }
 

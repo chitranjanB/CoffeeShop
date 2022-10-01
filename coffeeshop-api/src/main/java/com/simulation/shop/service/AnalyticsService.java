@@ -2,10 +2,10 @@ package com.simulation.shop.service;
 
 import com.coffee.shared.entity.AuditLog;
 import com.coffee.shared.entity.StepTransactionId;
-import com.coffee.shared.model.Benchmark;
-import com.coffee.shared.model.Data;
+import com.coffee.shared.model.AnalyticsTimeline;
 import com.coffee.shared.model.MachineBenchmark;
 import com.coffee.shared.model.Step;
+import com.coffee.shared.model.TimelineData;
 import com.simulation.shop.repository.AuditLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -21,18 +21,18 @@ public class AnalyticsService {
     @Autowired
     private AuditLogRepository repository;
 
-    public List<Benchmark> getData() {
+    public List<AnalyticsTimeline> fetchAnalyticsTimeline() {
         //Takes only recent 50 records
         long count = repository.count();
         PageRequest lastPageAsc = PageRequest.of((int) count / MAX_PAGES, MAX_PAGES);
 
         List<AuditLog> all = repository.findAll(lastPageAsc).getContent();
 
-        List<Benchmark> benchmarks = new ArrayList<>();
+        List<AnalyticsTimeline> timelines = new ArrayList<>();
 
-        List<Data> grindList = new ArrayList<>();
-        List<Data> espressoList = new ArrayList<>();
-        List<Data> steamerList = new ArrayList<>();
+        List<TimelineData> grindList = new ArrayList<>();
+        List<TimelineData> espressoList = new ArrayList<>();
+        List<TimelineData> steamerList = new ArrayList<>();
         for (AuditLog auditLog : all) {
 
             String customerId = auditLog.getCustomerId();
@@ -42,34 +42,34 @@ public class AnalyticsService {
 
             switch (step) {
                 case GRIND_COFFEE:
-                    grindList.add(new Data(customerId, startDate, endDate));
+                    grindList.add(new TimelineData(customerId, startDate, endDate));
                     break;
                 case MAKE_ESPRESSO:
-                    espressoList.add(new Data(customerId, startDate, endDate));
+                    espressoList.add(new TimelineData(customerId, startDate, endDate));
                     break;
                 case STEAM_MILK:
-                    steamerList.add(new Data(customerId, startDate, endDate));
+                    steamerList.add(new TimelineData(customerId, startDate, endDate));
                     break;
             }
         }
 
-        Benchmark grindBenchmark = new Benchmark();
-        grindBenchmark.setData(grindList);
+        AnalyticsTimeline grindBenchmark = new AnalyticsTimeline();
+        grindBenchmark.setTimelineDataList(grindList);
         grindBenchmark.setName(Step.GRIND_COFFEE);
 
-        Benchmark espressoBenchmark = new Benchmark();
-        espressoBenchmark.setData(espressoList);
+        AnalyticsTimeline espressoBenchmark = new AnalyticsTimeline();
+        espressoBenchmark.setTimelineDataList(espressoList);
         espressoBenchmark.setName(Step.MAKE_ESPRESSO);
 
-        Benchmark steamerBenchmark = new Benchmark();
-        steamerBenchmark.setData(steamerList);
+        AnalyticsTimeline steamerBenchmark = new AnalyticsTimeline();
+        steamerBenchmark.setTimelineDataList(steamerList);
         steamerBenchmark.setName(Step.STEAM_MILK);
 
-        benchmarks.add(grindBenchmark);
-        benchmarks.add(espressoBenchmark);
-        benchmarks.add(steamerBenchmark);
+        timelines.add(grindBenchmark);
+        timelines.add(espressoBenchmark);
+        timelines.add(steamerBenchmark);
 
-        return benchmarks;
+        return timelines;
 
     }
 

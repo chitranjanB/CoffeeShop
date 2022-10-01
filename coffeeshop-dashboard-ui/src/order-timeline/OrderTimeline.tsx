@@ -14,6 +14,7 @@ import {
   Select,
   MenuItem,
   Stack,
+  IconButton,
 } from '@mui/material'
 import {
   Coffee,
@@ -63,6 +64,23 @@ export default function OrderTimeline() {
   >()
   const [orders, setOrders] = useState<string[]>([])
   const [activeOrder, setActiveOrder] = useState<string | undefined>()
+
+  const collectCoffee = () => {
+    axios({
+      url: `http://localhost:8080/process/collect?transactionId=${activeTransaction}`,
+      method: 'POST',
+      responseType: 'blob',
+    }).then((res) => {
+      const href = URL.createObjectURL(res.data)
+      const link = document.createElement('a')
+      link.href = href
+      link.setAttribute('download', `coffee-${activeTransaction}.zip`)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(href)
+    })
+  }
 
   const fetchOrderIdsCallback = useCallback(() => {
     axios
@@ -145,22 +163,24 @@ export default function OrderTimeline() {
           </Select>
         </FormControl>
 
-        <FormControl sx={{ width: '400px', marginTop: '24px' }}>
-          <InputLabel>Transaction Id</InputLabel>
-          <Select
-            label="Transaction Id"
-            value={activeTransaction}
-            onChange={(e) => {
-              setActiveTransaction(e.target.value)
-            }}
-          >
-            {transactions.map((transaction) => (
-              <MenuItem key={transaction} value={transaction}>
-                {transaction}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        {transactions && transactions.length > 0 && (
+          <FormControl sx={{ width: '400px', marginTop: '24px' }}>
+            <InputLabel>Transaction Id</InputLabel>
+            <Select
+              label="Transaction Id"
+              value={activeTransaction}
+              onChange={(e) => {
+                setActiveTransaction(e.target.value)
+              }}
+            >
+              {transactions.map((transaction) => (
+                <MenuItem key={transaction} value={transaction}>
+                  {transaction}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
         {data && (
           <Timeline position="alternate" sx={{ width: '1000px' }}>
             <TimelineItem>
@@ -283,13 +303,15 @@ export default function OrderTimeline() {
               <TimelineSeparator>
                 <TimelineConnector />
                 <TimelineDot color="primary">
-                  <Coffee />
+                  <IconButton onClick={collectCoffee}>
+                    <Coffee />
+                  </IconButton>
                 </TimelineDot>
                 <TimelineConnector sx={{ bgcolor: 'secondary.main' }} />
               </TimelineSeparator>
               <TimelineContent sx={{ py: '12px', px: 2 }}>
                 <Typography variant="h6" component="span">
-                  Delivered
+                  Collect your coffee
                 </Typography>
                 <Typography>Thanks</Typography>
               </TimelineContent>
