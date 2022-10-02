@@ -2,6 +2,7 @@ package com.simulation.shop.controller;
 
 import com.coffee.shared.model.TransactionStatus;
 import com.coffee.shared.request.OrderRequest;
+import com.coffee.shared.request.TransactionRequest;
 import com.simulation.shop.service.ProcessService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ public class ProcessController {
     private ProcessService service;
 
     @PostMapping
-    public List<TransactionStatus> process(@RequestBody OrderRequest request) {
+    public List<TransactionStatus> process(@RequestHeader(value = HttpHeaders.AUTHORIZATION, defaultValue = "") String auth, @RequestBody OrderRequest request) {
         String orderId = service.queueOrder(request);
         List<TransactionStatus> transactionStatusList = service.processOrder(orderId);
         service.archiveOrder(orderId);
@@ -34,13 +35,13 @@ public class ProcessController {
     }
 
     @PostMapping(value = "/packageCoffee")
-    public void packageCoffee(@RequestBody  String transactionId) {
-        service.packageCoffee(transactionId);
+    public void packageCoffee(@RequestHeader(value = HttpHeaders.AUTHORIZATION, defaultValue = "") String auth, @RequestBody TransactionRequest request) {
+        service.packageCoffee(request.getTransactionId());
     }
 
     @PostMapping(value = "/collect",
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<ByteArrayResource> collectCoffee(@RequestParam String transactionId) {
+    public ResponseEntity<ByteArrayResource> collectCoffee(@RequestHeader(value = HttpHeaders.AUTHORIZATION, defaultValue = "") String auth, @RequestParam String transactionId) {
         ByteArrayResource resource = service.fetchCoffee(transactionId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=coffee.zip")

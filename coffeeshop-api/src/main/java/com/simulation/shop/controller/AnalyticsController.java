@@ -7,6 +7,7 @@ import com.simulation.shop.service.OrderTimeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,14 +23,14 @@ public class AnalyticsController {
     private AnalyticsService service;
 
     @PostMapping(value="/system-benchmark")
-    public List<AnalyticsTimeline> fetchSystemBenchmark() {
+    public List<AnalyticsTimeline> fetchSystemBenchmark(@RequestHeader(value = HttpHeaders.AUTHORIZATION, defaultValue = "") String auth) {
         return service.fetchAnalyticsTimeline();
     }
 
     @GetMapping(value="/machine-efficiency")
-    public List<MachineBenchmark> fetchMachineEfficiency(){return service.fetchMachineEfficiency();}
+    public List<MachineBenchmark> fetchMachineEfficiency(@RequestHeader(value = HttpHeaders.AUTHORIZATION, defaultValue = "") String auth){return service.fetchMachineEfficiency();}
 
     @GetMapping(value="/timeline")
-    public OrderTimeline fetch(@RequestParam String transactionId){return service.findAuditLog(transactionId);}
+    public OrderTimeline fetch(@RequestHeader(value = HttpHeaders.AUTHORIZATION, defaultValue = "") String auth, @RequestParam String transactionId){return service.findAuditLog(transactionId);}
 
 }

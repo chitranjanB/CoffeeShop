@@ -1,6 +1,6 @@
 package com.coffee.shared.request;
 
-public class InputRequest {
+public class TransactionRequest {
     private String transactionId;
 
     public String getTransactionId() {

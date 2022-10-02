@@ -3,13 +3,13 @@ package com.coffee.shared.request;
 import java.util.List;
 
 public class InputRequests {
-    private List<InputRequest> inputRequestList;
+    private List<TransactionRequest> inputRequestList;
 
-    public List<InputRequest> getInputRequestList() {
+    public List<TransactionRequest> getInputRequestList() {
         return inputRequestList;
     }
 
-    public void setInputRequestList(List<InputRequest> inputRequestList) {
+    public void setInputRequestList(List<TransactionRequest> inputRequestList) {
         this.inputRequestList = inputRequestList;
     }
 }

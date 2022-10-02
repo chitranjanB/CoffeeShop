@@ -1,21 +1,24 @@
 package com.simulation.shop.service;
 
-import com.coffee.shared.entity.*;
 import com.coffee.shared.entity.CoffeeOrder;
+import com.coffee.shared.entity.*;
 import com.coffee.shared.model.*;
-import com.coffee.shared.request.InputRequest;
 import com.coffee.shared.request.OrderRequest;
+import com.coffee.shared.request.TransactionRequest;
 import com.simulation.shop.CoffeeShopException;
 import com.simulation.shop.config.Constants;
 import com.simulation.shop.controller.ProcessController;
-import com.simulation.shop.repository.*;
+import com.simulation.shop.repository.AuditLogRepository;
+import com.simulation.shop.repository.CoffeeOrderRepository;
+import com.simulation.shop.repository.CoffeeRepository;
+import com.simulation.shop.repository.TransactionSequenceRepository;
+import com.simulation.shop.util.CoffeeUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -47,6 +50,9 @@ public class ProcessService {
     @Autowired
     private CoffeeRepository coffeeRepository;
 
+    @Autowired
+    private CoffeeUtility util;
+
     public String queueOrder(OrderRequest request) {
         int count = request.getOrders();
         List<TransactionSequence> transactionSequences = new ArrayList<>();
@@ -75,19 +81,23 @@ public class ProcessService {
 
         List<TransactionStatus> statusList = new ArrayList<>();
         for (TransactionSequence transactionSequence : transactionSequences) {
-            InputRequest inputRequest = new InputRequest();
+            TransactionRequest inputRequest = new TransactionRequest();
             inputRequest.setTransactionId(transactionSequence.getTransactionId());
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<InputRequest> requestEntity = new HttpEntity<InputRequest>(inputRequest, headers);
+
 
             TransactionStatus transactionStatus = new TransactionStatus(transactionSequence.getTransactionId());
             try {
                 String host = "http://localhost:8080/";
-                ResponseEntity<Grounds> groundsResponse = restTemplate.postForEntity(host + "machine/grind", inputRequest, Grounds.class);
-                ResponseEntity<Coffee> espressoResponse = restTemplate.postForEntity(host + "machine/espresso", inputRequest, Coffee.class);
-                ResponseEntity<SteamedMilk> steamedResponse = restTemplate.postForEntity(host + "machine/steam", inputRequest, SteamedMilk.class);
-                restTemplate.postForLocation(host + "process/packageCoffee", transactionSequence.getTransactionId());
+                String appToken = util.generateAppToken();
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Authorization", appToken);
+                HttpEntity<TransactionRequest> requestEntity = new HttpEntity<TransactionRequest>(inputRequest, headers);
+
+                ResponseEntity<Grounds> groundsResponse = restTemplate.postForEntity(host + "machine/grind", requestEntity, Grounds.class);
+                ResponseEntity<Coffee> espressoResponse = restTemplate.postForEntity(host + "machine/espresso", requestEntity, Coffee.class);
+                ResponseEntity<SteamedMilk> steamedResponse = restTemplate.postForEntity(host + "machine/steam", requestEntity, SteamedMilk.class);
+                restTemplate.postForLocation(host + "process/packageCoffee", requestEntity);
                 transactionStatus.setStatus(Status.COMPLETE);
             } catch (Exception e) {
                 LOGGER.error("Error while processing order " + transactionSequence.getTransactionId(), e);

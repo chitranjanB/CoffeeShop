@@ -1,9 +1,6 @@
 package com.simulation.shop.util;
 
-import com.coffee.shared.entity.AuditLog;
-import com.coffee.shared.entity.BeanStock;
-import com.coffee.shared.entity.MilkStock;
-import com.coffee.shared.entity.StepTransactionId;
+import com.coffee.shared.entity.*;
 import com.coffee.shared.model.Status;
 import com.simulation.shop.config.CoffeeShopPropConfig;
 import com.simulation.shop.config.Constants;
@@ -37,7 +34,22 @@ public class CoffeeUtility {
     @Autowired
     private CoffeeShopPropConfig config;
 
+    @Autowired
+    private JwtUtils jwtUtils;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CoffeeUtility.class);
+
+    public String generateAppToken(){
+        User user = new User();
+        user.setId(101L);
+        user.setName("CoffeeShop-APP");
+        user.setEmailId("app@coffeshop.com");
+        user.setActive(Boolean.TRUE);
+        user.setGender("NA");
+        user.setPhoneNumber("NA");
+        user.setPassword("DUMMY");
+        return jwtUtils.generateJwt(user);
+    }
 
     public void auditLog(StepTransactionId stepTransactionId, String machineName, String customerId, Instant start) {
         AuditLog auditLog = buildAuditLog(stepTransactionId, machineName, customerId, start);

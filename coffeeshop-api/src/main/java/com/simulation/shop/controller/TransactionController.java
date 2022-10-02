@@ -5,6 +5,7 @@ import com.simulation.shop.service.TransactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,12 +22,12 @@ public class TransactionController {
     private TransactionService service;
 
     @GetMapping
-    public List<Transaction> findTransactionsByStatus(@RequestParam String status) {
+    public List<Transaction> findTransactionsByStatus(@RequestHeader(value = HttpHeaders.AUTHORIZATION, defaultValue = "") String auth, @RequestParam String status) {
         return service.findTransactionsByStatus(status);
     }
 
     @GetMapping("/all/ids")
-    public List<String> fetchTransactionIds() {
+    public List<String> fetchTransactionIds(@RequestHeader(value = HttpHeaders.AUTHORIZATION, defaultValue = "") String auth) {
         return service.fetchTransactionIds();
     }
 
