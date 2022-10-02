@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material'
 import './kiosk.css'
-import { useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
 
 const Kiosk = () => {
@@ -21,13 +21,40 @@ const Kiosk = () => {
   const [customerName, setCustomerName] = useState<string | null>(null)
   const [orderQty, setOrderQty] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [token, setToken] = useState<string>('')
+
+  type ConfigType = { headers: { Authorization: string } }
+
+  const config: ConfigType = useMemo(() => {
+    return {
+      headers: {
+        Authorization: token,
+      },
+    }
+  }, [token])
+
+  const fetchAuthToken = () => {
+    axios
+      .post('http://localhost:8080/auth/authenticate', {
+        emailId: 'app@coffeeshop.com',
+        password: 'DUMMY',
+      })
+      .then((res) => {
+        const {
+          data: {
+            data: { accessToken },
+          },
+        } = res
+        setToken(accessToken)
+      })
+  }
 
   const createOrder = () => {
     setDialogOpen(false)
     setIsLoading(true)
     const order = { customerId: customerName, orders: orderQty }
     axios
-      .post('http://localhost:8080/process', order)
+      .post('http://localhost:8080/process', order, config)
       .then((res) => {
         setIsSubmitted(true)
       })
@@ -38,6 +65,10 @@ const Kiosk = () => {
     setIsLoading(false)
     setIsSubmitted(true)
   }
+
+  useEffect(() => {
+    !token && fetchAuthToken()
+  }, [token])
 
   return (
     <div className="kiosk">
@@ -65,7 +96,7 @@ const Kiosk = () => {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={createOrder} autoFocus>
+            <Button onClick={token ? createOrder : () => {}} autoFocus>
               Submit
             </Button>
           </DialogActions>

@@ -1,6 +1,6 @@
 import { Box, Typography } from '@mui/material'
 import axios from 'axios'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   LineChart,
   Line,
@@ -20,31 +20,58 @@ type MachineEffiencyType = {
 }
 const MachineChart = () => {
   const [loading, setLoading] = useState<boolean>(false)
-  const [data1, setData1] = useState<MachineEffiencyType[] | undefined>()
+  const [data, setData] = useState<MachineEffiencyType[] | undefined>()
+  const [token, setToken] = useState<string>('')
+
+  type ConfigType = { headers: { Authorization: string } }
+
+  const config: ConfigType = useMemo(() => {
+    return {
+      headers: {
+        Authorization: token,
+      },
+    }
+  }, [token])
+
+  const fetchAuthToken = () => {
+    axios
+      .post('http://localhost:8080/auth/authenticate', {
+        emailId: 'app@coffeeshop.com',
+        password: 'DUMMY',
+      })
+      .then((res) => {
+        const {
+          data: {
+            data: { accessToken },
+          },
+        } = res
+        setToken(accessToken)
+      })
+  }
 
   const fetchMachineEfficiencyCallback = useCallback(() => {
     axios
-      .get('http://localhost:8080/analytics/machine-efficiency')
+      .get('http://localhost:8080/analytics/machine-efficiency', config)
       .then((res) => {
-        console.log(res.data)
-        setData1(res.data)
+        setData(res.data)
       })
       .catch(() => {
         setLoading(false)
       })
     setLoading(false)
-  }, [])
+  }, [config])
 
   useEffect(() => {
-    fetchMachineEfficiencyCallback()
+    !token && fetchAuthToken()
+    token && fetchMachineEfficiencyCallback()
     const timer = setInterval(() => {
-      fetchMachineEfficiencyCallback()
+      token && fetchMachineEfficiencyCallback()
     }, 3 * 1000)
 
     return () => {
       clearInterval(timer)
     }
-  }, [fetchMachineEfficiencyCallback])
+  }, [token, fetchMachineEfficiencyCallback])
 
   return (
     <Box>
@@ -55,7 +82,7 @@ const MachineChart = () => {
           <LineChart
             width={500}
             height={300}
-            data={data1}
+            data={data}
             margin={{
               top: 5,
               right: 30,

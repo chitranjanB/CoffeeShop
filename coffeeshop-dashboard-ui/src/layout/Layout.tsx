@@ -20,7 +20,7 @@ import {
 } from '@mui/material'
 
 import axios from 'axios'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import InfoCard from '../card/InfoCard'
 import Chart from '../chart/Chart'
 import {
@@ -56,6 +56,33 @@ function Layout() {
   const [milkStockLoading, setMilkStockLoading] = useState<boolean>(false)
 
   const [activeNav, setActiveNav] = useState<string>('dashboard')
+  const [token, setToken] = useState<string>('')
+
+  type ConfigType = { headers: { Authorization: string } }
+
+  const config: ConfigType = useMemo(() => {
+    return {
+      headers: {
+        Authorization: token,
+      },
+    }
+  }, [token])
+
+  const fetchAuthToken = () => {
+    axios
+      .post('http://localhost:8080/auth/authenticate', {
+        emailId: 'app@coffeeshop.com',
+        password: 'DUMMY',
+      })
+      .then((res) => {
+        const {
+          data: {
+            data: { accessToken },
+          },
+        } = res
+        setToken(accessToken)
+      })
+  }
 
   const fetchHealthCallback = useCallback(() => {
     setHealthLoading(true)
@@ -73,7 +100,7 @@ function Layout() {
   const fetchOrdersPendingCallback = useCallback(() => {
     setOrdersPendingLoading(true)
     axios
-      .get('http://localhost:8080/orders?status=PENDING')
+      .get('http://localhost:8080/orders?status=PENDING', config)
       .then((res) => {
         setOrdersPending(res.data.length)
       })
@@ -81,12 +108,12 @@ function Layout() {
         setOrdersPendingLoading(false)
       })
     setOrdersPendingLoading(false)
-  }, [])
+  }, [config])
 
   const fetchOrdersCompletedCallback = useCallback(() => {
     setOrdersCompletedLoading(true)
     axios
-      .get('http://localhost:8080/orders?status=COMPLETE')
+      .get('http://localhost:8080/orders?status=COMPLETE', config)
       .then((res) => {
         setOrdersCompleted(res.data.length)
       })
@@ -94,12 +121,12 @@ function Layout() {
         setOrdersCompletedLoading(false)
       })
     setOrdersCompletedLoading(false)
-  }, [])
+  }, [config])
 
   const fetchOrdersFailedCallback = useCallback(() => {
     setOrdersFailedLoading(true)
     axios
-      .get('http://localhost:8080/orders?status=ERROR')
+      .get('http://localhost:8080/orders?status=ERROR', config)
       .then((res) => {
         setOrdersFailed(res.data.length)
       })
@@ -107,12 +134,12 @@ function Layout() {
         setOrdersFailedLoading(false)
       })
     setOrdersFailedLoading(false)
-  }, [])
+  }, [config])
 
   const fetchBeanStockCallback = useCallback(() => {
     setBeansStockLoading(true)
     axios
-      .get('http://localhost:8080/stock/beans')
+      .get('http://localhost:8080/stock/beans', config)
       .then((res) => {
         setBeansStock(res.data)
       })
@@ -120,12 +147,12 @@ function Layout() {
         setBeansStockLoading(false)
       })
     setBeansStockLoading(false)
-  }, [])
+  }, [config])
 
   const fetchMilkStockCallback = useCallback(() => {
     setMilkStockLoading(true)
     axios
-      .get('http://localhost:8080/stock/milk')
+      .get('http://localhost:8080/stock/milk', config)
       .then((res) => {
         setMilkStock(res.data)
       })
@@ -133,28 +160,33 @@ function Layout() {
         setMilkStockLoading(false)
       })
     setMilkStockLoading(false)
-  }, [])
+  }, [config])
 
   useEffect(() => {
-    fetchHealthCallback()
-    fetchOrdersPendingCallback()
-    fetchOrdersCompletedCallback()
-    fetchOrdersFailedCallback()
-    fetchBeanStockCallback()
-    fetchMilkStockCallback()
-    const timer = setInterval(() => {
+    !token && fetchAuthToken()
+    if (token) {
       fetchHealthCallback()
       fetchOrdersPendingCallback()
       fetchOrdersCompletedCallback()
       fetchOrdersFailedCallback()
       fetchBeanStockCallback()
       fetchMilkStockCallback()
+    }
+    const timer = setInterval(() => {
+      if (token) {
+        fetchHealthCallback()
+        fetchOrdersPendingCallback()
+        fetchOrdersCompletedCallback()
+        fetchOrdersFailedCallback()
+        fetchBeanStockCallback()
+        fetchMilkStockCallback()
+      }
     }, 3 * 1000)
-
     return () => {
       clearInterval(timer)
     }
   }, [
+    token,
     fetchHealthCallback,
     fetchOrdersPendingCallback,
     fetchOrdersCompletedCallback,

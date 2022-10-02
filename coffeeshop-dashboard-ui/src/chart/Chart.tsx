@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import ReactApexChart from 'react-apexcharts'
 import {
   AnalyticsResponseT,
@@ -12,6 +12,7 @@ import { Typography } from '@mui/material'
 
 const Chart = () => {
   const [series, setSeries] = useState<SeriesType[] | undefined>(undefined)
+  const [token, setToken] = useState<string>('')
 
   const [options]: [ApexCharts.ApexOptions, Function] = useState({
     chart: {
@@ -100,9 +101,35 @@ const Chart = () => {
     [buildApexDateCallback]
   )
 
+  type ConfigType = { headers: { Authorization: string } }
+
+  const config: ConfigType = useMemo(() => {
+    return {
+      headers: {
+        Authorization: token,
+      },
+    }
+  }, [token])
+
+  const fetchAuthToken = () => {
+    axios
+      .post('http://localhost:8080/auth/authenticate', {
+        emailId: 'app@coffeeshop.com',
+        password: 'DUMMY',
+      })
+      .then((res) => {
+        const {
+          data: {
+            data: { accessToken },
+          },
+        } = res
+        setToken(accessToken)
+      })
+  }
+
   const fetchAnalyticsCallback = useCallback(() => {
     axios
-      .post('http://localhost:8080/analytics/system-benchmark')
+      .post('http://localhost:8080/analytics/system-benchmark', {}, config)
       .then((res) => {
         const response: AnalyticsResponseT[] = res.data
 
@@ -115,16 +142,20 @@ const Chart = () => {
         })
         setSeries(seriesData)
       })
-  }, [buildNodeCallback])
+  }, [config, buildNodeCallback])
 
   useEffect(() => {
-    fetchAnalyticsCallback()
-    const timer = setInterval(fetchAnalyticsCallback, 3 * 1000)
+    !token && fetchAuthToken()
+    token && fetchAnalyticsCallback()
+    const timer = setInterval(
+      token ? fetchAnalyticsCallback : () => {},
+      3 * 1000
+    )
 
     return () => {
       clearInterval(timer)
     }
-  }, [fetchAnalyticsCallback])
+  }, [token, fetchAnalyticsCallback])
 
   return (
     <div id="chart">

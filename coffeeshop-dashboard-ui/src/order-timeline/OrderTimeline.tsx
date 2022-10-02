@@ -23,7 +23,7 @@ import {
   Microwave,
   Person,
 } from '@mui/icons-material'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
 import { OrderType } from './types'
 
@@ -64,10 +64,38 @@ export default function OrderTimeline() {
   >()
   const [orders, setOrders] = useState<string[]>([])
   const [activeOrder, setActiveOrder] = useState<string | undefined>()
+  const [token, setToken] = useState<string>('')
+
+  type ConfigType = { headers: { Authorization: string } }
+
+  const config: ConfigType = useMemo(() => {
+    return {
+      headers: {
+        Authorization: token,
+      },
+    }
+  }, [token])
+
+  const fetchAuthToken = () => {
+    axios
+      .post('http://localhost:8080/auth/authenticate', {
+        emailId: 'app@coffeeshop.com',
+        password: 'DUMMY',
+      })
+      .then((res) => {
+        const {
+          data: {
+            data: { accessToken },
+          },
+        } = res
+        setToken(accessToken)
+      })
+  }
 
   const collectCoffee = () => {
     axios({
       url: `http://localhost:8080/process/collect?transactionId=${activeTransaction}`,
+      headers: config.headers,
       method: 'POST',
       responseType: 'blob',
     }).then((res) => {
@@ -84,7 +112,7 @@ export default function OrderTimeline() {
 
   const fetchOrderIdsCallback = useCallback(() => {
     axios
-      .get('http://localhost:8080/orders/all/ids')
+      .get('http://localhost:8080/orders/all/ids', config)
       .then((res) => {
         setOrders(res.data)
       })
@@ -92,11 +120,11 @@ export default function OrderTimeline() {
         setLoading(false)
       })
     setLoading(false)
-  }, [])
+  }, [config])
 
   const fetchTransactionsByOrderId = (orderId: string) => {
     axios
-      .get(`http://localhost:8080/orders/order?orderId=${orderId}`)
+      .get(`http://localhost:8080/orders/order?orderId=${orderId}`, config)
       .then((res) => {
         const order: OrderType = res.data
         setTransactions(order.transactions.map((t) => t.transactionId))
@@ -110,7 +138,8 @@ export default function OrderTimeline() {
     if (activeTransaction) {
       axios
         .get(
-          `http://localhost:8080/analytics/timeline?transactionId=${activeTransaction}`
+          `http://localhost:8080/analytics/timeline?transactionId=${activeTransaction}`,
+          config
         )
         .then((res) => {
           setData(res.data)
@@ -120,20 +149,25 @@ export default function OrderTimeline() {
         })
       setLoading(false)
     }
-  }, [activeTransaction])
+  }, [activeTransaction, config])
 
   useEffect(() => {
-    fetchTransactionTimelineCallback()
-    fetchOrderIdsCallback()
-    const timer = setInterval(() => {
+    !token && fetchAuthToken()
+    if (token) {
       fetchTransactionTimelineCallback()
       fetchOrderIdsCallback()
+    }
+    const timer = setInterval(() => {
+      if (token) {
+        fetchTransactionTimelineCallback()
+        fetchOrderIdsCallback()
+      }
     }, 3 * 1000)
 
     return () => {
       clearInterval(timer)
     }
-  }, [fetchOrderIdsCallback, fetchTransactionTimelineCallback])
+  }, [token, fetchOrderIdsCallback, fetchTransactionTimelineCallback])
 
   return (
     <>
