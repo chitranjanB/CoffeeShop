@@ -1,7 +1,9 @@
 package com.simulation.shop;
 
+import com.coffee.shared.entity.User;
 import com.simulation.shop.repository.BeansRepository;
 import com.simulation.shop.repository.MilkRepository;
+import com.simulation.shop.repository.UserRepository;
 import com.simulation.shop.util.CoffeeUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -19,6 +21,8 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import javax.annotation.PostConstruct;
+
 @EnableSwagger2
 @EnableScheduling
 @EntityScan("com.coffee.shared.entity")
@@ -30,6 +34,9 @@ public class CoffeeshopApplication {
 
     @Autowired
     private MilkRepository milkRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private CoffeeUtility utility;
@@ -54,6 +61,13 @@ public class CoffeeshopApplication {
     @Scheduled(fixedRate = 2000, initialDelay = 10 * 1000)
     public void scheduleInventoryLoad() {
         utility.loadInventory();
+    }
+
+    @PostConstruct
+    public void initAppUser(){
+        User user = utility.buildAppUser();
+        userRepository.save(user);
+
     }
 
 }

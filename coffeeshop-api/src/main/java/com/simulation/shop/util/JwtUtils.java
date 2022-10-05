@@ -24,7 +24,7 @@ public class JwtUtils {
 
         // claims
         Claims claims = Jwts.claims()
-                .setIssuer(user.getId().toString())
+                .setIssuer(user.getEmailId())
                 .setIssuedAt(issuedAt)
                 .setExpiration(expiryAt);
 

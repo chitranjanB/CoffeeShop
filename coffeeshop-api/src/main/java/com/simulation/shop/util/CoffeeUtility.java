@@ -41,15 +41,20 @@ public class CoffeeUtility {
 
     //TODO get these values from properties file
     public String generateAppToken(){
+        User user = buildAppUser();
+        return jwtUtils.generateJwt(user);
+    }
+
+    public User buildAppUser() {
         User user = new User();
         user.setId(101L);
         user.setName("CoffeeShop-APP");
-        user.setEmailId("app@coffeshop.com");
+        user.setEmailId("app@coffeeshop.com");
         user.setActive(Boolean.TRUE);
         user.setGender("NA");
         user.setPhoneNumber("NA");
         user.setPassword("DUMMY");
-        return jwtUtils.generateJwt(user);
+        return user;
     }
 
     public void auditLog(StepTransactionId stepTransactionId, String machineName, String customerId, Instant start) {
