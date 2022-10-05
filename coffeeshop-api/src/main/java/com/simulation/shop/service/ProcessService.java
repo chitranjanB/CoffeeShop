@@ -13,6 +13,8 @@ import com.simulation.shop.repository.CoffeeOrderRepository;
 import com.simulation.shop.repository.CoffeeRepository;
 import com.simulation.shop.repository.TransactionSequenceRepository;
 import com.simulation.shop.util.CoffeeUtility;
+import com.simulation.shop.util.JwtUtils;
+import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,11 +55,19 @@ public class ProcessService {
     @Autowired
     private CoffeeUtility util;
 
-    public String queueOrder(OrderRequest request) {
+    @Autowired
+    private JwtUtils jwtUtils;
+
+    public String queueOrder(OrderRequest request, String auth) {
         int count = request.getOrders();
         List<TransactionSequence> transactionSequences = new ArrayList<>();
         CoffeeOrder order = new CoffeeOrder();
-        order.setCustomerId(request.getCustomerId());
+
+        Optional<Claims> claims = Optional.ofNullable(jwtUtils.verify(auth));
+        String customerId = claims.map(claim -> (String) claim.get("emailId"))
+                .orElseThrow(()->new IllegalArgumentException("Customer detail not associated with order"));
+        order.setCustomerId(customerId);
+
         order.setStatus(Status.PENDING);
         order.setOrderCreatedDate(new Date());
         for (int i = 0; i < count; i++) {
@@ -94,6 +104,8 @@ public class ProcessService {
                 headers.set("Authorization", appToken);
                 HttpEntity<TransactionRequest> requestEntity = new HttpEntity<TransactionRequest>(inputRequest, headers);
 
+                //TODO Kafka - send to Grinder, Espresso, Steam queues, remove rest calls
+                //TODO create separate microservices for below resources, which acts as kafka consumers
                 ResponseEntity<Grounds> groundsResponse = restTemplate.postForEntity(host + "machine/grind", requestEntity, Grounds.class);
                 ResponseEntity<Coffee> espressoResponse = restTemplate.postForEntity(host + "machine/espresso", requestEntity, Coffee.class);
                 ResponseEntity<SteamedMilk> steamedResponse = restTemplate.postForEntity(host + "machine/steam", requestEntity, SteamedMilk.class);

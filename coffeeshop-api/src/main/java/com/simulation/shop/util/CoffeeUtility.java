@@ -39,6 +39,7 @@ public class CoffeeUtility {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CoffeeUtility.class);
 
+    //TODO get these values from properties file
     public String generateAppToken(){
         User user = new User();
         user.setId(101L);

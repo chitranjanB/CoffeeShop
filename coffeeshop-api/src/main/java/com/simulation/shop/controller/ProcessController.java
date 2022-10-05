@@ -28,7 +28,7 @@ public class ProcessController {
 
     @PostMapping
     public List<TransactionStatus> process(@RequestHeader(value = HttpHeaders.AUTHORIZATION, defaultValue = "") String auth, @RequestBody OrderRequest request) {
-        String orderId = service.queueOrder(request);
+        String orderId = service.queueOrder(request, auth);
         List<TransactionStatus> transactionStatusList = service.processOrder(orderId);
         service.archiveOrder(orderId);
         return transactionStatusList;
