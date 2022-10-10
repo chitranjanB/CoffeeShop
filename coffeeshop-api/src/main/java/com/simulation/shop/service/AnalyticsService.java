@@ -2,10 +2,7 @@ package com.simulation.shop.service;
 
 import com.coffee.shared.entity.AuditLog;
 import com.coffee.shared.entity.StepTransactionId;
-import com.coffee.shared.model.AnalyticsTimeline;
-import com.coffee.shared.model.MachineBenchmark;
-import com.coffee.shared.model.Step;
-import com.coffee.shared.model.TimelineData;
+import com.coffee.shared.model.*;
 import com.simulation.shop.repository.AuditLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;

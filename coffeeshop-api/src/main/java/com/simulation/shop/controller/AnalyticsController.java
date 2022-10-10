@@ -2,8 +2,8 @@ package com.simulation.shop.controller;
 
 import com.coffee.shared.model.AnalyticsTimeline;
 import com.coffee.shared.model.MachineBenchmark;
+import com.coffee.shared.model.OrderTimeline;
 import com.simulation.shop.service.AnalyticsService;
-import com.simulation.shop.service.OrderTimeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

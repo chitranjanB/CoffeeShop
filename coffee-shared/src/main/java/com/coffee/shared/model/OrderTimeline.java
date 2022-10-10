@@ -1,4 +1,4 @@
-package com.simulation.shop.service;
+package com.coffee.shared.model;
 
 import com.coffee.shared.entity.AuditLog;
 
