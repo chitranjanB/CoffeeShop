@@ -8,24 +8,33 @@ app.use(morgan("dev"));
 const PROXY_HOST = "localhost";
 const PROXY_PORT = 80;
 
-const HELLO_MS = "http://localhost:3032/hello";
-const CODIFY_MS = "http://localhost:3031/codify";
-const LINKER_MS = "http://localhost:3033/linker";
+const COFFEESHOP_DASHBOARD_UI = "http://localhost:3000/coffeeshop-dashboard-ui";
+const COFEESHOP_API = "http://localhost:8080/coffeeshop-api";
+const H2_CONSOLE = "http://localhost:8080/coffeeshop-api/h2-console";
 
-[HELLO_MS, CODIFY_MS, LINKER_MS].forEach((target) => {
-  const path = target.substring(target.lastIndexOf("/"));
+const extractPath = (endpoint) => endpoint.substring(endpoint.lastIndexOf("/"));
+
+// log original request and proxied request info
+const logDebugProxy = (proxyRes, req, res) => {
+  const exchange = `[${req.method}] [${proxyRes.statusCode}] ${req.path} -> ${proxyRes.req.protocol}//${proxyRes.req.host}${proxyRes.req.path}`;
+  console.log("exchange => ", exchange); //exchange [GET] [200] / -> http://www.example.com
+};
+
+[COFFEESHOP_DASHBOARD_UI, COFEESHOP_API, H2_CONSOLE].forEach((target) => {
+  const uri = extractPath(target);
   app.use(
-    path,
+    uri,
     createProxyMiddleware({
       target: target,
       changeOrigin: true,
       pathRewrite: {
-        [`^${path}`]: "",
+        [`^${uri}`]: "",
       },
+      onProxyRes: logDebugProxy,
     })
   );
 });
 
-app.listen(PORT, HOST, () => {
+app.listen(PROXY_PORT, PROXY_HOST, () => {
   console.log(`coffeeshop-node-proxy running at ${PROXY_HOST}:${PROXY_PORT}`);
 });
