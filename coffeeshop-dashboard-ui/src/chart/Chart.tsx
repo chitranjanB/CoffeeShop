@@ -113,7 +113,7 @@ const Chart = () => {
 
   const fetchAuthToken = () => {
     axios
-      .post('http://localhost:8080/auth/authenticate', {
+      .post('/coffeeshop-api/auth/authenticate', {
         emailId: 'app@coffeeshop.com',
         password: 'DUMMY',
       })
@@ -129,7 +129,7 @@ const Chart = () => {
 
   const fetchAnalyticsCallback = useCallback(() => {
     axios
-      .post('http://localhost:8080/analytics/system-benchmark', {}, config)
+      .post('/coffeeshop-api/analytics/system-benchmark', {}, config)
       .then((res) => {
         const response: AnalyticsResponseT[] = res.data
 

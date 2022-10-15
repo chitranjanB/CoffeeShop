@@ -78,7 +78,7 @@ export default function OrderTimeline() {
 
   const fetchAuthToken = () => {
     axios
-      .post('http://localhost:8080/auth/authenticate', {
+      .post('/coffeeshop-api/auth/authenticate', {
         emailId: 'app@coffeeshop.com',
         password: 'DUMMY',
       })
@@ -94,7 +94,7 @@ export default function OrderTimeline() {
 
   const collectCoffee = () => {
     axios({
-      url: `http://localhost:8080/process/collect?transactionId=${activeTransaction}`,
+      url: `/coffeeshop-api/process/collect?transactionId=${activeTransaction}`,
       headers: config.headers,
       method: 'POST',
       responseType: 'blob',
@@ -112,7 +112,7 @@ export default function OrderTimeline() {
 
   const fetchOrderIdsCallback = useCallback(() => {
     axios
-      .get('http://localhost:8080/orders/all/ids', config)
+      .get('/coffeeshop-api/orders/all/ids', config)
       .then((res) => {
         setOrders(res.data)
       })
@@ -124,7 +124,7 @@ export default function OrderTimeline() {
 
   const fetchTransactionsByOrderId = (orderId: string) => {
     axios
-      .get(`http://localhost:8080/orders/order?orderId=${orderId}`, config)
+      .get(`/coffeeshop-api/orders/order?orderId=${orderId}`, config)
       .then((res) => {
         const order: OrderType = res.data
         setTransactions(order.transactions.map((t) => t.transactionId))
@@ -138,7 +138,7 @@ export default function OrderTimeline() {
     if (activeTransaction) {
       axios
         .get(
-          `http://localhost:8080/analytics/timeline?transactionId=${activeTransaction}`,
+          `/coffeeshop-api/analytics/timeline?transactionId=${activeTransaction}`,
           config
         )
         .then((res) => {

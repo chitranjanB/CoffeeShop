@@ -70,7 +70,7 @@ function Layout() {
 
   const fetchAuthToken = () => {
     axios
-      .post('http://localhost:8080/auth/authenticate', {
+      .post('/coffeeshop-api/auth/authenticate', {
         emailId: 'app@coffeeshop.com',
         password: 'DUMMY',
       })
@@ -87,7 +87,7 @@ function Layout() {
   const fetchHealthCallback = useCallback(() => {
     setHealthLoading(true)
     axios
-      .get('http://localhost:8080/actuator/health')
+      .get('/coffeeshop-api/actuator/health')
       .then((res) => {
         setHealthStatus(res.data.status)
       })
@@ -100,7 +100,7 @@ function Layout() {
   const fetchOrdersPendingCallback = useCallback(() => {
     setOrdersPendingLoading(true)
     axios
-      .get('http://localhost:8080/orders?status=PENDING', config)
+      .get('/coffeeshop-api/orders?status=PENDING', config)
       .then((res) => {
         setOrdersPending(res.data.length)
       })
@@ -113,7 +113,7 @@ function Layout() {
   const fetchOrdersCompletedCallback = useCallback(() => {
     setOrdersCompletedLoading(true)
     axios
-      .get('http://localhost:8080/orders?status=COMPLETE', config)
+      .get('/coffeeshop-api/orders?status=COMPLETE', config)
       .then((res) => {
         setOrdersCompleted(res.data.length)
       })
@@ -126,7 +126,7 @@ function Layout() {
   const fetchOrdersFailedCallback = useCallback(() => {
     setOrdersFailedLoading(true)
     axios
-      .get('http://localhost:8080/orders?status=ERROR', config)
+      .get('/coffeeshop-api/orders?status=ERROR', config)
       .then((res) => {
         setOrdersFailed(res.data.length)
       })
@@ -139,7 +139,7 @@ function Layout() {
   const fetchBeanStockCallback = useCallback(() => {
     setBeansStockLoading(true)
     axios
-      .get('http://localhost:8080/stock/beans', config)
+      .get('/coffeeshop-api/stock/beans', config)
       .then((res) => {
         setBeansStock(res.data)
       })
@@ -152,7 +152,7 @@ function Layout() {
   const fetchMilkStockCallback = useCallback(() => {
     setMilkStockLoading(true)
     axios
-      .get('http://localhost:8080/stock/milk', config)
+      .get('/coffeeshop-api/stock/milk', config)
       .then((res) => {
         setMilkStock(res.data)
       })

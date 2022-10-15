@@ -35,7 +35,7 @@ const Kiosk = () => {
 
   const fetchAuthToken = () => {
     axios
-      .post('http://localhost:8080/auth/authenticate', {
+      .post('/coffeeshop-api/auth/authenticate', {
         emailId: 'app@coffeeshop.com',
         password: 'DUMMY',
       })
@@ -54,7 +54,7 @@ const Kiosk = () => {
     setIsLoading(true)
     const order = { customerId: customerName, orders: orderQty }
     axios
-      .post('http://localhost:8080/process', order, config)
+      .post('/coffeeshop-api/process', order, config)
       .then((res) => {
         setIsSubmitted(true)
       })

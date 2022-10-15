@@ -35,7 +35,7 @@ const MachineChart = () => {
 
   const fetchAuthToken = () => {
     axios
-      .post('http://localhost:8080/auth/authenticate', {
+      .post('/coffeeshop-api/auth/authenticate', {
         emailId: 'app@coffeeshop.com',
         password: 'DUMMY',
       })
@@ -51,7 +51,7 @@ const MachineChart = () => {
 
   const fetchMachineEfficiencyCallback = useCallback(() => {
     axios
-      .get('http://localhost:8080/analytics/machine-efficiency', config)
+      .get('/coffeeshop-api/analytics/machine-efficiency', config)
       .then((res) => {
         setData(res.data)
       })
