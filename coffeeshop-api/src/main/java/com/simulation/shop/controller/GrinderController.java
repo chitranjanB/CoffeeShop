@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/machine")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class GrinderController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GrinderController.class);

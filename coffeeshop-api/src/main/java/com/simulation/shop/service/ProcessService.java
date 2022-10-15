@@ -97,7 +97,7 @@ public class ProcessService {
 
             TransactionStatus transactionStatus = new TransactionStatus(transactionSequence.getTransactionId());
             try {
-                String host = "http://localhost:8080/";
+                String host = "http://localhost/coffeeshop-api/";
                 String appToken = util.generateAppToken();
 
                 HttpHeaders headers = new HttpHeaders();
