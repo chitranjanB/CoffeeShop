@@ -9,13 +9,15 @@ public class LoggingConsoleLayout extends LayoutBase<ILoggingEvent> {
     @Override
     public String doLayout(ILoggingEvent event) {
         StringBuffer sbuf = new StringBuffer(128);
-        sbuf.append("-- ");
-        sbuf.append("[");
+        sbuf.append(event.getTimeStamp() - event.getLoggerContextVO().getBirthTime());
+        sbuf.append(" ");
         sbuf.append(event.getLevel());
-        sbuf.append("]");
+        sbuf.append(" [");
+        sbuf.append(event.getThreadName());
+        sbuf.append("] ");
         sbuf.append(event.getLoggerName());
         sbuf.append(" - ");
-        sbuf.append(event.getFormattedMessage().replaceAll("\n", "\n\t"));
+        sbuf.append(event.getFormattedMessage());
         sbuf.append(CoreConstants.LINE_SEPARATOR);
         return sbuf.toString();
     }
