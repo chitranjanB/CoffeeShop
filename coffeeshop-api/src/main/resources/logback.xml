@@ -2,7 +2,10 @@
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-            <layout class="com.simulation.shop.config.LoggingConsoleLayout" />
+            <layout class="com.simulation.shop.config.LoggingConsoleLayout" >
+                <prefix>CoffeeShopApplication</prefix>
+                <printThreadName>true</printThreadName>
+            </layout>
         </encoder>
     </appender>
 
